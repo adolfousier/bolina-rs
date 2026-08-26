@@ -1,0 +1,14 @@
+[package]
+name = "bolina"
+version = "0.1.0"
+edition = "2021"
+description = "Bolina protocol head - Rust reference candidate (D-096-A)"
+
+# Zig ReleaseSafe parity: arithmetic keeps bounds/overflow checks ON in release.
+# Panic = bug, same contract the Zig head ships.
+[profile.release]
+debug-assertions = true
+overflow-checks = true
+
+[dependencies]
+# W1 adds D-096-A pinned crates here (dalek family + RustCrypto), lockfile committed.

@@ -1,0 +1,1 @@
+//! daemon head (W5).
