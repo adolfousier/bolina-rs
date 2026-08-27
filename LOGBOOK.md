@@ -21,3 +21,4 @@ Signal only. Full context lives in the linked decision entries.
 | 2026-08-28 | stage2 | specs/control.md (15/42) primeira pesada do novo ritmo: âncoras reais greppadas (timeout 5000, guard 1024, 8 testes nomeados); resposta ao Adolfo reancorou estimativa para horas-trabalho em vez de cadência de rajadas
 | 2026-08-27 01:12 | calib | wall-clock calibration per Adolfo method: T0=W0 21:24Z, elapsed 3h44; 15/42 sheets; 4.0/h raw vs 5.9/h working; corpus ETA 05:45-08:00Z |
 | 2026-08-28 | stage2 | specs/verify.md (16/42): authority core; check-order ladder pinned as contract; F13 binding + scope-v3 gate inherited from F15 | non-stop mode per Adolfo
+| 2026-08-28 | stage2 | specs: ledger + evidence + historical fold (28/42); equivocation-before-capacity ORDER pinned as kill-proof; evidence ceilings kept integer-only (242/216/191/165), unknown method_id degrades not errors; G1 reviewer verification (vrondelli conflict found) deferred by Daniel "depois vemos"
