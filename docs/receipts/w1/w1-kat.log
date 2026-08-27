@@ -1,0 +1,34 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running unittests src/lib.rs (target/debug/deps/bolina-ed9f030a10532bb0)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/kat.rs (target/debug/deps/kat-4640a3f677d3372e)
+
+running 6 tests
+test rfc8439_chacha20poly1305_aead ... ok
+test rfc7693_blake2s_256_of_abc ... ok
+test blake2s_digest_truncation_first8_is_fingerprint_shape ... ok
+test rfc7748_x25519_base_point_public ... ok
+test rfc7748_x25519_diffie_hellman ... ok
+test rfc8032_ed25519_sign_verify ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/smoke.rs (target/debug/deps/smoke-0bf8f14cbe8934fd)
+
+running 1 test
+test workspace_is_alive ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests bolina
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+[lastro] exit-status=0

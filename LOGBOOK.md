@@ -24,3 +24,4 @@ Signal only. Full context lives in the linked decision entries.
 | 2026-08-28 | stage2 | specs: ledger + evidence + historical fold (28/42); equivocation-before-capacity ORDER pinned as kill-proof; evidence ceilings kept integer-only (242/216/191/165), unknown method_id degrades not errors; G1 reviewer verification (vrondelli conflict found) deferred by Daniel "depois vemos"
 | 2026-08-28 | stage2 | specs: control_api + daemon (30/42); anti-god-mode surface pinned, 4.1a index-consume rule elevated to mandatory Rust integration pin (the e4fd0d4 lesson)
 | 2026-08-28 | plan+stage2 | plantool: 8-wave plan Active (W1..soak); task9 corpus CLOSED - parser/ca_cli/main + exclusion ledger |
+| 2026-08-27 | w1-gate | \`34272ae\`: crypto pinned + 6 RFC KATs green; first lastro receipt issued+VERIFIED (docs/receipts/w1/). Measured ETA for remaining waves logged in reply to Daniel. |
