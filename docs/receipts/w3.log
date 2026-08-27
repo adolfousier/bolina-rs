@@ -1,0 +1,39 @@
+warning: unused import: `bolina::state::*`
+ --> tests/state.rs:6:5
+  |
+6 | use bolina::state::*;
+  |     ^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `bolina` (test "state") generated 1 warning (run `cargo fix --test "state" -p bolina` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.03s
+     Running tests/state.rs (target/debug/deps/state-4df944c7d00a2f59)
+
+running 21 tests
+test executing_still_holds_the_resource ... ok
+test fresh_table_holds_nothing_be_grant_04 ... ok
+test duplicate_intent_id_refused_be_grant_06b ... ok
+test match_for_grant_returns_the_one_pending ... ok
+test matched_refusal_rejects_unmatched_dropped_be_grant_09 ... ok
+test md4_churn_never_exhausts_the_table ... ok
+test rejected_cannot_reenter_executing_be_grant_10 ... ok
+test first_receipt_survives_restart_first_wins_t10_f4 ... ok
+test flock_second_open_locked_close_releases_t9_md3 ... ok
+test second_intent_on_held_resource_refused_be_grant_06 ... ok
+test t_pending_expiry_releases_lock_and_slot_be_grant_06a ... ok
+test commit_visible_on_read_back_t1 ... ok
+test read_only_handle_refuses_mutators_md3 ... ok
+test idempotent_commit_t7 ... ok
+test crash_during_prune_stale_temp_cleaned_t8 ... ok
+test prune_drops_only_expired_t5 ... ok
+test torn_trailing_record_discarded_cleanly_t6 ... ok
+test orphan_reemits_exactly_once_t3_be_grant_01a ... ok
+test restart_replays_exact_state_t2 ... ok
+test record_format_bytes_exact ... ok
+test revocations_persist_never_pruned_t4_be_rev_02 ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+
+[lastro] exit-status=0
