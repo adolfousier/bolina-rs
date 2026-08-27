@@ -6,7 +6,7 @@
 //! review); bytes are built explicitly field-by-field (no struct-to-bytes);
 //! every module lands WITH its stage-2 contract sheet first.
 #![deny(warnings)]
-#![forbid(unsafe_code)]
+#![deny(unsafe_code)] // ffi seam is the single opted-out module (state/ffi.rs)
 
 /// RFC KAT suite target (W1). D-096-A: audited crates, versions pinned.
 pub mod crypto;

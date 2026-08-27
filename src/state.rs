@@ -1,1 +1,0 @@
-//! state head (W3).
