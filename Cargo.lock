@@ -45,8 +45,10 @@ dependencies = [
  "ed25519-dalek",
  "hex",
  "hex-literal",
+ "rand_core",
  "serde",
  "serde_json",
+ "subtle",
  "x25519-dalek",
 ]
 

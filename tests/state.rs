@@ -3,7 +3,6 @@
 
 use bolina::state::intent::*;
 use bolina::state::ledger::*;
-use bolina::state::*;
 
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicUsize, Ordering};
