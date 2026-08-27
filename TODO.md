@@ -28,3 +28,7 @@ No sheet, no wave. After each batch: push, tick LOGBOOK.
 3. Bytes are built field-by-field; no transmute/as_bytes of protocol structs (E2).
 4. No async runtime (tokio et al) until post-swap review (E4); mirror the single-threaded poll design.
 5. Every gate crossed gets a lastro receipt where feasible and one LOGBOOK line (signal, no noise).
+
+## Corpus CLOSED (33 sheets, 2026-08-27)
+
+Sheets done: all production modules; EXCLUDED deliberately (not sheets): `*_test.zig` (become the named Rust test suites per sheet), `cert_test_helpers.zig`, fuzz roots, `gen_vectors`. Counter claim of "42" counted test files; REAL production targets = 34.
