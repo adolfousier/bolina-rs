@@ -5,7 +5,7 @@ Citations pull `file_read` back to `~/srv/rs/bolina` (original Zig tree) while i
 
 ## NOW
 
-Build stage-2 contract sheets into specs/ (next-smallest-first). DONE 28/42: render, handshake, token, historical, replay, http_parse, mac, listener, relay_store, noise, grant_ledger, dispatch, dag, grant_trace, reassembly, relay_serve, sync, keys, binding, resolver, relay, ca_material, session, intent, verify, control, ledger, evidence. REMAINING (13): channel+parser remainder split, session_parser details, evidence_record, fuzz harness map, gen_vectors, mutators map, main/build wiring notes, keepalive refs, exclusion-list finalization (test helpers), README waves cross-check, TODO closeout.
+Build stage-2 contract sheets into specs/ (next-smallest-first). DONE 30/42: render, handshake, token, historical, replay, http_parse, mac, listener, relay_store, noise, grant_ledger, dispatch, dag, grant_trace, reassembly, relay_serve, sync, keys, binding, resolver, relay, ca_material, session, intent, verify, control, ledger, evidence. REMAINING (13): channel+parser remainder split, session_parser details, evidence_record, fuzz harness map, gen_vectors, mutators map, main/build wiring notes, keepalive refs, exclusion-list finalization (test helpers), README waves cross-check, TODO closeout.
 Sheet standard set by specs/render.md: public signatures, error set, invariants w/ BE-* links,
 test-semantics checklist as future asserts, file:line citations only (never "the spec in general").
 No sheet, no wave. After each batch: push, tick LOGBOOK.

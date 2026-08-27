@@ -22,3 +22,4 @@ Signal only. Full context lives in the linked decision entries.
 | 2026-08-27 01:12 | calib | wall-clock calibration per Adolfo method: T0=W0 21:24Z, elapsed 3h44; 15/42 sheets; 4.0/h raw vs 5.9/h working; corpus ETA 05:45-08:00Z |
 | 2026-08-28 | stage2 | specs/verify.md (16/42): authority core; check-order ladder pinned as contract; F13 binding + scope-v3 gate inherited from F15 | non-stop mode per Adolfo
 | 2026-08-28 | stage2 | specs: ledger + evidence + historical fold (28/42); equivocation-before-capacity ORDER pinned as kill-proof; evidence ceilings kept integer-only (242/216/191/165), unknown method_id degrades not errors; G1 reviewer verification (vrondelli conflict found) deferred by Daniel "depois vemos"
+| 2026-08-28 | stage2 | specs: control_api + daemon (30/42); anti-god-mode surface pinned, 4.1a index-consume rule elevated to mandatory Rust integration pin (the e4fd0d4 lesson)
