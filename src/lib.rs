@@ -25,3 +25,4 @@ pub mod daemon;
 
 /// CA CLI + node key material, cross-verified with the Zig verifier (W6).
 pub mod ca;
+pub mod control;
