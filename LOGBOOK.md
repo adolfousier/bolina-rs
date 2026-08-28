@@ -34,3 +34,5 @@ Signal only. Full context lives in the linked decision entries.
 | 2026-08-28 | W4 | Noise_IK pre-message fix: Zig Initiator/Responder.init mix the responder static into h (IK pre-message); the port did a bare SymmetricState::init. Rust-Rust roundtrips passed (symmetry trap), every KAT passed (primitives only), the live daemon dropped message 1. Caught by the G2 ladder. Also: transport AEAD AAD is the 16-byte packet header (Session.seal parity), and the envelope wire carries tbs||sig with NO domain-tag byte (tag lives in the signed message only). Live interop vs the Zig daemon: A handshake / B mutual binding clock-free / C intent admitted -> pending. |
 
 | 2026-08-28 | W5 | session.rs (224 linhas) + 12 testes nomeados portados de session_test.zig (13 no Zig, 12 aqui porque BE_TR_05 keepalive está no frame test). Replay window sliding, rekey triggers, zeroization, session table 512 slots. E0502 borrow fix: header temporário em vez de slice do mesmo buffer. |
+
+| 2026-08-28 | W5 | relay.rs (166 linhas) + 16 testes portados de relay_test.zig. MD5 heritage dedup-first insert, prune, forward com skew check. Unused import fix. |
