@@ -228,7 +228,12 @@ pub struct Initiator {
 
 impl Initiator {
     pub fn new(static_kp: KeyPair, responder_static_pub: [u8; DHLEN]) -> Self {
-        Initiator { eph_kp: KeyPair::from_secret([0; 32]), static_kp, re: [0; 32], responder_static_pub, sym: SymmetricState::init() }
+        // Noise IK pre-message: the responder static is mixed into h once at
+        // init (Zig Initiator.init parity). Missing this diverges h from
+        // message 1 onward - invisible to Rust-Rust roundtrips, fatal live.
+        let mut sym = SymmetricState::init();
+        sym.mix_hash(&responder_static_pub);
+        Initiator { eph_kp: KeyPair::from_secret([0; 32]), static_kp, re: [0; 32], responder_static_pub, sym }
     }
 
     /// Write the 144-byte initiation. mac2_cookie is zeros when none is held.
@@ -339,7 +344,10 @@ pub struct InitiationInfo {
 
 impl Responder {
     pub fn new(static_kp: KeyPair) -> Self {
-        Responder { static_kp, eph_kp: KeyPair::from_secret([0; 32]), re: [0; 32], remote_static_pub: [0; 32], sym: SymmetricState::init() }
+        // Pre-message: the responder mixes its OWN static public (IK pattern).
+        let mut sym = SymmetricState::init();
+        sym.mix_hash(&static_kp.public);
+        Responder { static_kp, eph_kp: KeyPair::from_secret([0; 32]), re: [0; 32], remote_static_pub: [0; 32], sym }
     }
 
     /// Read the 144-byte initiation: mac1 FIRST, then e, es, s, ss, timestamp.
