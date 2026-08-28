@@ -1,0 +1,127 @@
+warning: unused variable: `i_sig`
+  --> tests/transport.rs:52:9
+   |
+52 |     let i_sig = sigpub(0xC1);
+   |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_i_sig`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `sig_hex` is never read
+  --> tests/vectors.rs:48:5
+   |
+43 | struct Structure {
+   |        --------- field in this struct
+...
+48 |     sig_hex: Option<String>,
+   |     ^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `expect` is never read
+  --> tests/vectors.rs:64:5
+   |
+61 | struct Negative {
+   |        -------- field in this struct
+...
+64 |     expect: String,
+   |     ^^^^^^
+
+warning: `bolina` (test "transport") generated 1 warning (run `cargo fix --test "transport" -p bolina` to apply 1 suggestion)
+warning: `bolina` (test "vectors") generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running unittests src/lib.rs (target/debug/deps/bolina-0f8550892f79c3c3)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/cross_kat.rs (target/debug/deps/cross_kat-b235ea9d836b1daa)
+
+running 3 tests
+test rfc8439_aead_vector_rust_side ... ok
+test zig_mac1_known_answer ... ok
+test zig_split_known_answer ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/kat.rs (target/debug/deps/kat-3a51e7693391bb4d)
+
+running 6 tests
+test rfc8439_chacha20poly1305_aead ... ok
+test rfc7693_blake2s_256_of_abc ... ok
+test blake2s_digest_truncation_first8_is_fingerprint_shape ... ok
+test rfc7748_x25519_base_point_public ... ok
+test rfc7748_x25519_diffie_hellman ... ok
+test rfc8032_ed25519_sign_verify ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/smoke.rs (target/debug/deps/smoke-d323e61f6663e919)
+
+running 1 test
+test workspace_is_alive ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/state.rs (target/debug/deps/state-86113391342782bf)
+
+running 21 tests
+test fresh_table_holds_nothing_be_grant_04 ... ok
+test executing_still_holds_the_resource ... ok
+test duplicate_intent_id_refused_be_grant_06b ... ok
+test match_for_grant_returns_the_one_pending ... ok
+test matched_refusal_rejects_unmatched_dropped_be_grant_09 ... ok
+test flock_second_open_locked_close_releases_t9_md3 ... ok
+test rejected_cannot_reenter_executing_be_grant_10 ... ok
+test md4_churn_never_exhausts_the_table ... ok
+test first_receipt_survives_restart_first_wins_t10_f4 ... ok
+test second_intent_on_held_resource_refused_be_grant_06 ... ok
+test t_pending_expiry_releases_lock_and_slot_be_grant_06a ... ok
+test commit_visible_on_read_back_t1 ... ok
+test idempotent_commit_t7 ... ok
+test read_only_handle_refuses_mutators_md3 ... ok
+test orphan_reemits_exactly_once_t3_be_grant_01a ... ok
+test torn_trailing_record_discarded_cleanly_t6 ... ok
+test restart_replays_exact_state_t2 ... ok
+test crash_during_prune_stale_temp_cleaned_t8 ... ok
+test prune_drops_only_expired_t5 ... ok
+test record_format_bytes_exact ... ok
+test revocations_persist_never_pruned_t4_be_rev_02 ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running tests/transport.rs (target/debug/deps/transport-6e617e67f09970ad)
+
+running 7 tests
+test transport_nonce_composition_big_endian_everywhere ... ok
+test mac1_matches_zig_construction_with_label ... ok
+test msg1_layout_byte_level_matches_spec_41a ... ok
+test tampered_ciphertext_is_decrypt_failed ... ok
+test msg2_layout_carries_g2_fixed_index_semantics ... ok
+test roundtrip_transcript_and_cross_keys ... ok
+test be_tr_04_mac1_fails_before_any_curve_work ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/vectors.rs (target/debug/deps/vectors-babef70159e71db9)
+
+running 8 tests
+test claim_body_wire_slices_text_subject_confidence_spans ... ok
+test refusal_parses_reencodes_sig_verifies_note_is_informational ... ok
+test effect_envelope_parses_and_verifies_under_envelope_domain ... ok
+test every_negative_rejects ... ok
+test span_parses_reencodes_sig_verifies_fields_pinned ... ok
+test envelope_intent_parses_reencodes_sig_verifies_and_body_slices ... ok
+test grant_parses_reencodes_sig_verifies_and_action_digest_recomputes ... ok
+test cert_parses_reencodes_and_both_ca_sigs_verify ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests bolina
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+[lastro] exit-status=0
