@@ -3,6 +3,7 @@ pub mod mac1;
 pub mod noise;
 pub mod session;
 pub mod relay;
+pub mod reassembly;
 pub use mac1::{compute_mac1, verify_mac1, MAC_BYTES};
 pub use noise::{
     transport_nonce, Error as NoiseError, HandshakeResult, Initiator, InitiationInfo, KeyPair,
