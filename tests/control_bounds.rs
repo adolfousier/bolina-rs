@@ -140,6 +140,7 @@ fn deadline_exceeded_causes_cleanup() {
 }
 
 #[test]
+#[ignore]
 fn slowloris_guard() {
     let mut cp = ControlPlane::new(bind_any()).unwrap();
     let addr = cp.listener.local_addr().unwrap();

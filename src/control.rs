@@ -98,6 +98,7 @@ impl Connection {
                     }
                 }
             }
+            Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {},
             Err(e) => return Err(format!("read: {}", e)),
         }
 
@@ -148,8 +149,8 @@ fn parse_content_length(headers: &[u8]) -> Result<Option<usize>, String> {
 #[allow(dead_code)]
 #[allow(dead_code)]
 pub struct ControlPlane {
-    listener: TcpListener,
-    clients: Vec<Connection>,
+    pub listener: TcpListener,
+    pub clients: Vec<Connection>,
 }
 
 impl ControlPlane {
