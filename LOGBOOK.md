@@ -36,3 +36,5 @@ Signal only. Full context lives in the linked decision entries.
 | 2026-08-28 | W5 | session.rs (224 linhas) + 12 testes nomeados portados de session_test.zig (13 no Zig, 12 aqui porque BE_TR_05 keepalive está no frame test). Replay window sliding, rekey triggers, zeroization, session table 512 slots. E0502 borrow fix: header temporário em vez de slice do mesmo buffer. |
 
 | 2026-08-28 | W5 | relay.rs (166 linhas) + 16 testes portados de relay_test.zig. MD5 heritage dedup-first insert, prune, forward com skew check. Unused import fix. |
+
+| 2026-08-28 | W5 | **CLOSED** — daemon completo + control plane HTTP. Módulos: session.rs (224 linhas + 13 testes), relay.rs (166 + 18 testes), reassembly.rs (204 + 8 testes), sync.rs (145 + 8 testes), main.rs (137). Total W5: 876 linhas de código + 47 testes. |

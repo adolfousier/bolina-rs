@@ -1,3 +1,4 @@
+#![allow(unused_imports)]
 //! W3: intent table + durable grant ledger (see specs/ sheets).
 
 pub mod ffi;
