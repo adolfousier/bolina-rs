@@ -151,3 +151,71 @@ fn limit_constants_are_correct() {
     assert_eq!(MAX_ACTION, 262_144);
     assert_eq!(MAX_RATIONALE, 4_096);
 }
+
+/// Kill mutant: field16 `> max` → `>= max` (line 134)
+/// name with len == MAX_NAME must parse OK; with >=, it would Oversize.
+#[test]
+fn cert_name_at_max_name_boundary() {
+    let name = vec![0x41u8; MAX_NAME]; // exactly 64 bytes
+    let mut ca_sigs = Vec::new();
+    ca_sigs.extend_from_slice(&[3u8; LEN_CA_KEY]);
+    ca_sigs.extend_from_slice(&zero_sig());
+    let c = Cert {
+        version: 3, role_bits: 0x04,
+        sig_pubkey: &[1u8; 32], kex_pubkey: &[2u8; 32],
+        not_before: 1000, not_after: 2000,
+        name: &name, scope_count: 0, scope_ids: &[],
+        ca_sig_count: 1, ca_sigs: &ca_sigs, tbs: &[],
+    };
+    let wire = encode_cert(&c);
+    let result = parse_cert(&wire);
+    assert!(result.is_ok(), "name len == MAX_NAME must succeed, got {:?}", result);
+}
+
+/// Kill mutant: field32 `> max` → `>= max` (line 142, used for body_len)
+/// envelope with body_len == MAX_BODY must parse OK.
+/// We can't allocate 1MB in a test, so test via action field (MAX_ACTION = 256*1024).
+/// Actually body_len uses field32 with MAX_BODY. Let's test with a smaller proxy:
+/// the intent action field uses u32be + take, not field32. 
+/// So we test body_len == MAX_BODY directly with a minimal allocation.
+#[test]
+fn envelope_body_at_max_body_boundary() {
+    // Build envelope wire with body_len = MAX_BODY, body = MAX_BODY bytes
+    // This is ~1MB but it's a single test, acceptable
+    let body = vec![0x42u8; MAX_BODY as usize];
+    let e = Envelope {
+        version: 2, channel_id: &[0u8; LEN_CHANNEL_ID], sender: &zero_pubkey(),
+        seq: 0, parents: &[], parent_count: 0,
+        ts: 0, body_type: 0x02, body: &body, tbs: &[], sig: &zero_sig(),
+    };
+    let wire = encode_envelope(&e);
+    let result = parse_envelope(&wire);
+    assert!(result.is_ok(), "body_len == MAX_BODY must succeed, got {:?}", result);
+}
+
+/// Kill mutant: parse_envelope body_len `> MAX_BODY` → `>= MAX_BODY` (line 251)
+/// Same as above but specifically pins the check at line 251.
+/// The body_at_max_body_boundary test above kills this too.
+
+/// Kill mutant: parse_cert ca_key `<= prev` → `>= prev` (line 417)  
+/// With >=, key1 == key2 would pass (5 >= 5 is true, but the check is inverted)
+/// Actually the check is `ca_key <= prev_key` → error. Mutant `>= prev_key`:
+/// key1=5, key2=10: 10 >= 5 is true → error (WRONG, ascending should pass)
+#[test]
+fn cert_ca_keys_ascending_must_succeed() {
+    let mut key1 = [0u8; LEN_CA_KEY]; key1[0] = 5;
+    let mut key2 = [0u8; LEN_CA_KEY]; key2[0] = 10; // key2 > key1
+    let mut ca_sigs = Vec::new();
+    ca_sigs.extend_from_slice(&key1); ca_sigs.extend_from_slice(&zero_sig());
+    ca_sigs.extend_from_slice(&key2); ca_sigs.extend_from_slice(&zero_sig());
+    let c = Cert {
+        version: 3, role_bits: 0x04,
+        sig_pubkey: &[1u8; 32], kex_pubkey: &[2u8; 32],
+        not_before: 1000, not_after: 2000,
+        name: b"test", scope_count: 0, scope_ids: &[],
+        ca_sig_count: 2, ca_sigs: &ca_sigs, tbs: &[],
+    };
+    let wire = encode_cert(&c);
+    let result = parse_cert(&wire);
+    assert!(result.is_ok(), "ascending CA keys must succeed, got {:?}", result);
+}
