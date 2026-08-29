@@ -107,7 +107,7 @@ impl Daemon {
     }
 
     /// Process one inbound datagram
-    fn handle_datagram(&mut self, pkt: &[u8], src: SocketAddr) {
+    pub fn handle_datagram(&mut self, pkt: &[u8], src: SocketAddr) {
         if pkt.is_empty() {
             return;
         }
