@@ -38,3 +38,10 @@ Signal only. Full context lives in the linked decision entries.
 | 2026-08-28 | W5 | relay.rs (166 linhas) + 16 testes portados de relay_test.zig. MD5 heritage dedup-first insert, prune, forward com skew check. Unused import fix. |
 
 | 2026-08-28 | W5 | **CLOSED** — daemon completo + control plane HTTP. Módulos: session.rs (224 linhas + 13 testes), relay.rs (166 + 18 testes), reassembly.rs (204 + 8 testes), sync.rs (145 + 8 testes), main.rs (137). Total W5: 876 linhas de código + 47 testes. |
+
+## 2026-08-29 — Equivalent mutant: codec.rs:417
+
+`i > 0` → `i >= 0` where `i: usize` (loop index 0..ca_sig_count).
+Since `usize` is unsigned, `i >= 0` is always true — identical behavior to `i > 0`
+for all values. This is a **genuinely equivalent mutant**, not a test gap.
+Documented as such; no test can kill it.

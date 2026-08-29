@@ -219,3 +219,19 @@ fn cert_ca_keys_ascending_must_succeed() {
     let result = parse_cert(&wire);
     assert!(result.is_ok(), "ascending CA keys must succeed, got {:?}", result);
 }
+
+/// Kill mutant: field32 `> max` → `== max` or `>= max` (line 142)
+/// Intent with action len == MAX_ACTION must parse OK.
+#[test]
+fn intent_action_at_max_action_boundary() {
+    let action = vec![0x42u8; MAX_ACTION as usize]; // 256KB
+    let i = Intent {
+        intent_id: &[1u8; LEN_INTENT_ID],
+        resource_id: &[2u8; LEN_INTENT_ID],
+        action: &action,
+        rationale: b"test",
+    };
+    let wire = encode_intent(&i);
+    let result = parse_intent(&wire);
+    assert!(result.is_ok(), "action len == MAX_ACTION must succeed, got {:?}", result);
+}
