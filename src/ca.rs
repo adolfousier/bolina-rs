@@ -101,8 +101,9 @@ pub fn ca_issue(ca_dir: &Path, req: &IssueReq) -> Result<IssueResult> {
     };
 
     // Validate TTL
+    if req.ttl_ms == 0 { return Err(CaError::BadTtl); }
     if role_byte == 0x03 || role_byte == 0x02 {
-        if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {
+    if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {
             return Err(CaError::TtlOverCap);
         }
     }
@@ -168,7 +169,7 @@ pub fn ca_issue(ca_dir: &Path, req: &IssueReq) -> Result<IssueResult> {
     }
 
     // Write cert.bin
-    let issued_dir = ca_dir.join("issued");
+    let issued_dir = ca_dir.join("ca").join("issued");
     fs::create_dir_all(&issued_dir).map_err(|_| CaError::DataDirUnwritable)?;
     let serial_str = std::str::from_utf8(&serial_hex).unwrap();
     let cert_path = issued_dir.join(format!("{}.bin", serial_str));
@@ -180,7 +181,7 @@ pub fn ca_issue(ca_dir: &Path, req: &IssueReq) -> Result<IssueResult> {
 // --- ca list ---
 
 pub fn ca_list(ca_dir: &Path) -> Result<Vec<String>> {
-    let issued_dir = ca_dir.join("issued");
+    let issued_dir = ca_dir.join("ca").join("issued");
     if !issued_dir.exists() {
         return Ok(vec![]);
     }
@@ -198,7 +199,7 @@ pub fn ca_list(ca_dir: &Path) -> Result<Vec<String>> {
 // --- ca show ---
 
 pub fn ca_show(ca_dir: &Path, serial: &str) -> Result<Vec<u8>> {
-    let cert_path = ca_dir.join("issued").join(format!("{}.bin", serial));
+    let cert_path = ca_dir.join("ca").join("issued").join(format!("{}.bin", serial));
     fs::read(&cert_path).map_err(|_| CaError::CertUnreadable)
 }
 
