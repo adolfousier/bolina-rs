@@ -1,0 +1,12 @@
+src/codec.rs:24:40: replace - with +
+src/codec.rs:24:40: replace - with /
+src/codec.rs:27:33: replace * with +
+src/codec.rs:27:33: replace * with /
+src/codec.rs:28:36: replace * with +
+src/codec.rs:28:36: replace * with /
+src/codec.rs:89:25: replace <= with > in Cursor<'a>::need
+src/codec.rs:89:21: replace + with - in Cursor<'a>::need
+src/codec.rs:89:21: replace + with * in Cursor<'a>::need
+src/codec.rs:96:9: replace Cursor<'a>::u8r -> Result<u8, ParseError> with Ok(0)
+src/codec.rs:96:9: replace Cursor<'a>::u8r -> Result<u8, ParseError> with Ok(1)
+src/codec.rs:98:18: replace += with -= in Cursor<'a>::u8r

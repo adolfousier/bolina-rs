@@ -1,5 +1,29 @@
 
-*** baseline
+*** src/main.rs:36:5: replace parse_bind -> Option<SocketAddr> with None
+
+*** mutation diff:
+--- src/main.rs
++++ replace parse_bind -> Option<SocketAddr> with None
+@@ -28,17 +28,17 @@
+ }
+ 
+ fn fatal(msg: &str) -> ! {
+     eprintln!("bolina: fatal: {}", msg);
+     std::process::exit(1);
+ }
+ 
+ fn parse_bind(spec: &str) -> Option<SocketAddr> {
+-    spec.parse().ok()
++    None /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ fn main() {
+     // 1. Env config
+     if env::var("BOLINA_TEST_CA").is_ok() {
+         fatal("BOLINA_TEST_CA is dev-only; test pilots mint their CA in-process");
+     }
+     let bind_spec = env_or("BOLINA_BIND", DEFAULT_BIND);
+
 
 *** /Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo test --no-run --verbose --package=bolina@0.1.0
        Fresh cfg-if v1.0.4
@@ -11,74 +35,93 @@
        Fresh bitflags v2.13.1
        Fresh libc v0.2.189
        Fresh rustc_version v0.4.1
-       Fresh objc2-encode v4.1.0
        Fresh cfg_aliases v0.2.2
+       Fresh objc2-encode v4.1.0
        Fresh rand_core v0.10.1
        Fresh proc-macro2 v1.0.107
        Fresh getrandom v0.2.17
        Fresh objc2 v0.6.4
-       Fresh hashbrown v0.17.1
-       Fresh equivalent v1.0.2
        Fresh winnow v1.0.4
        Fresh option-ext v0.2.0
+       Fresh equivalent v1.0.2
+       Fresh hashbrown v0.17.1
        Fresh quote v1.0.47
        Fresh generic-array v0.14.7
        Fresh rand_core v0.6.4
        Fresh block2 v0.6.2
-       Fresh indexmap v2.14.1
-       Fresh dirs-sys v0.5.0
        Fresh getrandom v0.4.3
        Fresh toml_parser v1.1.3+spec-1.1.0
+       Fresh dirs-sys v0.5.0
+       Fresh indexmap v2.14.1
        Fresh cpufeatures v0.2.17
        Fresh crypto-common v0.1.7
        Fresh syn v2.0.119
        Fresh block-buffer v0.10.4
        Fresh inout v0.1.4
        Fresh opaque-debug v0.3.1
-       Fresh toml_datetime v0.7.0
        Fresh signature v2.2.0
+       Fresh toml_datetime v0.7.0
        Fresh winnow v0.7.15
-       Fresh dirs v6.0.0
        Fresh dispatch2 v0.3.1
+       Fresh nix v0.31.3
        Fresh zeroize_derive v1.5.0
        Fresh digest v0.10.7
        Fresh universal-hash v0.5.1
-       Fresh toml_edit v0.23.4
-       Fresh ed25519 v2.2.3
        Fresh aead v0.5.2
+       Fresh ed25519 v2.2.3
        Fresh syn v1.0.109
-       Fresh nix v0.31.3
+       Fresh toml_edit v0.23.4
+       Fresh dirs v6.0.0
        Fresh chacha20 v0.10.2
        Fresh zeroize v1.9.0
        Fresh sha2 v0.10.9
        Fresh poly1305 v0.8.0
-       Fresh blake2 v0.10.6
-       Fresh rand v0.10.2
-       Fresh ctrlc v3.5.2
        Fresh proc-macro-crate v3.4.0
        Fresh shellexpand v3.1.2
+       Fresh blake2 v0.10.6
+       Fresh rand v0.10.2
        Fresh serde_derive v1.0.219
+       Fresh ctrlc v3.5.2
        Fresh cipher v0.4.4
        Fresh curve25519-dalek v4.1.3
        Fresh errno v0.3.14
-       Fresh ntest_timeout v0.9.5
        Fresh serde v1.0.219
+       Fresh ntest_timeout v0.9.5
        Fresh ntest_test_cases v0.9.5
-       Fresh memchr v2.8.3
-       Fresh ryu v1.0.23
-       Fresh itoa v1.0.18
        Fresh once_cell v1.21.4
+       Fresh ryu v1.0.23
+       Fresh memchr v2.8.3
+       Fresh itoa v1.0.18
        Fresh chacha20 v0.9.1
        Fresh ed25519-dalek v2.1.1
        Fresh x25519-dalek v2.0.1
        Fresh rustix v1.1.4
        Fresh fastrand v2.5.0
        Fresh ntest v0.9.5
-       Fresh hex-literal v0.4.1
        Fresh hex v0.4.3
+       Fresh hex-literal v0.4.1
        Fresh chacha20poly1305 v0.10.1
        Fresh serde_json v1.0.140
        Fresh tempfile v3.27.0
+       Dirty bolina v0.1.0 (/Users/adolfousierstudio/srv/rs/bolina-rs): the file `src/main.rs` has changed (1788110389.143535833s, 7s after last build at 1788110382.774344377s)
+   Compiling bolina v0.1.0 (/Users/adolfousierstudio/srv/rs/bolina-rs)
+     Running `/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/rustc --crate-name bolina --edition=2021 src/main.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 -C split-debuginfo=unpacked --test --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=615ca33acbf68522 -C extra-filename=-073029ad63b04e1c --out-dir /Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps -C incremental=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/incremental -L dependency=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps --extern blake2=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libblake2-5ec05ea99efe1729.rlib --extern bolina=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libbolina-e306afd0537f097b.rlib --extern chacha20poly1305=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libchacha20poly1305-4858c044f422a705.rlib --extern ctrlc=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libctrlc-6713bae015e83882.rlib --extern ed25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libed25519_dalek-fc7a2eec7c6f38d7.rlib --extern hex=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex-d8b113cf0abdd414.rlib --extern hex_literal=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex_literal-6640231492c6cd06.rlib --extern ntest=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libntest-fb8deb70921782e7.rlib --extern rand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand-9427a764d31db7f2.rlib --extern rand_core=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand_core-dc6558177f49617a.rlib --extern serde=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde-aea278c8965ca5ea.rlib --extern serde_json=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde_json-f5983fd46414eda9.rlib --extern shellexpand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libshellexpand-1593339a951b64c2.rlib --extern subtle=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libsubtle-2904b9fb245ece33.rlib --extern tempfile=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libtempfile-67604e1238f1b1e4.rlib --extern x25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libx25519_dalek-b7f18135123f21af.rlib`
+warning: unused import: `std::fs`
+ --> tests/ca.rs:4:5
+  |
+4 | use std::fs;
+  |     ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `i_sig`
+  --> tests/transport.rs:52:9
+   |
+52 |     let i_sig = sigpub(0xC1);
+   |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_i_sig`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
 warning: unused import: `ntest::timeout`
   --> tests/vectors.rs:16:5
    |
@@ -107,6 +150,10 @@ warning: field `expect` is never read
 65 |     expect: String,
    |     ^^^^^^
 
+warning: `bolina` (test "ca") generated 1 warning (run `cargo fix --test "ca" -p bolina` to apply 1 suggestion)
+warning: `bolina` (test "transport") generated 1 warning (run `cargo fix --test "transport" -p bolina` to apply 1 suggestion)
+     Running `/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/rustc --crate-name bolina --edition=2021 src/main.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type bin --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 -C split-debuginfo=unpacked --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=a2c94b95027788f0 -C extra-filename=-586b5ca538423cb4 --out-dir /Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps -C incremental=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/incremental -L dependency=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps --extern blake2=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libblake2-5ec05ea99efe1729.rlib --extern bolina=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libbolina-e306afd0537f097b.rlib --extern chacha20poly1305=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libchacha20poly1305-4858c044f422a705.rlib --extern ctrlc=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libctrlc-6713bae015e83882.rlib --extern ed25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libed25519_dalek-fc7a2eec7c6f38d7.rlib --extern rand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand-9427a764d31db7f2.rlib --extern rand_core=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand_core-dc6558177f49617a.rlib --extern shellexpand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libshellexpand-1593339a951b64c2.rlib --extern subtle=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libsubtle-2904b9fb245ece33.rlib --extern x25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libx25519_dalek-b7f18135123f21af.rlib`
+warning: `bolina` (test "vectors") generated 3 warnings (run `cargo fix --test "vectors" -p bolina` to apply 1 suggestion)
 warning: unused imports: `MAC_BYTES`, `compute_mac1`, and `verify_mac1`
  --> src/transport/mod.rs:8:16
   |
@@ -122,6 +169,14 @@ warning: unused imports: `Error as NoiseError`, `HandshakeResult`, `InitiationIn
    |     ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^  ^^^^^^^^^  ^^^^^^^^^^^^^^  ^^^^^^^
 11 |     Responder, MSG1_BEFORE_MAC1, MSG1_SIZE, MSG2_BEFORE_MAC1, MSG2_SIZE,
    |     ^^^^^^^^^  ^^^^^^^^^^^^^^^^  ^^^^^^^^^  ^^^^^^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused variable: `spec`
+  --> src/main.rs:35:15
+   |
+35 | fn parse_bind(spec: &str) -> Option<SocketAddr> {
+   |               ^^^^ help: if this is intentional, prefix it with an underscore: `_spec`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
 
 warning: constant `DOMAIN_CERT` is never used
   --> src/ca.rs:15:7
@@ -1590,29 +1645,9 @@ warning: multiple associated items are never used
 203 |     pub fn bytes(&self) -> usize { self.bytes }
     |            ^^^^^
 
-warning: unused variable: `i_sig`
-  --> tests/transport.rs:52:9
-   |
-52 |     let i_sig = sigpub(0xC1);
-   |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_i_sig`
-   |
-   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
-
-warning: `bolina` (test "vectors") generated 3 warnings (run `cargo fix --test "vectors" -p bolina` to apply 1 suggestion)
-warning: `bolina` (bin "bolina") generated 192 warnings (run `cargo fix --bin "bolina" -p bolina` to apply 2 suggestions)
-warning: `bolina` (test "transport") generated 1 warning (run `cargo fix --test "transport" -p bolina` to apply 1 suggestion)
-warning: unused import: `std::fs`
- --> tests/ca.rs:4:5
-  |
-4 | use std::fs;
-  |     ^^^^^^^
-  |
-  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
-
-warning: `bolina` (test "ca") generated 1 warning (run `cargo fix --test "ca" -p bolina` to apply 1 suggestion)
-warning: `bolina` (bin "bolina" test) generated 192 warnings (192 duplicates)
-       Fresh bolina v0.1.0 (/Users/adolfousierstudio/srv/rs/bolina-rs)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
+warning: `bolina` (bin "bolina" test) generated 193 warnings (run `cargo fix --bin "bolina" -p bolina --tests` to apply 3 suggestions)
+warning: `bolina` (bin "bolina") generated 193 warnings (193 duplicates)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.86s
   Executable `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/bolina-6b1bcac908454968`
   Executable `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/bolina-073029ad63b04e1c`
   Executable `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/ca-9df14ab421316505`
@@ -1649,71 +1684,71 @@ warning: `bolina` (bin "bolina" test) generated 192 warnings (192 duplicates)
        Fresh objc2-encode v4.1.0
        Fresh cfg_aliases v0.2.2
        Fresh rand_core v0.10.1
-       Fresh equivalent v1.0.2
+       Fresh option-ext v0.2.0
        Fresh proc-macro2 v1.0.107
        Fresh getrandom v0.2.17
        Fresh objc2 v0.6.4
-       Fresh option-ext v0.2.0
-       Fresh hashbrown v0.17.1
        Fresh winnow v1.0.4
+       Fresh hashbrown v0.17.1
+       Fresh equivalent v1.0.2
        Fresh quote v1.0.47
        Fresh generic-array v0.14.7
        Fresh rand_core v0.6.4
        Fresh block2 v0.6.2
        Fresh toml_parser v1.1.3+spec-1.1.0
        Fresh indexmap v2.14.1
-       Fresh dirs-sys v0.5.0
        Fresh getrandom v0.4.3
+       Fresh cpufeatures v0.2.17
        Fresh crypto-common v0.1.7
        Fresh syn v2.0.119
        Fresh block-buffer v0.10.4
        Fresh inout v0.1.4
-       Fresh cpufeatures v0.2.17
-       Fresh winnow v0.7.15
-       Fresh opaque-debug v0.3.1
+       Fresh dirs-sys v0.5.0
        Fresh toml_datetime v0.7.0
        Fresh signature v2.2.0
-       Fresh syn v1.0.109
+       Fresh winnow v0.7.15
+       Fresh opaque-debug v0.3.1
+       Fresh nix v0.31.3
        Fresh dispatch2 v0.3.1
        Fresh zeroize_derive v1.5.0
        Fresh digest v0.10.7
        Fresh universal-hash v0.5.1
-       Fresh toml_edit v0.23.4
-       Fresh ed25519 v2.2.3
        Fresh aead v0.5.2
+       Fresh toml_edit v0.23.4
        Fresh dirs v6.0.0
-       Fresh nix v0.31.3
+       Fresh ed25519 v2.2.3
+       Fresh syn v1.0.109
        Fresh chacha20 v0.10.2
        Fresh zeroize v1.9.0
        Fresh sha2 v0.10.9
        Fresh poly1305 v0.8.0
-       Fresh shellexpand v3.1.2
-       Fresh ctrlc v3.5.2
-       Fresh rand v0.10.2
-       Fresh proc-macro-crate v3.4.0
        Fresh blake2 v0.10.6
+       Fresh rand v0.10.2
+       Fresh shellexpand v3.1.2
+       Fresh proc-macro-crate v3.4.0
+       Fresh ctrlc v3.5.2
        Fresh serde_derive v1.0.219
-       Fresh curve25519-dalek v4.1.3
        Fresh cipher v0.4.4
+       Fresh curve25519-dalek v4.1.3
        Fresh errno v0.3.14
        Fresh serde v1.0.219
        Fresh ntest_timeout v0.9.5
        Fresh ntest_test_cases v0.9.5
-       Fresh ryu v1.0.23
-       Fresh once_cell v1.21.4
        Fresh itoa v1.0.18
+       Fresh once_cell v1.21.4
        Fresh memchr v2.8.3
-       Fresh chacha20 v0.9.1
-       Fresh x25519-dalek v2.0.1
-       Fresh ed25519-dalek v2.1.1
-       Fresh rustix v1.1.4
        Fresh fastrand v2.5.0
+       Fresh chacha20 v0.9.1
+       Fresh ed25519-dalek v2.1.1
+       Fresh x25519-dalek v2.0.1
+       Fresh rustix v1.1.4
+       Fresh ryu v1.0.23
        Fresh ntest v0.9.5
        Fresh hex v0.4.3
        Fresh hex-literal v0.4.1
        Fresh chacha20poly1305 v0.10.1
-       Fresh serde_json v1.0.140
        Fresh tempfile v3.27.0
+       Fresh serde_json v1.0.140
 warning: unused variable: `i_sig`
   --> tests/transport.rs:52:9
    |
@@ -1722,6 +1757,7 @@ warning: unused variable: `i_sig`
    |
    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
 
+warning: `bolina` (test "transport") generated 1 warning (run `cargo fix --test "transport" -p bolina` to apply 1 suggestion)
 warning: unused import: `ntest::timeout`
   --> tests/vectors.rs:16:5
    |
@@ -1750,8 +1786,6 @@ warning: field `expect` is never read
 65 |     expect: String,
    |     ^^^^^^
 
-warning: `bolina` (test "transport") generated 1 warning (run `cargo fix --test "transport" -p bolina` to apply 1 suggestion)
-warning: `bolina` (test "vectors") generated 3 warnings (run `cargo fix --test "vectors" -p bolina` to apply 1 suggestion)
 warning: unused imports: `MAC_BYTES`, `compute_mac1`, and `verify_mac1`
  --> src/transport/mod.rs:8:16
   |
@@ -1767,6 +1801,14 @@ warning: unused imports: `Error as NoiseError`, `HandshakeResult`, `InitiationIn
    |     ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^  ^^^^^^^^^  ^^^^^^^^^^^^^^  ^^^^^^^
 11 |     Responder, MSG1_BEFORE_MAC1, MSG1_SIZE, MSG2_BEFORE_MAC1, MSG2_SIZE,
    |     ^^^^^^^^^  ^^^^^^^^^^^^^^^^  ^^^^^^^^^  ^^^^^^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused variable: `spec`
+  --> src/main.rs:35:15
+   |
+35 | fn parse_bind(spec: &str) -> Option<SocketAddr> {
+   |               ^^^^ help: if this is intentional, prefix it with an underscore: `_spec`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
 
 warning: constant `DOMAIN_CERT` is never used
   --> src/ca.rs:15:7
@@ -3243,8 +3285,9 @@ warning: unused import: `std::fs`
   |
   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
 
-warning: `bolina` (bin "bolina" test) generated 192 warnings (run `cargo fix --bin "bolina" -p bolina --tests` to apply 2 suggestions)
-warning: `bolina` (bin "bolina") generated 192 warnings (192 duplicates)
+warning: `bolina` (test "vectors") generated 3 warnings (run `cargo fix --test "vectors" -p bolina` to apply 1 suggestion)
+warning: `bolina` (bin "bolina") generated 193 warnings (run `cargo fix --bin "bolina" -p bolina` to apply 3 suggestions)
+warning: `bolina` (bin "bolina" test) generated 193 warnings (193 duplicates)
 warning: `bolina` (test "ca") generated 1 warning (run `cargo fix --test "ca" -p bolina` to apply 1 suggestion)
        Fresh bolina v0.1.0 (/Users/adolfousierstudio/srv/rs/bolina-rs)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.06s
@@ -3264,13 +3307,13 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 running 8 tests
 test ca_init_bad_count ... ok
+test ca_init_creates_roots ... ok
 test ca_issue_privileged_ttl_over_cap ... ok
 test ca_issue_bad_role ... ok
-test ca_init_creates_roots ... ok
-test ca_list_returns_serials ... ok
 test ca_show_reads_cert ... ok
 test ca_issue_emits_v3_always ... ok
 test ca_revoke_builds_envelope ... ok
+test ca_list_returns_serials ... ok
 
 test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
@@ -3278,14 +3321,14 @@ test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 running 10 tests
 test ca_init_count_must_be_positive ... ok
-test ca_issue_ttl_positive ... ok
+test ca_issue_role_exact_match ... ok
 test ca_init_creates_structure ... ok
 test ca_issue_requires_valid_role ... ok
-test ca_init_idempotent ... ok
-test ca_issue_role_exact_match ... ok
-test ca_revoke_idempotent ... ok
-test ca_revoke_requires_valid_serial ... ok
+test ca_issue_ttl_positive ... ok
 test ca_issue_succeeds ... ok
+test ca_init_idempotent ... ok
+test ca_revoke_requires_valid_serial ... ok
+test ca_revoke_idempotent ... ok
 test ca_init_count_max_boundary ... ok
 
 test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
@@ -3293,99 +3336,245 @@ test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
      Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/ca_limits-bcd1b19d97c13aeb`
 
 running 6 tests
-test ca_init_over_max_cas_fails ... ok
 test ca_init_with_zero_cas_fails ... ok
+test ca_init_over_max_cas_fails ... ok
 test ca_init_with_one_ca_passes ... ok
 test ca_issue_with_zero_ttl_fails ... ok
 test ca_issue_with_positive_ttl_passes ... ok
 test ca_init_with_max_cas_passes ... ok
 
-test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
      Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/codec_bounds-361697533459d3c2`
 
 running 12 tests
-test cursor_u32be_sequential_reads_independent ... FAILED
-test cert_ca_keys_descending_fails ... FAILED
-test cert_ca_keys_equal_fails ... FAILED
-test cert_ca_keys_ascending_must_succeed ... FAILED
-test cert_name_at_max_name_boundary ... FAILED
-test cert_ca_sig_count_boundary ... FAILED
-test cert_scope_count_boundary ... FAILED
-test envelope_body_len_oversized ... FAILED
-test envelope_parent_count_boundary ... FAILED
-test intent_action_at_max_action_boundary ... ok
+test cert_ca_keys_ascending_must_succeed ... ok
+test cert_ca_keys_equal_fails ... ok
+test cert_ca_keys_descending_fails ... ok
+test cert_ca_sig_count_boundary ... ok
+test cert_name_at_max_name_boundary ... ok
+test cert_scope_count_boundary ... ok
+test cursor_u32be_sequential_reads_independent ... ok
+test envelope_body_len_oversized ... ok
+test envelope_parent_count_boundary ... ok
 test limit_constants_are_correct ... ok
-test envelope_body_at_max_body_boundary ... FAILED
+test intent_action_at_max_action_boundary ... ok
+test envelope_body_at_max_body_boundary ... ok
 
-failures:
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
----- cursor_u32be_sequential_reads_independent stdout ----
+     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/codec_limits-3772441d7982c96b`
 
-thread 'cursor_u32be_sequential_reads_independent' (78105674) panicked at tests/codec_bounds.rs:17:40:
-called `Result::unwrap()` on an `Err` value: Oversize
+running 4 tests
+test envelope_parent_count_over_max_fails ... ok
+test envelope_parent_count_at_max_passes ... ok
+test envelope_body_one_over_max_fails ... ok
+test envelope_body_at_exact_max_passes ... ok
 
----- cert_ca_keys_descending_fails stdout ----
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-thread 'cert_ca_keys_descending_fails' (78105669) panicked at tests/codec_bounds.rs:143:5:
-descending CA keys must fail, got Err(Oversize)
+     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/control_bounds-8d025a334ba0a121`
 
----- cert_ca_keys_equal_fails stdout ----
+running 8 tests
+test all_status_codes_format_correctly ... ignored, timing issue - needs server deadline tuning
+test slowloris_guard ... ignored, timing issue - needs server deadline tuning
+test deadline_exceeded_causes_cleanup ... ok
+test content_length_parsed ... ok
+test no_content_length_goes_to_writing ... ok
+test write_response_sets_closing ... ok
+test table_full_returns_503 ... ok
+test healthz_roundtrip ... ok
 
-thread 'cert_ca_keys_equal_fails' (78105670) panicked at tests/codec_bounds.rs:123:5:
-equal CA keys must fail, got Err(Oversize)
+test result: ok. 6 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 3.11s
 
----- cert_ca_keys_ascending_must_succeed stdout ----
+     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/cross_kat-b75fc3958780a59e`
 
-thread 'cert_ca_keys_ascending_must_succeed' (78105668) panicked at tests/codec_bounds.rs:220:5:
-ascending CA keys must succeed, got Err(Oversize)
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+running 3 tests
+test rfc8439_aead_vector_rust_side ... ok
+test zig_mac1_known_answer ... ok
+test zig_split_known_answer ... ok
 
----- cert_name_at_max_name_boundary stdout ----
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-thread 'cert_name_at_max_name_boundary' (78105672) panicked at tests/codec_bounds.rs:172:5:
-name len == MAX_NAME must succeed, got Err(Oversize)
+     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/daemon_bounds-224934f24ad17a83`
 
----- cert_ca_sig_count_boundary stdout ----
+running 11 tests
+test empty_datagram_is_silent_drop ... ok
+test relay_types_5_6_are_dropped ... ok
+test session_table_empty_lookup_returns_none ... ok
+test handshake_short_packet_is_dropped ... ok
+test handshake_exact_144_with_bad_mac1_is_dropped ... ok
+test single_byte_datagram_is_handled ... ok
+test shutdown_handler_is_idempotent ... ok
+test transport_no_session_is_dropped ... ok
+test transport_receiver_index_u32_max ... ok
+test transport_short_packet_is_dropped ... ok
+test unknown_msg_type_is_silent_drop ... ok
 
-thread 'cert_ca_sig_count_boundary' (78105671) panicked at tests/codec_bounds.rs:97:5:
-ca_sig_count == MAX_CA_SIGS must succeed, got Err(Oversize)
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
----- cert_scope_count_boundary stdout ----
+     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/daemon_limits-9eda88e66224417a`
 
-thread 'cert_scope_count_boundary' (78105673) panicked at tests/codec_bounds.rs:83:5:
-scope_count == MAX_SCOPE must succeed, got Err(Oversize)
+running 6 tests
+test handle_datagram_ignores_unknown_type ... ok
+test handle_datagram_ignores_zero_length ... ok
+test session_table_sessions_starts_at_zero ... ok
+test session_table_lookup_returns_none_for_unknown ... ok
+test handle_handshake_ignores_short_msg ... ok
+test handle_transport_ignores_short_msg ... ok
 
----- envelope_body_len_oversized stdout ----
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-thread 'envelope_body_len_oversized' (78105676) panicked at tests/codec_bounds.rs:38:5:
-body_len MAX_BODY+1 must fail, got Err(Truncated)
+     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/kat-b2b35e3d52ca9928`
 
----- envelope_parent_count_boundary stdout ----
+running 6 tests
+test rfc7693_blake2s_256_of_abc ... ok
+test blake2s_digest_truncation_first8_is_fingerprint_shape ... ok
+test rfc8439_chacha20poly1305_aead ... ok
+test rfc7748_x25519_diffie_hellman ... ok
+test rfc7748_x25519_base_point_public ... ok
+test rfc8032_ed25519_sign_verify ... ok
 
-thread 'envelope_parent_count_boundary' (78105677) panicked at tests/codec_bounds.rs:51:5:
-parent_count == MAX_PARENTS must succeed
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
----- envelope_body_at_max_body_boundary stdout ----
+     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/reassembly-d360d1cfea2a805d`
 
-thread 'envelope_body_at_max_body_boundary' (78105675) panicked at tests/codec_bounds.rs:193:5:
-body_len == MAX_BODY must succeed, got Err(TrailingBytes)
+running 8 tests
+test be_tr_05_out_of_order_fragments_reassemble ... ok
+test duplicate_fragment_counted_once_changes_nothing ... ok
+test fragments_delivered_in_reverse_complete_on_last ... ok
+test incomplete_context_older_than_30s_evicted ... ok
+test exceeding_memory_budget_drops_message_not_session ... ok
+test exceeding_context_limit_drops_new_message_not_session ... ok
+test node_capacity_memory_gate ... ok
+test node_capacity_admits_sessions_up_to_ceiling ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/relay-d027a1e89e1f5aea`
+
+running 18 tests
+test be_mesh_02_forward_packet_stale_route ... ok
+test be_mesh_02_forward_packet_returns_packet_unchanged ... ok
+test be_mesh_02_parse_relay_registration_happy ... ok
+test be_mesh_02_parse_relay_registration_expiry_too_long ... ok
+test be_mesh_02_parse_relay_registration_non_zero_reserved ... ok
+test be_mesh_02_parse_relay_registration_trailing_bytes ... ok
+test be_mesh_02_forward_packet_unknown_recipient ... ok
+test be_mesh_02_parse_relay_registration_truncated ... ok
+test be_mesh_02_parse_relay_registration_wrong_type ... ok
+test be_mesh_02_parse_relay_route_happy ... ok
+test be_mesh_02_parse_relay_route_non_zero_reserved ... ok
+test be_mesh_02_parse_relay_route_trailing_bytes ... ok
+test be_mesh_02_parse_relay_route_truncated ... ok
+test be_mesh_02_parse_relay_route_wrong_type ... ok
+test be_mesh_02_relay_table_insert_and_lookup ... ok
+test be_mesh_02_relay_table_prunes_expired ... ok
+test md5_re_registration_refreshes_in_place ... ok
+test be_mesh_02_relay_table_rejects_insert_when_full ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/session-73c9f90c6a92eb6c`
+
+running 13 tests
+test be_tr_02_rekey_due_at_120s_not_before ... ok
+test be_tr_02_rekey_rotation_zeroes_old_state ... ok
+test be_tr_02_zeroization_wipes_key_material ... ok
+test be_tr_02_seal_refuses_at_2_48_bound ... ok
+test be_tr_03_counter_below_window_floor_refused ... ok
+test be_tr_06_transport_failure_surfaces_as_error ... ok
+test replay_window_edge_cases ... ok
+test be_tr_05_session_ceiling_refuses_without_degrading ... ok
+test lookup_rejects_stale_or_out_of_range ... ok
+test be_tr_03_reordered_open_and_replay_refused ... ok
+test release_zeroes_whole_slot ... ok
+test tampered_payload_fails_aead_tag ... ok
+test transport_frame_layout_spec_4_1a ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/smoke-d0f4cc6aa77caef6`
+
+running 1 test
+test workspace_is_alive ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/state-cbde52f7e35ba970`
+
+running 21 tests
+test duplicate_intent_id_refused_be_grant_06b ... ok
+test executing_still_holds_the_resource ... ok
+test fresh_table_holds_nothing_be_grant_04 ... ok
+test match_for_grant_returns_the_one_pending ... ok
+test matched_refusal_rejects_unmatched_dropped_be_grant_09 ... ok
+test md4_churn_never_exhausts_the_table ... ok
+test commit_visible_on_read_back_t1 ... ok
+test first_receipt_survives_restart_first_wins_t10_f4 ... ok
+test rejected_cannot_reenter_executing_be_grant_10 ... ok
+test second_intent_on_held_resource_refused_be_grant_06 ... ok
+test t_pending_expiry_releases_lock_and_slot_be_grant_06a ... ok
+test flock_second_open_locked_close_releases_t9_md3 ... ok
+test idempotent_commit_t7 ... ok
+test read_only_handle_refuses_mutators_md3 ... ok
+test torn_trailing_record_discarded_cleanly_t6 ... ok
+test orphan_reemits_exactly_once_t3_be_grant_01a ... ok
+test crash_during_prune_stale_temp_cleaned_t8 ... ok
+test restart_replays_exact_state_t2 ... ok
+test record_format_bytes_exact ... ok
+test prune_drops_only_expired_t5 ... ok
+test revocations_persist_never_pruned_t4_be_rev_02 ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/sync-66fe2b22ba0e6bda`
+
+running 8 tests
+test rate_window_admit_within_budget ... ok
+test rate_window_slides_by_time ... ok
+test rate_table_admit_known_peer ... ok
+test build_response_appends_envelopes ... ok
+test rate_table_full_refuses_new_peer ... ok
+test build_response_empty ... ok
+test build_response_skips_have_hashes ... ok
+test build_response_truncates_at_envelope_ceiling ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/transport-1d8c8e0faa3c5c12`
+
+running 7 tests
+test mac1_matches_zig_construction_with_label ... ok
+test transport_nonce_composition_big_endian_everywhere ... ok
+test msg1_layout_byte_level_matches_spec_41a ... ok
+test tampered_ciphertext_is_decrypt_failed ... ok
+test msg2_layout_carries_g2_fixed_index_semantics ... ok
+test roundtrip_transcript_and_cross_keys ... ok
+test be_tr_04_mac1_fails_before_any_curve_work ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/vectors-dbfa2f2e3d5d4a5c`
+
+running 8 tests
+test claim_body_wire_slices_text_subject_confidence_spans ... ok
+test span_parses_reencodes_sig_verifies_fields_pinned ... ok
+test refusal_parses_reencodes_sig_verifies_note_is_informational ... ok
+test envelope_intent_parses_reencodes_sig_verifies_and_body_slices ... ok
+test effect_envelope_parses_and_verifies_under_envelope_domain ... ok
+test every_negative_rejects ... ok
+test grant_parses_reencodes_sig_verifies_and_action_digest_recomputes ... ok
+test cert_parses_reencodes_and_both_ca_sigs_verify ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests bolina
+     Running `/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/rustdoc --edition=2021 --crate-type lib --color auto --crate-name bolina --test src/lib.rs --test-run-directory /Users/adolfousierstudio/srv/rs/bolina-rs --extern blake2=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libblake2-5ec05ea99efe1729.rlib --extern bolina=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libbolina-e306afd0537f097b.rlib --extern chacha20poly1305=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libchacha20poly1305-4858c044f422a705.rlib --extern ctrlc=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libctrlc-6713bae015e83882.rlib --extern ed25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libed25519_dalek-fc7a2eec7c6f38d7.rlib --extern hex=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex-d8b113cf0abdd414.rlib --extern hex_literal=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex_literal-6640231492c6cd06.rlib --extern ntest=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libntest-fb8deb70921782e7.rlib --extern rand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand-9427a764d31db7f2.rlib --extern rand_core=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand_core-dc6558177f49617a.rlib --extern serde=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde-aea278c8965ca5ea.rlib --extern serde_json=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde_json-f5983fd46414eda9.rlib --extern shellexpand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libshellexpand-1593339a951b64c2.rlib --extern subtle=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libsubtle-2904b9fb245ece33.rlib --extern tempfile=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libtempfile-67604e1238f1b1e4.rlib --extern x25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libx25519_dalek-b7f18135123f21af.rlib -L dependency=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps -C embed-bitcode=no --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' --error-format human`
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
 
-failures:
-    cert_ca_keys_ascending_must_succeed
-    cert_ca_keys_descending_fails
-    cert_ca_keys_equal_fails
-    cert_ca_sig_count_boundary
-    cert_name_at_max_name_boundary
-    cert_scope_count_boundary
-    cursor_u32be_sequential_reads_independent
-    envelope_body_at_max_body_boundary
-    envelope_body_len_oversized
-    envelope_parent_count_boundary
-
-test result: FAILED. 2 passed; 10 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-
-error: test failed, to rerun pass `-p bolina --test codec_bounds`
-
-*** result: Failure(101)
+*** result: Success

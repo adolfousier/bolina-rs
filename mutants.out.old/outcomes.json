@@ -2,13 +2,13 @@
   "outcomes": [
     {
       "scenario": "Baseline",
-      "summary": "Failure",
+      "summary": "Success",
       "log_path": "log/baseline.log",
       "diff_path": null,
       "phase_results": [
         {
           "phase": "Build",
-          "duration": 0.111965459,
+          "duration": 0.118019125,
           "process_status": "Success",
           "argv": [
             "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
@@ -20,7 +20,1108 @@
         },
         {
           "phase": "Test",
-          "duration": 24.958981458,
+          "duration": 21.902122958,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/main.rs:27:5: replace env_or -> String with String::new()",
+          "package": "bolina",
+          "file": "src/main.rs",
+          "function": {
+            "function_name": "env_or",
+            "return_type": "-> String",
+            "span": {
+              "start": {
+                "line": 26,
+                "column": 1
+              },
+              "end": {
+                "line": 28,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 27,
+              "column": 5
+            },
+            "end": {
+              "line": 27,
+              "column": 58
+            }
+          },
+          "replacement": "String::new()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__main.rs_line_27_col_5.log",
+      "diff_path": "diff/src__main.rs_line_27_col_5.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.942294375,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.444955167,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/main.rs:27:5: replace env_or -> String with \"xyzzy\".into()",
+          "package": "bolina",
+          "file": "src/main.rs",
+          "function": {
+            "function_name": "env_or",
+            "return_type": "-> String",
+            "span": {
+              "start": {
+                "line": 26,
+                "column": 1
+              },
+              "end": {
+                "line": 28,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 27,
+              "column": 5
+            },
+            "end": {
+              "line": 27,
+              "column": 58
+            }
+          },
+          "replacement": "\"xyzzy\".into()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__main.rs_line_27_col_5_001.log",
+      "diff_path": "diff/src__main.rs_line_27_col_5_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.970870083,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.465162458,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/main.rs:36:5: replace parse_bind -> Option<SocketAddr> with None",
+          "package": "bolina",
+          "file": "src/main.rs",
+          "function": {
+            "function_name": "parse_bind",
+            "return_type": "-> Option<SocketAddr>",
+            "span": {
+              "start": {
+                "line": 35,
+                "column": 1
+              },
+              "end": {
+                "line": 37,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 36,
+              "column": 5
+            },
+            "end": {
+              "line": 36,
+              "column": 22
+            }
+          },
+          "replacement": "None",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__main.rs_line_36_col_5.log",
+      "diff_path": "diff/src__main.rs_line_36_col_5.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.888023917,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.514306333,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/main.rs:36:5: replace parse_bind -> Option<SocketAddr> with Some(Default::default())",
+          "package": "bolina",
+          "file": "src/main.rs",
+          "function": {
+            "function_name": "parse_bind",
+            "return_type": "-> Option<SocketAddr>",
+            "span": {
+              "start": {
+                "line": 35,
+                "column": 1
+              },
+              "end": {
+                "line": 37,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 36,
+              "column": 5
+            },
+            "end": {
+              "line": 36,
+              "column": 22
+            }
+          },
+          "replacement": "Some(Default::default())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/src__main.rs_line_36_col_5_001.log",
+      "diff_path": "diff/src__main.rs_line_36_col_5_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.727337208,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/main.rs:41:5: replace main with ()",
+          "package": "bolina",
+          "file": "src/main.rs",
+          "function": {
+            "function_name": "main",
+            "return_type": "",
+            "span": {
+              "start": {
+                "line": 39,
+                "column": 1
+              },
+              "end": {
+                "line": 89,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 41,
+              "column": 5
+            },
+            "end": {
+              "line": 88,
+              "column": 62
+            }
+          },
+          "replacement": "()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__main.rs_line_41_col_5.log",
+      "diff_path": "diff/src__main.rs_line_41_col_5.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.902531875,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.598257375,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/codec.rs:20:34: replace << with >>",
+          "package": "bolina",
+          "file": "src/codec.rs",
+          "function": null,
+          "span": {
+            "start": {
+              "line": 20,
+              "column": 34
+            },
+            "end": {
+              "line": 20,
+              "column": 36
+            }
+          },
+          "replacement": ">>",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/src__codec.rs_line_20_col_34.log",
+      "diff_path": "diff/src__codec.rs_line_20_col_34.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.805166459,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/codec.rs:24:40: replace - with +",
+          "package": "bolina",
+          "file": "src/codec.rs",
+          "function": null,
+          "span": {
+            "start": {
+              "line": 24,
+              "column": 40
+            },
+            "end": {
+              "line": 24,
+              "column": 41
+            }
+          },
+          "replacement": "+",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__codec.rs_line_24_col_40.log",
+      "diff_path": "diff/src__codec.rs_line_24_col_40.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.133498583,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.314844542,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/codec.rs:24:40: replace - with /",
+          "package": "bolina",
+          "file": "src/codec.rs",
+          "function": null,
+          "span": {
+            "start": {
+              "line": 24,
+              "column": 40
+            },
+            "end": {
+              "line": 24,
+              "column": 41
+            }
+          },
+          "replacement": "/",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__codec.rs_line_24_col_40_001.log",
+      "diff_path": "diff/src__codec.rs_line_24_col_40_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.517672875,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.321031375,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/codec.rs:27:33: replace * with +",
+          "package": "bolina",
+          "file": "src/codec.rs",
+          "function": null,
+          "span": {
+            "start": {
+              "line": 27,
+              "column": 33
+            },
+            "end": {
+              "line": 27,
+              "column": 34
+            }
+          },
+          "replacement": "+",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__codec.rs_line_27_col_33.log",
+      "diff_path": "diff/src__codec.rs_line_27_col_33.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.55344625,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 9.947223375,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/codec.rs:27:33: replace * with /",
+          "package": "bolina",
+          "file": "src/codec.rs",
+          "function": null,
+          "span": {
+            "start": {
+              "line": 27,
+              "column": 33
+            },
+            "end": {
+              "line": 27,
+              "column": 34
+            }
+          },
+          "replacement": "/",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__codec.rs_line_27_col_33_001.log",
+      "diff_path": "diff/src__codec.rs_line_27_col_33_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.66039975,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.001098583,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/codec.rs:28:36: replace * with +",
+          "package": "bolina",
+          "file": "src/codec.rs",
+          "function": null,
+          "span": {
+            "start": {
+              "line": 28,
+              "column": 36
+            },
+            "end": {
+              "line": 28,
+              "column": 37
+            }
+          },
+          "replacement": "+",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__codec.rs_line_28_col_36.log",
+      "diff_path": "diff/src__codec.rs_line_28_col_36.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.398679292,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.119037,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/codec.rs:28:36: replace * with /",
+          "package": "bolina",
+          "file": "src/codec.rs",
+          "function": null,
+          "span": {
+            "start": {
+              "line": 28,
+              "column": 36
+            },
+            "end": {
+              "line": 28,
+              "column": 37
+            }
+          },
+          "replacement": "/",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__codec.rs_line_28_col_36_001.log",
+      "diff_path": "diff/src__codec.rs_line_28_col_36_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.573525333,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.221971041,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/codec.rs:89:9: replace Cursor<'a>::need -> Result<(), ParseError> with Ok(())",
+          "package": "bolina",
+          "file": "src/codec.rs",
+          "function": {
+            "function_name": "Cursor<'a>::need",
+            "return_type": "-> Result<(), ParseError>",
+            "span": {
+              "start": {
+                "line": 87,
+                "column": 5
+              },
+              "end": {
+                "line": 94,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 89,
+              "column": 9
+            },
+            "end": {
+              "line": 93,
+              "column": 10
+            }
+          },
+          "replacement": "Ok(())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/src__codec.rs_line_89_col_9.log",
+      "diff_path": "diff/src__codec.rs_line_89_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.808893958,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/codec.rs:89:25: replace <= with > in Cursor<'a>::need",
+          "package": "bolina",
+          "file": "src/codec.rs",
+          "function": {
+            "function_name": "Cursor<'a>::need",
+            "return_type": "-> Result<(), ParseError>",
+            "span": {
+              "start": {
+                "line": 87,
+                "column": 5
+              },
+              "end": {
+                "line": 94,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 89,
+              "column": 25
+            },
+            "end": {
+              "line": 89,
+              "column": 27
+            }
+          },
+          "replacement": ">",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__codec.rs_line_89_col_25.log",
+      "diff_path": "diff/src__codec.rs_line_89_col_25.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.462724584,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.166732207999999,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/codec.rs:89:21: replace + with - in Cursor<'a>::need",
+          "package": "bolina",
+          "file": "src/codec.rs",
+          "function": {
+            "function_name": "Cursor<'a>::need",
+            "return_type": "-> Result<(), ParseError>",
+            "span": {
+              "start": {
+                "line": 87,
+                "column": 5
+              },
+              "end": {
+                "line": 94,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 89,
+              "column": 21
+            },
+            "end": {
+              "line": 89,
+              "column": 22
+            }
+          },
+          "replacement": "-",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__codec.rs_line_89_col_21.log",
+      "diff_path": "diff/src__codec.rs_line_89_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.650363792,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.177373209,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/codec.rs:89:21: replace + with * in Cursor<'a>::need",
+          "package": "bolina",
+          "file": "src/codec.rs",
+          "function": {
+            "function_name": "Cursor<'a>::need",
+            "return_type": "-> Result<(), ParseError>",
+            "span": {
+              "start": {
+                "line": 87,
+                "column": 5
+              },
+              "end": {
+                "line": 94,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 89,
+              "column": 21
+            },
+            "end": {
+              "line": 89,
+              "column": 22
+            }
+          },
+          "replacement": "*",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__codec.rs_line_89_col_21_001.log",
+      "diff_path": "diff/src__codec.rs_line_89_col_21_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.626024667,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.49610975,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/codec.rs:96:9: replace Cursor<'a>::u8r -> Result<u8, ParseError> with Ok(0)",
+          "package": "bolina",
+          "file": "src/codec.rs",
+          "function": {
+            "function_name": "Cursor<'a>::u8r",
+            "return_type": "-> Result<u8, ParseError>",
+            "span": {
+              "start": {
+                "line": 95,
+                "column": 5
+              },
+              "end": {
+                "line": 100,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 96,
+              "column": 9
+            },
+            "end": {
+              "line": 99,
+              "column": 14
+            }
+          },
+          "replacement": "Ok(0)",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__codec.rs_line_96_col_9.log",
+      "diff_path": "diff/src__codec.rs_line_96_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.584286416,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.297575959,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/codec.rs:96:9: replace Cursor<'a>::u8r -> Result<u8, ParseError> with Ok(1)",
+          "package": "bolina",
+          "file": "src/codec.rs",
+          "function": {
+            "function_name": "Cursor<'a>::u8r",
+            "return_type": "-> Result<u8, ParseError>",
+            "span": {
+              "start": {
+                "line": 95,
+                "column": 5
+              },
+              "end": {
+                "line": 100,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 96,
+              "column": 9
+            },
+            "end": {
+              "line": 99,
+              "column": 14
+            }
+          },
+          "replacement": "Ok(1)",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__codec.rs_line_96_col_9_001.log",
+      "diff_path": "diff/src__codec.rs_line_96_col_9_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.685984834,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.417115417,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/codec.rs:98:18: replace += with -= in Cursor<'a>::u8r",
+          "package": "bolina",
+          "file": "src/codec.rs",
+          "function": {
+            "function_name": "Cursor<'a>::u8r",
+            "return_type": "-> Result<u8, ParseError>",
+            "span": {
+              "start": {
+                "line": 95,
+                "column": 5
+              },
+              "end": {
+                "line": 100,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 98,
+              "column": 18
+            },
+            "end": {
+              "line": 98,
+              "column": 20
+            }
+          },
+          "replacement": "-=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__codec.rs_line_98_col_18.log",
+      "diff_path": "diff/src__codec.rs_line_98_col_18.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 7.5597410830000005,
+          "process_status": "Success",
+          "argv": [
+            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 10.3654435,
           "process_status": {
             "Failure": 101
           },
@@ -34,13 +1135,13 @@
       ]
     }
   ],
-  "total_mutants": 0,
-  "missed": 0,
-  "caught": 0,
+  "total_mutants": 19,
+  "missed": 4,
+  "caught": 12,
   "timeout": 0,
-  "unviable": 0,
+  "unviable": 3,
   "success": 0,
-  "start_time": "2026-08-30T17:15:00.19791Z",
-  "end_time": "2026-08-30T17:15:25.379725Z",
+  "start_time": "2026-08-30T17:19:14.186675Z",
+  "end_time": null,
   "cargo_mutants_version": "27.1.0"
 }

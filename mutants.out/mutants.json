@@ -293,7 +293,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace Cursor<'a>::need -> Result<(), ParseError> with Ok(())\n@@ -81,21 +81,17 @@\n }\n \n impl<'a> Cursor<'a> {\n     fn new(buf: &'a [u8]) -> Self {\n         Cursor { buf, pos: 0 }\n     }\n     /// The ONE truncation exit point (BE-WIRE-02).\n     fn need(&self, n: usize) -> Result<(), ParseError> {\n-        if self.pos + n <= self.buf.len() {\n-            Ok(())\n-        } else {\n-            Err(ParseError::Truncated)\n-        }\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos += 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n",
+    "diff": "--- src/codec.rs\n+++ replace Cursor<'a>::need -> Result<(), ParseError> with Ok(())\n@@ -81,21 +81,17 @@\n }\n \n impl<'a> Cursor<'a> {\n     fn new(buf: &'a [u8]) -> Self {\n         Cursor { buf, pos: 0 }\n     }\n     /// The ONE truncation exit point (BE-WIRE-02).\n     fn need(&self, n: usize) -> Result<(), ParseError> {\n-        if self.pos + n <= self.buf.len() {\n-            Ok(())\n-        } else {\n-            Err(ParseError::Truncated)\n-        }\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::need",
@@ -421,7 +421,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace Cursor<'a>::u8r -> Result<u8, ParseError> with Ok(0)\n@@ -88,20 +88,17 @@\n     fn need(&self, n: usize) -> Result<(), ParseError> {\n         if self.pos + n <= self.buf.len() {\n             Ok(())\n         } else {\n             Err(ParseError::Truncated)\n         }\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n-        self.need(1)?;\n-        let v = self.buf[self.pos];\n-        self.pos += 1;\n-        Ok(v)\n+        Ok(0) /* ~ changed by cargo-mutants ~ */\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n",
+    "diff": "--- src/codec.rs\n+++ replace Cursor<'a>::u8r -> Result<u8, ParseError> with Ok(0)\n@@ -88,20 +88,17 @@\n     fn need(&self, n: usize) -> Result<(), ParseError> {\n         if self.pos + n <= self.buf.len() {\n             Ok(())\n         } else {\n             Err(ParseError::Truncated)\n         }\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n-        self.need(1)?;\n-        let v = self.buf[self.pos];\n-        self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n-        Ok(v)\n+        Ok(0) /* ~ changed by cargo-mutants ~ */\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::u8r",
@@ -453,7 +453,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace Cursor<'a>::u8r -> Result<u8, ParseError> with Ok(1)\n@@ -88,20 +88,17 @@\n     fn need(&self, n: usize) -> Result<(), ParseError> {\n         if self.pos + n <= self.buf.len() {\n             Ok(())\n         } else {\n             Err(ParseError::Truncated)\n         }\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n-        self.need(1)?;\n-        let v = self.buf[self.pos];\n-        self.pos += 1;\n-        Ok(v)\n+        Ok(1) /* ~ changed by cargo-mutants ~ */\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n",
+    "diff": "--- src/codec.rs\n+++ replace Cursor<'a>::u8r -> Result<u8, ParseError> with Ok(1)\n@@ -88,20 +88,17 @@\n     fn need(&self, n: usize) -> Result<(), ParseError> {\n         if self.pos + n <= self.buf.len() {\n             Ok(())\n         } else {\n             Err(ParseError::Truncated)\n         }\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n-        self.need(1)?;\n-        let v = self.buf[self.pos];\n-        self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n-        Ok(v)\n+        Ok(1) /* ~ changed by cargo-mutants ~ */\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::u8r",
@@ -485,7 +485,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace += with -= in Cursor<'a>::u8r\n@@ -90,17 +90,17 @@\n             Ok(())\n         } else {\n             Err(ParseError::Truncated)\n         }\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n-        self.pos += 1;\n+        self.pos -= /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n",
+    "diff": "--- src/codec.rs\n+++ replace *= with += in Cursor<'a>::u8r\n@@ -90,17 +90,17 @@\n             Ok(())\n         } else {\n             Err(ParseError::Truncated)\n         }\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n-        self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n+        self.pos += /* ~ changed by cargo-mutants ~ */ /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::u8r",
@@ -502,9 +502,9 @@
       }
     },
     "genre": "BinaryOperator",
-    "name": "src/codec.rs:98:18: replace += with -= in Cursor<'a>::u8r",
+    "name": "src/codec.rs:98:18: replace *= with += in Cursor<'a>::u8r",
     "package": "bolina",
-    "replacement": "-=",
+    "replacement": "+=",
     "span": {
       "end": {
         "column": 20,
@@ -517,7 +517,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace += with *= in Cursor<'a>::u8r\n@@ -90,17 +90,17 @@\n             Ok(())\n         } else {\n             Err(ParseError::Truncated)\n         }\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n-        self.pos += 1;\n+        self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n",
+    "diff": "--- src/codec.rs\n+++ replace *= with /= in Cursor<'a>::u8r\n@@ -90,17 +90,17 @@\n             Ok(())\n         } else {\n             Err(ParseError::Truncated)\n         }\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n-        self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n+        self.pos /= /* ~ changed by cargo-mutants ~ */ /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::u8r",
@@ -534,9 +534,9 @@
       }
     },
     "genre": "BinaryOperator",
-    "name": "src/codec.rs:98:18: replace += with *= in Cursor<'a>::u8r",
+    "name": "src/codec.rs:98:18: replace *= with /= in Cursor<'a>::u8r",
     "package": "bolina",
-    "replacement": "*=",
+    "replacement": "/=",
     "span": {
       "end": {
         "column": 20,
@@ -549,7 +549,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace Cursor<'a>::u16be -> Result<u16, ParseError> with Ok(0)\n@@ -94,20 +94,17 @@\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos += 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n-        self.need(2)?;\n-        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n-        self.pos += 2;\n-        Ok(v)\n+        Ok(0) /* ~ changed by cargo-mutants ~ */\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n             self.buf[self.pos + 2],\n             self.buf[self.pos + 3],\n",
+    "diff": "--- src/codec.rs\n+++ replace Cursor<'a>::u16be -> Result<u16, ParseError> with Ok(0)\n@@ -94,20 +94,17 @@\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n-        self.need(2)?;\n-        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n-        self.pos += 2;\n-        Ok(v)\n+        Ok(0) /* ~ changed by cargo-mutants ~ */\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n             self.buf[self.pos + 2],\n             self.buf[self.pos + 3],\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::u16be",
@@ -581,7 +581,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace Cursor<'a>::u16be -> Result<u16, ParseError> with Ok(1)\n@@ -94,20 +94,17 @@\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos += 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n-        self.need(2)?;\n-        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n-        self.pos += 2;\n-        Ok(v)\n+        Ok(1) /* ~ changed by cargo-mutants ~ */\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n             self.buf[self.pos + 2],\n             self.buf[self.pos + 3],\n",
+    "diff": "--- src/codec.rs\n+++ replace Cursor<'a>::u16be -> Result<u16, ParseError> with Ok(1)\n@@ -94,20 +94,17 @@\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n-        self.need(2)?;\n-        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n-        self.pos += 2;\n-        Ok(v)\n+        Ok(1) /* ~ changed by cargo-mutants ~ */\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n             self.buf[self.pos + 2],\n             self.buf[self.pos + 3],\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::u16be",
@@ -613,7 +613,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace + with - in Cursor<'a>::u16be\n@@ -95,17 +95,17 @@\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos += 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n-        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n+        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos - /* ~ changed by cargo-mutants ~ */ 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n",
+    "diff": "--- src/codec.rs\n+++ replace + with - in Cursor<'a>::u16be\n@@ -95,17 +95,17 @@\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n-        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n+        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos - /* ~ changed by cargo-mutants ~ */ 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::u16be",
@@ -645,7 +645,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace + with * in Cursor<'a>::u16be\n@@ -95,17 +95,17 @@\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos += 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n-        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n+        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos * /* ~ changed by cargo-mutants ~ */ 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n",
+    "diff": "--- src/codec.rs\n+++ replace + with * in Cursor<'a>::u16be\n@@ -95,17 +95,17 @@\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n-        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n+        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos * /* ~ changed by cargo-mutants ~ */ 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::u16be",
@@ -677,7 +677,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace += with -= in Cursor<'a>::u16be\n@@ -96,17 +96,17 @@\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos += 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n-        self.pos += 2;\n+        self.pos -= /* ~ changed by cargo-mutants ~ */ 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n             self.buf[self.pos + 2],\n",
+    "diff": "--- src/codec.rs\n+++ replace += with -= in Cursor<'a>::u16be\n@@ -96,17 +96,17 @@\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n-        self.pos += 2;\n+        self.pos -= /* ~ changed by cargo-mutants ~ */ 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n             self.buf[self.pos + 2],\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::u16be",
@@ -709,7 +709,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace += with *= in Cursor<'a>::u16be\n@@ -96,17 +96,17 @@\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos += 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n-        self.pos += 2;\n+        self.pos *= /* ~ changed by cargo-mutants ~ */ 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n             self.buf[self.pos + 2],\n",
+    "diff": "--- src/codec.rs\n+++ replace += with *= in Cursor<'a>::u16be\n@@ -96,17 +96,17 @@\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n-        self.pos += 2;\n+        self.pos *= /* ~ changed by cargo-mutants ~ */ 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n             self.buf[self.pos + 2],\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::u16be",
@@ -9294,7 +9294,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace Cursor<'a>::need -> Result<(), ParseError> with Ok(())\n@@ -81,21 +81,17 @@\n }\n \n impl<'a> Cursor<'a> {\n     fn new(buf: &'a [u8]) -> Self {\n         Cursor { buf, pos: 0 }\n     }\n     /// The ONE truncation exit point (BE-WIRE-02).\n     fn need(&self, n: usize) -> Result<(), ParseError> {\n-        if self.pos + n <= self.buf.len() {\n-            Ok(())\n-        } else {\n-            Err(ParseError::Truncated)\n-        }\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos += 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n",
+    "diff": "--- src/codec.rs\n+++ replace Cursor<'a>::need -> Result<(), ParseError> with Ok(())\n@@ -81,21 +81,17 @@\n }\n \n impl<'a> Cursor<'a> {\n     fn new(buf: &'a [u8]) -> Self {\n         Cursor { buf, pos: 0 }\n     }\n     /// The ONE truncation exit point (BE-WIRE-02).\n     fn need(&self, n: usize) -> Result<(), ParseError> {\n-        if self.pos + n <= self.buf.len() {\n-            Ok(())\n-        } else {\n-            Err(ParseError::Truncated)\n-        }\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::need",
@@ -9422,7 +9422,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace Cursor<'a>::u8r -> Result<u8, ParseError> with Ok(0)\n@@ -88,20 +88,17 @@\n     fn need(&self, n: usize) -> Result<(), ParseError> {\n         if self.pos + n <= self.buf.len() {\n             Ok(())\n         } else {\n             Err(ParseError::Truncated)\n         }\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n-        self.need(1)?;\n-        let v = self.buf[self.pos];\n-        self.pos += 1;\n-        Ok(v)\n+        Ok(0) /* ~ changed by cargo-mutants ~ */\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n",
+    "diff": "--- src/codec.rs\n+++ replace Cursor<'a>::u8r -> Result<u8, ParseError> with Ok(0)\n@@ -88,20 +88,17 @@\n     fn need(&self, n: usize) -> Result<(), ParseError> {\n         if self.pos + n <= self.buf.len() {\n             Ok(())\n         } else {\n             Err(ParseError::Truncated)\n         }\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n-        self.need(1)?;\n-        let v = self.buf[self.pos];\n-        self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n-        Ok(v)\n+        Ok(0) /* ~ changed by cargo-mutants ~ */\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::u8r",
@@ -9454,7 +9454,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace Cursor<'a>::u8r -> Result<u8, ParseError> with Ok(1)\n@@ -88,20 +88,17 @@\n     fn need(&self, n: usize) -> Result<(), ParseError> {\n         if self.pos + n <= self.buf.len() {\n             Ok(())\n         } else {\n             Err(ParseError::Truncated)\n         }\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n-        self.need(1)?;\n-        let v = self.buf[self.pos];\n-        self.pos += 1;\n-        Ok(v)\n+        Ok(1) /* ~ changed by cargo-mutants ~ */\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n",
+    "diff": "--- src/codec.rs\n+++ replace Cursor<'a>::u8r -> Result<u8, ParseError> with Ok(1)\n@@ -88,20 +88,17 @@\n     fn need(&self, n: usize) -> Result<(), ParseError> {\n         if self.pos + n <= self.buf.len() {\n             Ok(())\n         } else {\n             Err(ParseError::Truncated)\n         }\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n-        self.need(1)?;\n-        let v = self.buf[self.pos];\n-        self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n-        Ok(v)\n+        Ok(1) /* ~ changed by cargo-mutants ~ */\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::u8r",
@@ -9486,7 +9486,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace += with -= in Cursor<'a>::u8r\n@@ -90,17 +90,17 @@\n             Ok(())\n         } else {\n             Err(ParseError::Truncated)\n         }\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n-        self.pos += 1;\n+        self.pos -= /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n",
+    "diff": "--- src/codec.rs\n+++ replace *= with += in Cursor<'a>::u8r\n@@ -90,17 +90,17 @@\n             Ok(())\n         } else {\n             Err(ParseError::Truncated)\n         }\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n-        self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n+        self.pos += /* ~ changed by cargo-mutants ~ */ /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::u8r",
@@ -9503,9 +9503,9 @@
       }
     },
     "genre": "BinaryOperator",
-    "name": "src/codec.rs:98:18: replace += with -= in Cursor<'a>::u8r",
+    "name": "src/codec.rs:98:18: replace *= with += in Cursor<'a>::u8r",
     "package": "bolina",
-    "replacement": "-=",
+    "replacement": "+=",
     "span": {
       "end": {
         "column": 20,
@@ -9518,7 +9518,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace += with *= in Cursor<'a>::u8r\n@@ -90,17 +90,17 @@\n             Ok(())\n         } else {\n             Err(ParseError::Truncated)\n         }\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n-        self.pos += 1;\n+        self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n",
+    "diff": "--- src/codec.rs\n+++ replace *= with /= in Cursor<'a>::u8r\n@@ -90,17 +90,17 @@\n             Ok(())\n         } else {\n             Err(ParseError::Truncated)\n         }\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n-        self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n+        self.pos /= /* ~ changed by cargo-mutants ~ */ /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::u8r",
@@ -9535,9 +9535,9 @@
       }
     },
     "genre": "BinaryOperator",
-    "name": "src/codec.rs:98:18: replace += with *= in Cursor<'a>::u8r",
+    "name": "src/codec.rs:98:18: replace *= with /= in Cursor<'a>::u8r",
     "package": "bolina",
-    "replacement": "*=",
+    "replacement": "/=",
     "span": {
       "end": {
         "column": 20,
@@ -9550,7 +9550,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace Cursor<'a>::u16be -> Result<u16, ParseError> with Ok(0)\n@@ -94,20 +94,17 @@\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos += 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n-        self.need(2)?;\n-        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n-        self.pos += 2;\n-        Ok(v)\n+        Ok(0) /* ~ changed by cargo-mutants ~ */\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n             self.buf[self.pos + 2],\n             self.buf[self.pos + 3],\n",
+    "diff": "--- src/codec.rs\n+++ replace Cursor<'a>::u16be -> Result<u16, ParseError> with Ok(0)\n@@ -94,20 +94,17 @@\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n-        self.need(2)?;\n-        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n-        self.pos += 2;\n-        Ok(v)\n+        Ok(0) /* ~ changed by cargo-mutants ~ */\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n             self.buf[self.pos + 2],\n             self.buf[self.pos + 3],\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::u16be",
@@ -9582,7 +9582,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace Cursor<'a>::u16be -> Result<u16, ParseError> with Ok(1)\n@@ -94,20 +94,17 @@\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos += 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n-        self.need(2)?;\n-        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n-        self.pos += 2;\n-        Ok(v)\n+        Ok(1) /* ~ changed by cargo-mutants ~ */\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n             self.buf[self.pos + 2],\n             self.buf[self.pos + 3],\n",
+    "diff": "--- src/codec.rs\n+++ replace Cursor<'a>::u16be -> Result<u16, ParseError> with Ok(1)\n@@ -94,20 +94,17 @@\n     }\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n-        self.need(2)?;\n-        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n-        self.pos += 2;\n-        Ok(v)\n+        Ok(1) /* ~ changed by cargo-mutants ~ */\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n             self.buf[self.pos + 2],\n             self.buf[self.pos + 3],\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::u16be",
@@ -9614,7 +9614,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace + with - in Cursor<'a>::u16be\n@@ -95,17 +95,17 @@\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos += 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n-        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n+        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos - /* ~ changed by cargo-mutants ~ */ 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n",
+    "diff": "--- src/codec.rs\n+++ replace + with - in Cursor<'a>::u16be\n@@ -95,17 +95,17 @@\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n-        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n+        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos - /* ~ changed by cargo-mutants ~ */ 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::u16be",
@@ -9646,7 +9646,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace + with * in Cursor<'a>::u16be\n@@ -95,17 +95,17 @@\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos += 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n-        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n+        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos * /* ~ changed by cargo-mutants ~ */ 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n",
+    "diff": "--- src/codec.rs\n+++ replace + with * in Cursor<'a>::u16be\n@@ -95,17 +95,17 @@\n     fn u8r(&mut self) -> Result<u8, ParseError> {\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n-        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n+        let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos * /* ~ changed by cargo-mutants ~ */ 1]]);\n         self.pos += 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::u16be",
@@ -9678,7 +9678,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace += with -= in Cursor<'a>::u16be\n@@ -96,17 +96,17 @@\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos += 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n-        self.pos += 2;\n+        self.pos -= /* ~ changed by cargo-mutants ~ */ 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n             self.buf[self.pos + 2],\n",
+    "diff": "--- src/codec.rs\n+++ replace += with -= in Cursor<'a>::u16be\n@@ -96,17 +96,17 @@\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n-        self.pos += 2;\n+        self.pos -= /* ~ changed by cargo-mutants ~ */ 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n             self.buf[self.pos + 2],\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::u16be",
@@ -9710,7 +9710,7 @@
     }
   },
   {
-    "diff": "--- src/codec.rs\n+++ replace += with *= in Cursor<'a>::u16be\n@@ -96,17 +96,17 @@\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos += 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n-        self.pos += 2;\n+        self.pos *= /* ~ changed by cargo-mutants ~ */ 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n             self.buf[self.pos + 2],\n",
+    "diff": "--- src/codec.rs\n+++ replace += with *= in Cursor<'a>::u16be\n@@ -96,17 +96,17 @@\n         self.need(1)?;\n         let v = self.buf[self.pos];\n         self.pos *= /* ~ changed by cargo-mutants ~ */ 1;\n         Ok(v)\n     }\n     fn u16be(&mut self) -> Result<u16, ParseError> {\n         self.need(2)?;\n         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);\n-        self.pos += 2;\n+        self.pos *= /* ~ changed by cargo-mutants ~ */ 2;\n         Ok(v)\n     }\n     fn u32be(&mut self) -> Result<u32, ParseError> {\n         self.need(4)?;\n         let v = u32::from_be_bytes([\n             self.buf[self.pos],\n             self.buf[self.pos + 1],\n             self.buf[self.pos + 2],\n",
     "file": "src/codec.rs",
     "function": {
       "function_name": "Cursor<'a>::u16be",
