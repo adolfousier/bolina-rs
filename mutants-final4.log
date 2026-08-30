@@ -1,3 +1,5 @@
+Found 1419 mutants to test
+TIMEOUT  Unmutated baseline in 0s build + 30s test
 
 *** baseline
 
@@ -3442,3 +3444,5 @@ test table_full_returns_503 ... ok
 test healthz_roundtrip ... ok
 
 *** result: Timeout
+
+ERROR cargo test failed in an unmutated tree, so no mutants were tested

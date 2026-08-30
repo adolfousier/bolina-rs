@@ -126,6 +126,7 @@ fn no_content_length_goes_to_writing() {
 }
 
 #[test]
+#[timeout(10000)]
 fn deadline_exceeded_causes_cleanup() {
     let mut cp = ControlPlane::new(bind_any()).unwrap();
     let addr = cp.listener.local_addr().unwrap();
