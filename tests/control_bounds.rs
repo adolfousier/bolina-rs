@@ -140,26 +140,31 @@ fn deadline_exceeded_causes_cleanup() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "timing issue - needs server deadline tuning"]
 fn slowloris_guard() {
     let mut cp = ControlPlane::new(bind_any()).unwrap();
     let addr = cp.listener.local_addr().unwrap();
-    sleep(Duration::from_millis(30));
+    sleep(Duration::from_millis(50));
     let mut client = connect_to(addr);
-    sleep(Duration::from_millis(30));
-    accept_one(&mut cp);
+    // poll_tick accepts the connection
+    cp.poll_tick().ok();
+    sleep(Duration::from_millis(50));
+    // Send 1124 bytes with NO newline — slowloris guard triggers
     let payload = vec![b'A'; SLOWLORIS_SIZE + 100];
     client.write_all(&payload).unwrap();
-    sleep(Duration::from_millis(100));
-    let mut got_error = false;
-    for _ in 0..20 {
-        if let Err(e) = cp.poll_tick() {
-            got_error = e.contains("slowloris");
-            break;
+    client.flush().unwrap();
+    sleep(Duration::from_millis(50));
+    let mut got_slowloris = false;
+    for _ in 0..50 {
+        match cp.poll_tick() {
+            Err(e) if e.contains("slowloris") => {
+                got_slowloris = true;
+                break;
+            }
+            _ => sleep(Duration::from_millis(10)),
         }
-        sleep(Duration::from_millis(10));
     }
-    assert!(got_error, "slowloris should reject");
+    assert!(got_slowloris, "slowloris should reject >=1024 bytes without newline");
 }
 
 #[test]
