@@ -39,3 +39,21 @@ fn intent_timeout_at_exact_ms_must_expire() {
     assert_eq!(expired, 1, "entry must be expired at exact T_PENDING_MS");
     assert_eq!(table.len(), 0, "table must be empty after expiry");
 }
+
+#[test]
+fn exact_timeout_boundary_must_not_expire() {
+    // Code uses > (strictly greater), so at EXACTLY T_PENDING_MS the intent must NOT expire
+    // Mutant >= would incorrectly expire here
+    use bolina::state::intent::{Table, T_PENDING_MS, LEN_INTENT_ID, MAX_RESOURCE};
+    let mut t = Table::new();
+    let now: u64 = 1_000_000;
+    let id: [u8; LEN_INTENT_ID] = [1u8; LEN_INTENT_ID];
+    let resource: [u8; MAX_RESOURCE] = [0u8; MAX_RESOURCE];
+    t.admit(&id, &resource, 4, now).unwrap();
+    // At exactly now + T_PENDING_MS: must NOT expire (strict >)
+    let expired = t.expire_timeouts(now + T_PENDING_MS);
+    assert_eq!(expired, 0, "intent must NOT expire at exactly T_PENDING_MS (strict >)");
+    // One ms later: must expire
+    let expired = t.expire_timeouts(now + T_PENDING_MS + 1);
+    assert_eq!(expired, 1, "intent must expire at T_PENDING_MS + 1");
+}

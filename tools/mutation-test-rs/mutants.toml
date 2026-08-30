@@ -1,50 +1,62 @@
-# Mutantes cirúrgicos para o Bolina Rust
-# Cada mutante tem: ficheiro, âncora (texto exacto), substituição, descrição
-
 [[mutants]]
+domain = "codec"
 file = "src/codec.rs"
-anchor = "if body.len() > MAX_BODY {"
-replace = "if body.len() >= MAX_BODY {"
-description = "codec: body_len >= instead of > (rejects body at exactly MAX_BODY)"
+anchor = "if body_len > MAX_BODY {"
+replacement = "if body_len >= MAX_BODY {"
+description = "body_len >= instead of > (rejects body at exactly MAX_BODY)"
 
 [[mutants]]
+domain = "codec"
 file = "src/codec.rs"
-anchor = "if field16.len() > MAX_FIELD16 {"
-replace = "if field16.len() >= MAX_FIELD16 {"
-description = "codec: field16 >= instead of > (rejects field at exactly max)"
+anchor = "if parent_count > MAX_PARENTS {"
+replacement = "if parent_count >= MAX_PARENTS {"
+description = "parent_count >= instead of > (rejects at exactly MAX_PARENTS)"
 
 [[mutants]]
+domain = "codec"
 file = "src/codec.rs"
-anchor = "if field32.len() > MAX_FIELD32 {"
-replace = "if field32.len() >= MAX_FIELD32 {"
-description = "codec: field32 >= instead of > (rejects field at exactly max)"
+anchor = "if scope_count > MAX_SCOPE {"
+replacement = "if scope_count >= MAX_SCOPE {"
+description = "scope_count >= instead of > (rejects at exactly MAX_SCOPE)"
 
 [[mutants]]
+domain = "codec"
+file = "src/codec.rs"
+anchor = "if ca_sig_count > MAX_CA_SIGS {"
+replacement = "if ca_sig_count >= MAX_CA_SIGS {"
+description = "ca_sig_count >= instead of > (rejects at exactly MAX_CA_SIGS)"
+
+[[mutants]]
+domain = "state"
 file = "src/state/intent.rs"
 anchor = "if self.entries.len() > MAX_PENDING {"
-replace = "if self.entries.len() >= MAX_PENDING {"
-description = "state: intent MAX_PENDING + 1 accepted (>= to >)"
+replacement = "if self.entries.len() >= MAX_PENDING {"
+description = "intent MAX_PENDING + 1 accepted (>= to >)"
 
 [[mutants]]
+domain = "state"
 file = "src/state/intent.rs"
 anchor = "if e.state == State::Pending && now_ms > e.admitted_ms + T_PENDING_MS {"
-replace = "if e.state == State::Pending && now_ms >= e.admitted_ms + T_PENDING_MS {"
-description = "state: intent timeout at exact T_PENDING_MS not expired (>= to >)"
+replacement = "if e.state == State::Pending && now_ms >= e.admitted_ms + T_PENDING_MS {"
+description = "intent timeout at exact T_PENDING_MS not expired (>= to >)"
 
 [[mutants]]
+domain = "transport"
 file = "src/transport/session.rs"
 anchor = "if self.counter >= REKEY_AFTER_MESSAGES { return Err(TransportError::RekeyRequired); }"
-replace = "if self.counter > REKEY_AFTER_MESSAGES { return Err(TransportError::RekeyRequired); }"
-description = "transport: session rekey at exact threshold not triggered (> to >=)"
+replacement = "if self.counter > REKEY_AFTER_MESSAGES { return Err(TransportError::RekeyRequired); }"
+description = "session rekey at exact threshold not triggered (> to >=)"
 
 [[mutants]]
+domain = "transport"
 file = "src/transport/session.rs"
 anchor = "if (local_index as usize) >= MAX_SESSIONS { return None; }"
-replace = "if (local_index as usize) > MAX_SESSIONS { return None; }"
-description = "transport: session index MAX_SESSIONS accepted (> to >=)"
+replacement = "if (local_index as usize) > MAX_SESSIONS { return None; }"
+description = "session index MAX_SESSIONS accepted (> to >=)"
 
 [[mutants]]
+domain = "control"
 file = "src/control.rs"
 anchor = "&& self.buf.len() >= SLOWLORIS_SIZE"
-replace = "&& self.buf.len() > SLOWLORIS_SIZE"
-description = "control: slowloris guard at exact size not triggered (> to >=)"
+replacement = "&& self.buf.len() > SLOWLORIS_SIZE"
+description = "slowloris guard at exact size not triggered (> to >=)"
