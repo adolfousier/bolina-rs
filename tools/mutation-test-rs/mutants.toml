@@ -1,0 +1,95 @@
+# mutation-test-rs: surgical mutants for bolina-rs
+# Philosophy: each mutant targets a SPEC invariant, with an anchor that
+# matches exactly one occurrence in the source. Equivalent mutants are
+# marked and skipped (not counted).
+
+[[mutants]]
+domain = "codec"
+file = "src/codec.rs"
+anchor = "    if parent_count > MAX_PARENTS {"
+replacement = "    if parent_count >= MAX_PARENTS {"
+description = "parent_count >= instead of > (accepts MAX_PARENTS as valid)"
+
+[[mutants]]
+domain = "codec"
+file = "src/codec.rs"
+anchor = "    if body_len > MAX_BODY {"
+replacement = "    if body_len >= MAX_BODY {"
+description = "body_len >= instead of > (rejects body at exactly MAX_BODY)"
+
+[[mutants]]
+domain = "codec"
+file = "src/codec.rs"
+anchor = "        if len > max {\n            return Err(ParseError::Oversize);\n        }\n        self.take(len)\n    }\n    /// Length-prefixed field with u32 length"
+replacement = "        if len >= max {\n            return Err(ParseError::Oversize);\n        }\n        self.take(len)\n    }\n    /// Length-prefixed field with u32 length"
+description = "field16 >= instead of > (rejects field at exactly max)"
+
+[[mutants]]
+domain = "codec"
+file = "src/codec.rs"
+anchor = "        if len > max {\n            return Err(ParseError::Oversize);\n        }\n        self.take(len as usize)\n    }\n    fn rest"
+replacement = "        if len >= max {\n            return Err(ParseError::Oversize);\n        }\n        self.take(len as usize)\n    }\n    fn rest"
+description = "field32 >= instead of > (rejects field at exactly max)"
+
+[[mutants]]
+domain = "codec"
+file = "src/codec.rs"
+anchor = "        self.pos += 1;\n        Ok(v)\n    }\n    fn u16be"
+replacement = "        self.pos *= 1;\n        Ok(v)\n    }\n    fn u16be"
+description = "u8r: pos *= 1 instead of += 1 (cursor never advances)"
+
+[[mutants]]
+domain = "codec"
+file = "src/codec.rs"
+anchor = "        self.pos += 2;\n        Ok(v)\n    }\n    fn u32be"
+replacement = "        self.pos *= 2;\n        Ok(v)\n    }\n    fn u32be"
+description = "u16be: pos *= 2 instead of += 2 (cursor jumps to wrong offset)"
+
+[[mutants]]
+domain = "codec"
+file = "src/codec.rs"
+anchor = "        self.pos += 4;\n        Ok(v)\n    }\n    fn u64be"
+replacement = "        self.pos *= 4;\n        Ok(v)\n    }\n    fn u64be"
+description = "u32be: pos *= 4 instead of += 4"
+
+[[mutants]]
+domain = "codec"
+file = "src/codec.rs"
+anchor = "        self.pos += 8;\n        Ok(u64::from_be_bytes(b))"
+replacement = "        self.pos *= 8;\n        Ok(u64::from_be_bytes(b))"
+description = "u64be: pos *= 8 instead of += 8"
+
+[[mutants]]
+domain = "codec"
+file = "src/codec.rs"
+anchor = "        self.pos += n;\n        Ok(s)\n    }\n    /// Length-prefixed"
+replacement = "        self.pos *= n;\n        Ok(s)\n    }\n    /// Length-prefixed"
+description = "take: pos *= n instead of += n"
+
+[[mutants]]
+domain = "codec"
+file = "src/codec.rs"
+anchor = "pub const DOMAIN_ENVELOPE: u8 = 0x02;"
+replacement = "pub const DOMAIN_ENVELOPE: u8 = 0x03;"
+description = "DOMAIN_ENVELOPE wrong value (conflicts with DOMAIN_SPAN)"
+
+[[mutants]]
+domain = "codec"
+file = "src/codec.rs"
+anchor = "pub const DOMAIN_GRANT: u8 = 0x04;"
+replacement = "pub const DOMAIN_GRANT: u8 = 0x02;"
+description = "DOMAIN_GRANT wrong value (conflicts with DOMAIN_ENVELOPE)"
+
+[[mutants]]
+domain = "codec"
+file = "src/codec.rs"
+anchor = "pub const MAX_PARENTS: u8 = 4;"
+replacement = "pub const MAX_PARENTS: u8 = 5;"
+description = "MAX_PARENTS wrong constant (allows 5 instead of 4)"
+
+[[mutants]]
+domain = "codec"
+file = "src/codec.rs"
+anchor = "pub const MAX_CA_SIGS: u8 = 4;"
+replacement = "pub const MAX_CA_SIGS: u8 = 5;"
+description = "MAX_CA_SIGS wrong constant"
