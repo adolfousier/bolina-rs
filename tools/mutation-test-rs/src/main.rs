@@ -79,7 +79,6 @@ fn revert_mutant(root: &Path, mutant: &MutantSpec) -> Result<(), String> {
 fn run_tests(root: &Path) -> (bool, bool) {
     let output = Command::new("cargo")
         .arg("test")
-        .arg("--lib")
         .arg("--")
         .arg("--test-threads=1")
         .arg("-q")

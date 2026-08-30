@@ -1,0 +1,37 @@
+mutation-test-rs: 13 mutants loaded
+domains: codec
+[1/13] codec — parent_count >= instead of > (accepts MAX_PARENTS as valid) ... SURVIVED ✗
+[2/13] codec — body_len >= instead of > (rejects body at exactly MAX_BODY) ... SURVIVED ✗
+[3/13] codec — field16 >= instead of > (rejects field at exactly max) ... SURVIVED ✗
+[4/13] codec — field32 >= instead of > (rejects field at exactly max) ... SURVIVED ✗
+[5/13] codec — u8r: pos *= 1 instead of += 1 (cursor never advances) ... SURVIVED ✗
+[6/13] codec — u16be: pos *= 2 instead of += 2 (cursor jumps to wrong offset) ... SURVIVED ✗
+[7/13] codec — u32be: pos *= 4 instead of += 4 ... SURVIVED ✗
+[8/13] codec — u64be: pos *= 8 instead of += 8 ... SURVIVED ✗
+[9/13] codec — take: pos *= n instead of += n ... SURVIVED ✗
+[10/13] codec — DOMAIN_ENVELOPE wrong value (conflicts with DOMAIN_SPAN) ... SURVIVED ✗
+[11/13] codec — DOMAIN_GRANT wrong value (conflicts with DOMAIN_ENVELOPE) ... SURVIVED ✗
+[12/13] codec — MAX_PARENTS wrong constant (allows 5 instead of 4) ... SURVIVED ✗
+[13/13] codec — MAX_CA_SIGS wrong constant ... SURVIVED ✗
+
+=== SUMMARY ===
+Total:      13
+Killed:     0
+Survived:   13
+Equivalent: 0
+Unviable:   0
+
+=== SURVIVORS ===
+  codec — src/codec.rs: parent_count >= instead of > (accepts MAX_PARENTS as valid)
+  codec — src/codec.rs: body_len >= instead of > (rejects body at exactly MAX_BODY)
+  codec — src/codec.rs: field16 >= instead of > (rejects field at exactly max)
+  codec — src/codec.rs: field32 >= instead of > (rejects field at exactly max)
+  codec — src/codec.rs: u8r: pos *= 1 instead of += 1 (cursor never advances)
+  codec — src/codec.rs: u16be: pos *= 2 instead of += 2 (cursor jumps to wrong offset)
+  codec — src/codec.rs: u32be: pos *= 4 instead of += 4
+  codec — src/codec.rs: u64be: pos *= 8 instead of += 8
+  codec — src/codec.rs: take: pos *= n instead of += n
+  codec — src/codec.rs: DOMAIN_ENVELOPE wrong value (conflicts with DOMAIN_SPAN)
+  codec — src/codec.rs: DOMAIN_GRANT wrong value (conflicts with DOMAIN_ENVELOPE)
+  codec — src/codec.rs: MAX_PARENTS wrong constant (allows 5 instead of 4)
+  codec — src/codec.rs: MAX_CA_SIGS wrong constant
