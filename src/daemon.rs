@@ -220,6 +220,10 @@ impl SessionTable {
     pub fn lookup(&self, idx: u32) -> Option<&Session> {
         self.sessions.get(idx as usize)
     }
+
+    pub fn sessions(&self) -> usize {
+        self.sessions.len()
+    }
 }
 
 pub struct Session {
