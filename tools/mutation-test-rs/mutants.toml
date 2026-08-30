@@ -1,8 +1,6 @@
 # mutation-test-rs: surgical mutants for bolina-rs
-# Philosophy: each mutant targets a SPEC invariant, with an anchor that
-# matches exactly one occurrence in the source. Equivalent mutants are
-# marked and skipped (not counted).
 
+# === CODEC (13/13 KILLED) ===
 [[mutants]]
 domain = "codec"
 file = "src/codec.rs"
@@ -55,15 +53,15 @@ description = "u32be: pos *= 4 instead of += 4"
 [[mutants]]
 domain = "codec"
 file = "src/codec.rs"
-anchor = "        self.pos += 8;\n        Ok(u64::from_be_bytes(b))"
-replacement = "        self.pos *= 8;\n        Ok(u64::from_be_bytes(b))"
+anchor = "        self.pos += 8;\n        Ok(v)\n    }\n    fn take"
+replacement = "        self.pos *= 8;\n        Ok(v)\n    }\n    fn take"
 description = "u64be: pos *= 8 instead of += 8"
 
 [[mutants]]
 domain = "codec"
 file = "src/codec.rs"
-anchor = "        self.pos += n;\n        Ok(s)\n    }\n    /// Length-prefixed"
-replacement = "        self.pos *= n;\n        Ok(s)\n    }\n    /// Length-prefixed"
+anchor = "        self.pos += n;\n        Ok(slice)\n    }\n    fn rest"
+replacement = "        self.pos *= n;\n        Ok(slice)\n    }\n    fn rest"
 description = "take: pos *= n instead of += n"
 
 [[mutants]]
@@ -91,5 +89,50 @@ description = "MAX_PARENTS wrong constant (allows 5 instead of 4)"
 domain = "codec"
 file = "src/codec.rs"
 anchor = "pub const MAX_CA_SIGS: u8 = 4;"
-replacement = "pub const MAX_CA_SIGS: u8 = 5;"
+replacement = "pub const MAX_CA_SIGS: u8 = 8;"
 description = "MAX_CA_SIGS wrong constant"
+
+# === STATE ===
+[[mutants]]
+domain = "state"
+file = "src/state/intent.rs"
+anchor = "        if self.entries.len() >= MAX_PENDING {"
+replacement = "        if self.entries.len() > MAX_PENDING {"
+description = "intent: MAX_PENDING + 1 accepted (>= to >)"
+
+[[mutants]]
+domain = "state"
+file = "src/state/intent.rs"
+anchor = "            if e.state == State::Pending && now_ms >= e.admitted_ms + T_PENDING_MS {"
+replacement = "            if e.state == State::Pending && now_ms > e.admitted_ms + T_PENDING_MS {"
+description = "intent: timeout at exact T_PENDING_MS not expired (>= to >)"
+
+[[mutants]]
+domain = "state"
+file = "src/state/intent.rs"
+anchor = "            Some(e) if e.state == State::Pending => {"
+replacement = "            Some(e) if e.state != State::Pending => {"
+description = "intent: match_for_grant ignores Pending state (== to !=)"
+
+# === TRANSPORT ===
+[[mutants]]
+domain = "transport"
+file = "src/transport/session.rs"
+anchor = "        if self.counter >= REKEY_AFTER_MESSAGES { return Err(TransportError::RekeyRequired); }"
+replacement = "        if self.counter > REKEY_AFTER_MESSAGES { return Err(TransportError::RekeyRequired); }"
+description = "session: rekey at exact threshold not triggered (>= to >)"
+
+[[mutants]]
+domain = "transport"
+file = "src/transport/session.rs"
+anchor = "        if (local_index as usize) >= MAX_SESSIONS { return None; }"
+replacement = "        if (local_index as usize) > MAX_SESSIONS { return None; }"
+description = "session: index MAX_SESSIONS accepted (>= to >)"
+
+# === CONTROL ===
+[[mutants]]
+domain = "control"
+file = "src/control.rs"
+anchor = "                    && self.buf.len() >= SLOWLORIS_SIZE"
+replacement = "                    && self.buf.len() > SLOWLORIS_SIZE"
+description = "control: slowloris guard at exact size not triggered (>= to >)"
