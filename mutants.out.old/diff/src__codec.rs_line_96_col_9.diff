@@ -1,0 +1,24 @@
+--- src/codec.rs
++++ replace Cursor<'a>::u8r -> Result<u8, ParseError> with Ok(0)
+@@ -88,20 +88,17 @@
+     fn need(&self, n: usize) -> Result<(), ParseError> {
+         if self.pos + n <= self.buf.len() {
+             Ok(())
+         } else {
+             Err(ParseError::Truncated)
+         }
+     }
+     fn u8r(&mut self) -> Result<u8, ParseError> {
+-        self.need(1)?;
+-        let v = self.buf[self.pos];
+-        self.pos += 1;
+-        Ok(v)
++        Ok(0) /* ~ changed by cargo-mutants ~ */
+     }
+     fn u16be(&mut self) -> Result<u16, ParseError> {
+         self.need(2)?;
+         let v = u16::from_be_bytes([self.buf[self.pos], self.buf[self.pos + 1]]);
+         self.pos += 2;
+         Ok(v)
+     }
+     fn u32be(&mut self) -> Result<u32, ParseError> {
