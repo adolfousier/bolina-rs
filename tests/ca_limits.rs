@@ -34,7 +34,7 @@ fn ca_init_over_max_cas_fails() {
 #[test]
 fn ca_issue_with_zero_ttl_fails() {
     let dir = TempDir::new().unwrap();
-    ca_init(dir.path(), 1).unwrap();
+    ca_init(dir.path(), 2).unwrap();  // Need at least 2 CAs
     let req = IssueReq {
         role: "agent".to_string(),
         subject: "test".to_string(),
@@ -48,7 +48,7 @@ fn ca_issue_with_zero_ttl_fails() {
 #[test]
 fn ca_issue_with_positive_ttl_passes() {
     let dir = TempDir::new().unwrap();
-    ca_init(dir.path(), 1).unwrap();
+    ca_init(dir.path(), 2).unwrap();  // Need at least 2 CAs
     let req = IssueReq {
         role: "agent".to_string(),
         subject: "test".to_string(),
