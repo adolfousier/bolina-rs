@@ -136,3 +136,70 @@ file = "src/control.rs"
 anchor = "                    && self.buf.len() >= SLOWLORIS_SIZE"
 replacement = "                    && self.buf.len() > SLOWLORIS_SIZE"
 description = "control: slowloris guard at exact size not triggered (>= to >)"
+
+# --- transport/noise.rs mutants ---
+[[mutant]]
+id = "noise-hmac-key-truncation"
+file = "src/transport/noise.rs"
+anchor = "if key.len() > 64 {"
+replacement = "if key.len() >= 64 {"
+description = "HMAC key truncation: > vs >= (RFC 2104 boundary)"
+
+# --- control.rs mutants ---
+[[mutant]]
+id = "control-slowloris-size"
+file = "src/control.rs"
+anchor = "self.buf.len() >= SLOWLORIS_SIZE"
+replacement = "self.buf.len() > SLOWLORIS_SIZE"
+description = "Slowloris: >= vs > (off-by-one at boundary)"
+
+[[mutant]]
+id = "control-conn-timeout"
+file = "src/control.rs"
+anchor = "pub const CONN_TIMEOUT_MS: u64 = 5000"
+replacement = "pub const CONN_TIMEOUT_MS: u64 = 4999"
+description = "Connection timeout: wrong constant value"
+
+[[mutant]]
+id = "control-slowloris-size-const"
+file = "src/control.rs"
+anchor = "pub const SLOWLORIS_SIZE: usize = 1024"
+replacement = "pub const SLOWLORIS_SIZE: usize = 1023"
+description = "Slowloris size: wrong constant value"
+
+[[mutant]]
+id = "control-max-clients"
+file = "src/control.rs"
+anchor = "pub const MAX_CLIENTS: usize = 8"
+replacement = "pub const MAX_CLIENTS: usize = 7"
+description = "Max clients: wrong constant value"
+
+# --- daemon.rs mutants ---
+[[mutant]]
+id = "daemon-shutdown-check"
+file = "src/daemon.rs"
+anchor = "if SHUTDOWN.load(Ordering::SeqCst)"
+replacement = "if !SHUTDOWN.load(Ordering::SeqCst)"
+description = "Shutdown: inverted logic (never exits)"
+
+# --- ca.rs mutants ---
+[[mutant]]
+id = "ca-count-zero"
+file = "src/ca.rs"
+anchor = "if count == 0 || count > 8"
+replacement = "if count == 0 && count > 8"
+description = "Count validation: || vs && (logic error)"
+
+[[mutant]]
+id = "ca-count-max"
+file = "src/ca.rs"
+anchor = "count > 8"
+replacement = "count >= 8"
+description = "Count max: > vs >= (off-by-one)"
+
+[[mutant]]
+id = "ca-privileged-lifetime"
+file = "src/ca.rs"
+anchor = "const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 * 24 * 3600 * 1000"
+replacement = "const MAX_PRIVILEGED_LIFETIME_MS: u64 = 29 * 24 * 3600 * 1000"
+description = "Privileged lifetime: wrong constant (29 days instead of 30)"

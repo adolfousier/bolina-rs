@@ -84,7 +84,7 @@ impl Table {
         }) {
             return Err(IntentError::ResourceHeld);
         }
-        if self.entries.len() >= MAX_PENDING {
+        if self.entries.len() > MAX_PENDING {
             return Err(IntentError::TableFull);
         }
         self.entries.push(Entry {
@@ -135,7 +135,7 @@ impl Table {
     pub fn expire_timeouts(&mut self, now_ms: u64) -> usize {
         let mut collapsed = 0;
         for e in self.entries.iter_mut() {
-            if e.state == State::Pending && now_ms >= e.admitted_ms + T_PENDING_MS {
+            if e.state == State::Pending && now_ms > e.admitted_ms + T_PENDING_MS {
                 e.state = State::Expired;
                 collapsed += 1;
             }
