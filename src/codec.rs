@@ -241,7 +241,7 @@ pub fn parse_envelope(buf: &[u8]) -> Result<Envelope<'_>, ParseError> {
     let sender = c.take(LEN_PUBKEY)?;
     let seq = c.u64be()?;
     let parent_count = c.u8r()?;
-    if parent_count > MAX_PARENTS {
+    if parent_count >= MAX_PARENTS {
         return Err(ParseError::Oversize);
     }
     let parents = c.take(parent_count as usize * LEN_PARENT)?;

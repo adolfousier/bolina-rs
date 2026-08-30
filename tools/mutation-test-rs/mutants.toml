@@ -1,205 +1,222 @@
-# mutation-test-rs: surgical mutants for bolina-rs
+# Mutation test configuration for bolina-rs
 
-# === CODEC (13/13 KILLED) ===
+# === CODEC (src/codec.rs) ===
+
 [[mutants]]
 domain = "codec"
-file = "src/codec.rs"
-anchor = "    if parent_count > MAX_PARENTS {"
-replacement = "    if parent_count >= MAX_PARENTS {"
 description = "parent_count >= instead of > (accepts MAX_PARENTS as valid)"
+file = "src/codec.rs"
+anchor = """    if parent_count > MAX_PARENTS {
+        return Err(ParseError::Oversize);
+    }"""
+replacement = """    if parent_count >= MAX_PARENTS {
+        return Err(ParseError::Oversize);
+    }"""
 
 [[mutants]]
 domain = "codec"
-file = "src/codec.rs"
-anchor = "    if body_len > MAX_BODY {"
-replacement = "    if body_len >= MAX_BODY {"
 description = "body_len >= instead of > (rejects body at exactly MAX_BODY)"
+file = "src/codec.rs"
+anchor = """    if body_len > MAX_BODY {
+        return Err(ParseError::Oversize);
+    }"""
+replacement = """    if body_len >= MAX_BODY {
+        return Err(ParseError::Oversize);
+    }"""
 
 [[mutants]]
 domain = "codec"
-file = "src/codec.rs"
-anchor = "        if len > max {\n            return Err(ParseError::Oversize);\n        }\n        self.take(len)\n    }\n    /// Length-prefixed field with u32 length"
-replacement = "        if len >= max {\n            return Err(ParseError::Oversize);\n        }\n        self.take(len)\n    }\n    /// Length-prefixed field with u32 length"
 description = "field16 >= instead of > (rejects field at exactly max)"
+file = "src/codec.rs"
+anchor = """        if len > max {
+            return Err(ParseError::Oversize);
+        }
+        self.take(len)
+    }"""
+replacement = """        if len >= max {
+            return Err(ParseError::Oversize);
+        }
+        self.take(len)
+    }"""
 
 [[mutants]]
 domain = "codec"
-file = "src/codec.rs"
-anchor = "        if len > max {\n            return Err(ParseError::Oversize);\n        }\n        self.take(len as usize)\n    }\n    fn rest"
-replacement = "        if len >= max {\n            return Err(ParseError::Oversize);\n        }\n        self.take(len as usize)\n    }\n    fn rest"
 description = "field32 >= instead of > (rejects field at exactly max)"
+file = "src/codec.rs"
+anchor = """        if len > max {
+            return Err(ParseError::Oversize);
+        }
+        self.take(len as usize)
+    }"""
+replacement = """        if len >= max {
+            return Err(ParseError::Oversize);
+        }
+        self.take(len as usize)
+    }"""
 
 [[mutants]]
 domain = "codec"
-file = "src/codec.rs"
-anchor = "        self.pos += 1;\n        Ok(v)\n    }\n    fn u16be"
-replacement = "        self.pos *= 1;\n        Ok(v)\n    }\n    fn u16be"
 description = "u8r: pos *= 1 instead of += 1 (cursor never advances)"
+file = "src/codec.rs"
+anchor = """        self.pos += 1;
+        Ok(v)
+    }
+    fn u16be"""
+replacement = """        self.pos *= 1;
+        Ok(v)
+    }
+    fn u16be"""
 
 [[mutants]]
 domain = "codec"
-file = "src/codec.rs"
-anchor = "        self.pos += 2;\n        Ok(v)\n    }\n    fn u32be"
-replacement = "        self.pos *= 2;\n        Ok(v)\n    }\n    fn u32be"
 description = "u16be: pos *= 2 instead of += 2 (cursor jumps to wrong offset)"
+file = "src/codec.rs"
+anchor = """        self.pos += 2;
+        Ok(v)
+    }
+    fn u32be"""
+replacement = """        self.pos *= 2;
+        Ok(v)
+    }
+    fn u32be"""
 
 [[mutants]]
 domain = "codec"
-file = "src/codec.rs"
-anchor = "        self.pos += 4;\n        Ok(v)\n    }\n    fn u64be"
-replacement = "        self.pos *= 4;\n        Ok(v)\n    }\n    fn u64be"
 description = "u32be: pos *= 4 instead of += 4"
+file = "src/codec.rs"
+anchor = """        self.pos += 4;
+        Ok(v)
+    }
+    fn u64be"""
+replacement = """        self.pos *= 4;
+        Ok(v)
+    }
+    fn u64be"""
 
 [[mutants]]
 domain = "codec"
-file = "src/codec.rs"
-anchor = "        self.pos += 8;\n        Ok(v)\n    }\n    fn take"
-replacement = "        self.pos *= 8;\n        Ok(v)\n    }\n    fn take"
 description = "u64be: pos *= 8 instead of += 8"
-
-[[mutants]]
-domain = "codec"
 file = "src/codec.rs"
-anchor = "        self.pos += n;\n        Ok(slice)\n    }\n    fn rest"
-replacement = "        self.pos *= n;\n        Ok(slice)\n    }\n    fn rest"
-description = "take: pos *= n instead of += n"
+anchor = """        self.pos += 8;
+        Ok(v)
+    }
+    fn take"""
+replacement = """        self.pos *= 8;
+        Ok(v)
+    }
+    fn take"""
 
 [[mutants]]
 domain = "codec"
+description = "take: pos *= n instead of += n"
+file = "src/codec.rs"
+anchor = """        self.pos += n;
+        Ok(slice)
+    }
+    fn rest"""
+replacement = """        self.pos *= n;
+        Ok(slice)
+    }
+    fn rest"""
+
+[[mutants]]
+domain = "codec"
+description = "DOMAIN_ENVELOPE wrong value (conflicts with DOMAIN_SPAN)"
 file = "src/codec.rs"
 anchor = "pub const DOMAIN_ENVELOPE: u8 = 0x02;"
 replacement = "pub const DOMAIN_ENVELOPE: u8 = 0x03;"
-description = "DOMAIN_ENVELOPE wrong value (conflicts with DOMAIN_SPAN)"
 
 [[mutants]]
 domain = "codec"
+description = "DOMAIN_GRANT wrong value (conflicts with DOMAIN_ENVELOPE)"
 file = "src/codec.rs"
 anchor = "pub const DOMAIN_GRANT: u8 = 0x04;"
 replacement = "pub const DOMAIN_GRANT: u8 = 0x02;"
-description = "DOMAIN_GRANT wrong value (conflicts with DOMAIN_ENVELOPE)"
 
 [[mutants]]
 domain = "codec"
+description = "MAX_PARENTS wrong constant (allows 5 instead of 4)"
 file = "src/codec.rs"
 anchor = "pub const MAX_PARENTS: u8 = 4;"
 replacement = "pub const MAX_PARENTS: u8 = 5;"
-description = "MAX_PARENTS wrong constant (allows 5 instead of 4)"
 
 [[mutants]]
 domain = "codec"
+description = "MAX_CA_SIGS wrong constant"
 file = "src/codec.rs"
 anchor = "pub const MAX_CA_SIGS: u8 = 4;"
 replacement = "pub const MAX_CA_SIGS: u8 = 8;"
-description = "MAX_CA_SIGS wrong constant"
 
-# === STATE ===
+# === STATE (src/state/intent.rs) ===
+
 [[mutants]]
 domain = "state"
-file = "src/state/intent.rs"
-anchor = "        if self.entries.len() >= MAX_PENDING {"
-replacement = "        if self.entries.len() > MAX_PENDING {"
 description = "intent: MAX_PENDING + 1 accepted (>= to >)"
+file = "src/state/intent.rs"
+anchor = """        if self.entries.len() >= MAX_PENDING {
+            return Err(IntentError::TableFull);
+        }"""
+replacement = """        if self.entries.len() > MAX_PENDING {
+            return Err(IntentError::TableFull);
+        }"""
 
 [[mutants]]
 domain = "state"
-file = "src/state/intent.rs"
-anchor = "            if e.state == State::Pending && now_ms >= e.admitted_ms + T_PENDING_MS {"
-replacement = "            if e.state == State::Pending && now_ms > e.admitted_ms + T_PENDING_MS {"
 description = "intent: timeout at exact T_PENDING_MS not expired (>= to >)"
+file = "src/state/intent.rs"
+anchor = """            if now_ms >= e.admitted_ms + T_PENDING_MS {
+                e.state = State::Expired;"""
+replacement = """            if now_ms > e.admitted_ms + T_PENDING_MS {
+                e.state = State::Expired;"""
 
 [[mutants]]
 domain = "state"
-file = "src/state/intent.rs"
-anchor = "            Some(e) if e.state == State::Pending => {"
-replacement = "            Some(e) if e.state != State::Pending => {"
 description = "intent: match_for_grant ignores Pending state (== to !=)"
+file = "src/state/intent.rs"
+anchor = """        if let Some(e) = self.entries.iter().find(|e| e.id == id) {
+            if e.state == State::Pending {
+                return Some(&e.resource);
+            }
+        }"""
+replacement = """        if let Some(e) = self.entries.iter().find(|e| e.id == id) {
+            if e.state != State::Pending {
+                return Some(&e.resource);
+            }
+        }"""
 
-# === TRANSPORT ===
+# === TRANSPORT (src/transport/session.rs) ===
+
 [[mutants]]
 domain = "transport"
-file = "src/transport/session.rs"
-anchor = "        if self.counter >= REKEY_AFTER_MESSAGES { return Err(TransportError::RekeyRequired); }"
-replacement = "        if self.counter > REKEY_AFTER_MESSAGES { return Err(TransportError::RekeyRequired); }"
 description = "session: rekey at exact threshold not triggered (>= to >)"
+file = "src/transport/session.rs"
+anchor = """        if self.counter >= REKEY_AFTER_MESSAGES {
+            return None;
+        }"""
+replacement = """        if self.counter > REKEY_AFTER_MESSAGES {
+            return None;
+        }"""
 
 [[mutants]]
 domain = "transport"
-file = "src/transport/session.rs"
-anchor = "        if (local_index as usize) >= MAX_SESSIONS { return None; }"
-replacement = "        if (local_index as usize) > MAX_SESSIONS { return None; }"
 description = "session: index MAX_SESSIONS accepted (>= to >)"
+file = "src/transport/session.rs"
+anchor = """        if index >= MAX_SESSIONS {
+            return None;
+        }"""
+replacement = """        if index > MAX_SESSIONS {
+            return None;
+        }"""
 
-# === CONTROL ===
+# === CONTROL (src/control.rs) ===
+
 [[mutants]]
 domain = "control"
-file = "src/control.rs"
-anchor = "                    && self.buf.len() >= SLOWLORIS_SIZE"
-replacement = "                    && self.buf.len() > SLOWLORIS_SIZE"
 description = "control: slowloris guard at exact size not triggered (>= to >)"
-
-# --- transport/noise.rs mutants ---
-[[mutant]]
-id = "noise-hmac-key-truncation"
-file = "src/transport/noise.rs"
-anchor = "if key.len() > 64 {"
-replacement = "if key.len() >= 64 {"
-description = "HMAC key truncation: > vs >= (RFC 2104 boundary)"
-
-# --- control.rs mutants ---
-[[mutant]]
-id = "control-slowloris-size"
 file = "src/control.rs"
-anchor = "self.buf.len() >= SLOWLORIS_SIZE"
-replacement = "self.buf.len() > SLOWLORIS_SIZE"
-description = "Slowloris: >= vs > (off-by-one at boundary)"
-
-[[mutant]]
-id = "control-conn-timeout"
-file = "src/control.rs"
-anchor = "pub const CONN_TIMEOUT_MS: u64 = 5000"
-replacement = "pub const CONN_TIMEOUT_MS: u64 = 4999"
-description = "Connection timeout: wrong constant value"
-
-[[mutant]]
-id = "control-slowloris-size-const"
-file = "src/control.rs"
-anchor = "pub const SLOWLORIS_SIZE: usize = 1024"
-replacement = "pub const SLOWLORIS_SIZE: usize = 1023"
-description = "Slowloris size: wrong constant value"
-
-[[mutant]]
-id = "control-max-clients"
-file = "src/control.rs"
-anchor = "pub const MAX_CLIENTS: usize = 8"
-replacement = "pub const MAX_CLIENTS: usize = 7"
-description = "Max clients: wrong constant value"
-
-# --- daemon.rs mutants ---
-[[mutant]]
-id = "daemon-shutdown-check"
-file = "src/daemon.rs"
-anchor = "if SHUTDOWN.load(Ordering::SeqCst)"
-replacement = "if !SHUTDOWN.load(Ordering::SeqCst)"
-description = "Shutdown: inverted logic (never exits)"
-
-# --- ca.rs mutants ---
-[[mutant]]
-id = "ca-count-zero"
-file = "src/ca.rs"
-anchor = "if count == 0 || count > 8"
-replacement = "if count == 0 && count > 8"
-description = "Count validation: || vs && (logic error)"
-
-[[mutant]]
-id = "ca-count-max"
-file = "src/ca.rs"
-anchor = "count > 8"
-replacement = "count >= 8"
-description = "Count max: > vs >= (off-by-one)"
-
-[[mutant]]
-id = "ca-privileged-lifetime"
-file = "src/ca.rs"
-anchor = "const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 * 24 * 3600 * 1000"
-replacement = "const MAX_PRIVILEGED_LIFETIME_MS: u64 = 29 * 24 * 3600 * 1000"
-description = "Privileged lifetime: wrong constant (29 days instead of 30)"
+anchor = """            if self.state == HttpState::ReadingHeaders && self.buf.len() >= SLOWLORIS_SIZE {
+                return Some(HttpError::Slowloris);
+            }"""
+replacement = """            if self.state == HttpState::ReadingHeaders && self.buf.len() > SLOWLORIS_SIZE {
+                return Some(HttpError::Slowloris);
+            }"""
