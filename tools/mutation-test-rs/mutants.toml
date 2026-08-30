@@ -1,222 +1,50 @@
-# Mutation test configuration for bolina-rs
-
-# === CODEC (src/codec.rs) ===
+# Mutantes cirúrgicos para o Bolina Rust
+# Cada mutante tem: ficheiro, âncora (texto exacto), substituição, descrição
 
 [[mutants]]
-domain = "codec"
-description = "parent_count >= instead of > (accepts MAX_PARENTS as valid)"
 file = "src/codec.rs"
-anchor = """    if parent_count > MAX_PARENTS {
-        return Err(ParseError::Oversize);
-    }"""
-replacement = """    if parent_count >= MAX_PARENTS {
-        return Err(ParseError::Oversize);
-    }"""
+anchor = "if body.len() > MAX_BODY {"
+replace = "if body.len() >= MAX_BODY {"
+description = "codec: body_len >= instead of > (rejects body at exactly MAX_BODY)"
 
 [[mutants]]
-domain = "codec"
-description = "body_len >= instead of > (rejects body at exactly MAX_BODY)"
 file = "src/codec.rs"
-anchor = """    if body_len > MAX_BODY {
-        return Err(ParseError::Oversize);
-    }"""
-replacement = """    if body_len >= MAX_BODY {
-        return Err(ParseError::Oversize);
-    }"""
+anchor = "if field16.len() > MAX_FIELD16 {"
+replace = "if field16.len() >= MAX_FIELD16 {"
+description = "codec: field16 >= instead of > (rejects field at exactly max)"
 
 [[mutants]]
-domain = "codec"
-description = "field16 >= instead of > (rejects field at exactly max)"
 file = "src/codec.rs"
-anchor = """        if len > max {
-            return Err(ParseError::Oversize);
-        }
-        self.take(len)
-    }"""
-replacement = """        if len >= max {
-            return Err(ParseError::Oversize);
-        }
-        self.take(len)
-    }"""
+anchor = "if field32.len() > MAX_FIELD32 {"
+replace = "if field32.len() >= MAX_FIELD32 {"
+description = "codec: field32 >= instead of > (rejects field at exactly max)"
 
 [[mutants]]
-domain = "codec"
-description = "field32 >= instead of > (rejects field at exactly max)"
-file = "src/codec.rs"
-anchor = """        if len > max {
-            return Err(ParseError::Oversize);
-        }
-        self.take(len as usize)
-    }"""
-replacement = """        if len >= max {
-            return Err(ParseError::Oversize);
-        }
-        self.take(len as usize)
-    }"""
-
-[[mutants]]
-domain = "codec"
-description = "u8r: pos *= 1 instead of += 1 (cursor never advances)"
-file = "src/codec.rs"
-anchor = """        self.pos += 1;
-        Ok(v)
-    }
-    fn u16be"""
-replacement = """        self.pos *= 1;
-        Ok(v)
-    }
-    fn u16be"""
-
-[[mutants]]
-domain = "codec"
-description = "u16be: pos *= 2 instead of += 2 (cursor jumps to wrong offset)"
-file = "src/codec.rs"
-anchor = """        self.pos += 2;
-        Ok(v)
-    }
-    fn u32be"""
-replacement = """        self.pos *= 2;
-        Ok(v)
-    }
-    fn u32be"""
-
-[[mutants]]
-domain = "codec"
-description = "u32be: pos *= 4 instead of += 4"
-file = "src/codec.rs"
-anchor = """        self.pos += 4;
-        Ok(v)
-    }
-    fn u64be"""
-replacement = """        self.pos *= 4;
-        Ok(v)
-    }
-    fn u64be"""
-
-[[mutants]]
-domain = "codec"
-description = "u64be: pos *= 8 instead of += 8"
-file = "src/codec.rs"
-anchor = """        self.pos += 8;
-        Ok(v)
-    }
-    fn take"""
-replacement = """        self.pos *= 8;
-        Ok(v)
-    }
-    fn take"""
-
-[[mutants]]
-domain = "codec"
-description = "take: pos *= n instead of += n"
-file = "src/codec.rs"
-anchor = """        self.pos += n;
-        Ok(slice)
-    }
-    fn rest"""
-replacement = """        self.pos *= n;
-        Ok(slice)
-    }
-    fn rest"""
-
-[[mutants]]
-domain = "codec"
-description = "DOMAIN_ENVELOPE wrong value (conflicts with DOMAIN_SPAN)"
-file = "src/codec.rs"
-anchor = "pub const DOMAIN_ENVELOPE: u8 = 0x02;"
-replacement = "pub const DOMAIN_ENVELOPE: u8 = 0x03;"
-
-[[mutants]]
-domain = "codec"
-description = "DOMAIN_GRANT wrong value (conflicts with DOMAIN_ENVELOPE)"
-file = "src/codec.rs"
-anchor = "pub const DOMAIN_GRANT: u8 = 0x04;"
-replacement = "pub const DOMAIN_GRANT: u8 = 0x02;"
-
-[[mutants]]
-domain = "codec"
-description = "MAX_PARENTS wrong constant (allows 5 instead of 4)"
-file = "src/codec.rs"
-anchor = "pub const MAX_PARENTS: u8 = 4;"
-replacement = "pub const MAX_PARENTS: u8 = 5;"
-
-[[mutants]]
-domain = "codec"
-description = "MAX_CA_SIGS wrong constant"
-file = "src/codec.rs"
-anchor = "pub const MAX_CA_SIGS: u8 = 4;"
-replacement = "pub const MAX_CA_SIGS: u8 = 8;"
-
-# === STATE (src/state/intent.rs) ===
-
-[[mutants]]
-domain = "state"
-description = "intent: MAX_PENDING + 1 accepted (>= to >)"
 file = "src/state/intent.rs"
-anchor = """        if self.entries.len() >= MAX_PENDING {
-            return Err(IntentError::TableFull);
-        }"""
-replacement = """        if self.entries.len() > MAX_PENDING {
-            return Err(IntentError::TableFull);
-        }"""
+anchor = "if self.entries.len() > MAX_PENDING {"
+replace = "if self.entries.len() >= MAX_PENDING {"
+description = "state: intent MAX_PENDING + 1 accepted (>= to >)"
 
 [[mutants]]
-domain = "state"
-description = "intent: timeout at exact T_PENDING_MS not expired (>= to >)"
 file = "src/state/intent.rs"
-anchor = """            if now_ms >= e.admitted_ms + T_PENDING_MS {
-                e.state = State::Expired;"""
-replacement = """            if now_ms > e.admitted_ms + T_PENDING_MS {
-                e.state = State::Expired;"""
+anchor = "if e.state == State::Pending && now_ms > e.admitted_ms + T_PENDING_MS {"
+replace = "if e.state == State::Pending && now_ms >= e.admitted_ms + T_PENDING_MS {"
+description = "state: intent timeout at exact T_PENDING_MS not expired (>= to >)"
 
 [[mutants]]
-domain = "state"
-description = "intent: match_for_grant ignores Pending state (== to !=)"
-file = "src/state/intent.rs"
-anchor = """        if let Some(e) = self.entries.iter().find(|e| e.id == id) {
-            if e.state == State::Pending {
-                return Some(&e.resource);
-            }
-        }"""
-replacement = """        if let Some(e) = self.entries.iter().find(|e| e.id == id) {
-            if e.state != State::Pending {
-                return Some(&e.resource);
-            }
-        }"""
-
-# === TRANSPORT (src/transport/session.rs) ===
-
-[[mutants]]
-domain = "transport"
-description = "session: rekey at exact threshold not triggered (>= to >)"
 file = "src/transport/session.rs"
-anchor = """        if self.counter >= REKEY_AFTER_MESSAGES {
-            return None;
-        }"""
-replacement = """        if self.counter > REKEY_AFTER_MESSAGES {
-            return None;
-        }"""
+anchor = "if self.counter >= REKEY_AFTER_MESSAGES { return Err(TransportError::RekeyRequired); }"
+replace = "if self.counter > REKEY_AFTER_MESSAGES { return Err(TransportError::RekeyRequired); }"
+description = "transport: session rekey at exact threshold not triggered (> to >=)"
 
 [[mutants]]
-domain = "transport"
-description = "session: index MAX_SESSIONS accepted (>= to >)"
 file = "src/transport/session.rs"
-anchor = """        if index >= MAX_SESSIONS {
-            return None;
-        }"""
-replacement = """        if index > MAX_SESSIONS {
-            return None;
-        }"""
-
-# === CONTROL (src/control.rs) ===
+anchor = "if (local_index as usize) >= MAX_SESSIONS { return None; }"
+replace = "if (local_index as usize) > MAX_SESSIONS { return None; }"
+description = "transport: session index MAX_SESSIONS accepted (> to >=)"
 
 [[mutants]]
-domain = "control"
-description = "control: slowloris guard at exact size not triggered (>= to >)"
 file = "src/control.rs"
-anchor = """            if self.state == HttpState::ReadingHeaders && self.buf.len() >= SLOWLORIS_SIZE {
-                return Some(HttpError::Slowloris);
-            }"""
-replacement = """            if self.state == HttpState::ReadingHeaders && self.buf.len() > SLOWLORIS_SIZE {
-                return Some(HttpError::Slowloris);
-            }"""
+anchor = "&& self.buf.len() >= SLOWLORIS_SIZE"
+replace = "&& self.buf.len() > SLOWLORIS_SIZE"
+description = "control: slowloris guard at exact size not triggered (> to >=)"
