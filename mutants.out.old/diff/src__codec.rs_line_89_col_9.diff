@@ -1,0 +1,25 @@
+--- src/codec.rs
++++ replace Cursor<'a>::need -> Result<(), ParseError> with Ok(())
+@@ -81,21 +81,17 @@
+ }
+ 
+ impl<'a> Cursor<'a> {
+     fn new(buf: &'a [u8]) -> Self {
+         Cursor { buf, pos: 0 }
+     }
+     /// The ONE truncation exit point (BE-WIRE-02).
+     fn need(&self, n: usize) -> Result<(), ParseError> {
+-        if self.buf.len() - self.pos >= n {
+-            Ok(())
+-        } else {
+-            Err(ParseError::Truncated)
+-        }
++        Ok(()) /* ~ changed by cargo-mutants ~ */
+     }
+     fn u8r(&mut self) -> Result<u8, ParseError> {
+         self.need(1)?;
+         let v = self.buf[self.pos];
+         self.pos += 1;
+         Ok(v)
+     }
+     fn u16be(&mut self) -> Result<u16, ParseError> {

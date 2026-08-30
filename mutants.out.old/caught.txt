@@ -1,0 +1,7 @@
+src/codec.rs:24:40: replace - with +
+src/codec.rs:24:40: replace - with /
+src/codec.rs:27:33: replace * with +
+src/codec.rs:27:33: replace * with /
+src/codec.rs:28:36: replace * with +
+src/codec.rs:28:36: replace * with /
+src/codec.rs:89:38: replace >= with < in Cursor<'a>::need

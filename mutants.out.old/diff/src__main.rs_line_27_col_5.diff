@@ -1,0 +1,21 @@
+--- src/main.rs
++++ replace env_or -> String with String::new()
+@@ -19,17 +19,17 @@
+ mod state;
+ mod transport;
+ 
+ use daemon::{Daemon, Keys, install_shutdown_handler};
+ 
+ const DEFAULT_BIND: &str = "0.0.0.0:7420";
+ 
+ fn env_or(key: &str, default: &str) -> String {
+-    env::var(key).unwrap_or_else(|_| default.to_string())
++    String::new() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ fn fatal(msg: &str) -> ! {
+     eprintln!("bolina: fatal: {}", msg);
+     std::process::exit(1);
+ }
+ 
+ fn parse_bind(spec: &str) -> Option<SocketAddr> {

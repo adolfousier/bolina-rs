@@ -86,7 +86,7 @@ impl<'a> Cursor<'a> {
     }
     /// The ONE truncation exit point (BE-WIRE-02).
     fn need(&self, n: usize) -> Result<(), ParseError> {
-        if self.buf.len() - self.pos >= n {
+        if self.pos + n <= self.buf.len() {
             Ok(())
         } else {
             Err(ParseError::Truncated)

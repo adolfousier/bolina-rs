@@ -1,3 +1,5 @@
+Found 1419 mutants to test
+FAILED   Unmutated baseline in 0s build + 24s test
 
 *** baseline
 
@@ -3541,3 +3543,5 @@ test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; 
 error: test failed, to rerun pass `-p bolina --test vectors`
 
 *** result: Failure(101)
+
+ERROR cargo test failed in an unmutated tree, so no mutants were tested

@@ -1,0 +1,21 @@
+--- src/codec.rs
++++ replace << with >>
+@@ -12,17 +12,17 @@
+ //! - CA keys strictly ascending: a PARSE failure, not policy (SPEC 3.1).
+ //! - `Malformed` is only wrong-type/reserved bytes on the transport half;
+ //!   channel structures never emit it.
+ 
+ use ed25519_dalek::{Signature, Verifier, VerifyingKey};
+ 
+ // --- limits (SPEC BE-TR-05 / 6.3 / 7 / 8.1 / 3.1) ---------------------------
+ 
+-pub const MAX_MESSAGE: usize = 1 << 20;
++pub const MAX_MESSAGE: usize = 1 >> /* ~ changed by cargo-mutants ~ */ 20;
+ pub const LEN_PUBKEY: usize = 32;
+ pub const LEN_SIG: usize = 64;
+ pub const MAX_HEADER: usize = 512;
+ pub const MAX_BODY: u32 = (MAX_MESSAGE - MAX_HEADER) as u32;
+ pub const MAX_PARENTS: u8 = 4;
+ pub const MAX_RESOURCE: usize = 256;
+ pub const MAX_ACTION: u32 = 256 * 1024;
+ pub const MAX_RATIONALE: usize = 4 * 1024;
