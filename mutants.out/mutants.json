@@ -1,0 +1,1730 @@
+[
+  {
+    "diff": "--- src/daemon.rs\n+++ replace Daemon::attach_ledger -> Result<(), String> with Ok(())\n@@ -53,18 +53,17 @@\n             handshake: HandshakeServer::new(),\n             control: None,\n             bind_addr: bind,\n             started: Instant::now(),\n         }\n     }\n \n     pub fn attach_ledger(&mut self, path: &std::path::Path) -> Result<(), String> {\n-        self.ledger = Some(ledger::GrantLedger::open(path).map_err(|e| format!(\"{:?}\", e))?);\n-        Ok(())\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub fn attach_control(&mut self, addr: SocketAddr) -> Result<(), String> {\n         self.control = Some(ControlPlane::new(addr)?);\n         Ok(())\n     }\n \n     /// Main poll loop: UDP wire + optional TCP control, single-threaded\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::attach_ledger",
+      "return_type": "-> Result<(), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 63
+        },
+        "start": {
+          "column": 5,
+          "line": 60
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:61:9: replace Daemon::attach_ledger -> Result<(), String> with Ok(())",
+    "package": "bolina",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 62
+      },
+      "start": {
+        "column": 9,
+        "line": 61
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace Daemon::attach_control -> Result<(), String> with Ok(())\n@@ -58,18 +58,17 @@\n     }\n \n     pub fn attach_ledger(&mut self, path: &std::path::Path) -> Result<(), String> {\n         self.ledger = Some(ledger::GrantLedger::open(path).map_err(|e| format!(\"{:?}\", e))?);\n         Ok(())\n     }\n \n     pub fn attach_control(&mut self, addr: SocketAddr) -> Result<(), String> {\n-        self.control = Some(ControlPlane::new(addr)?);\n-        Ok(())\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Main poll loop: UDP wire + optional TCP control, single-threaded\n     pub fn run_loop(&mut self) -> Result<(), String> {\n         let udp_sock = std::net::UdpSocket::bind(self.bind_addr).map_err(|e| e.to_string())?;\n         udp_sock.set_nonblocking(true).map_err(|e| e.to_string())?;\n         let mut buf = [0u8; 4096];\n \n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::attach_control",
+      "return_type": "-> Result<(), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 68
+        },
+        "start": {
+          "column": 5,
+          "line": 65
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:66:9: replace Daemon::attach_control -> Result<(), String> with Ok(())",
+    "package": "bolina",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 67
+      },
+      "start": {
+        "column": 9,
+        "line": 66
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace Daemon::run_loop -> Result<(), String> with Ok(())\n@@ -64,51 +64,17 @@\n \n     pub fn attach_control(&mut self, addr: SocketAddr) -> Result<(), String> {\n         self.control = Some(ControlPlane::new(addr)?);\n         Ok(())\n     }\n \n     /// Main poll loop: UDP wire + optional TCP control, single-threaded\n     pub fn run_loop(&mut self) -> Result<(), String> {\n-        let udp_sock = std::net::UdpSocket::bind(self.bind_addr).map_err(|e| e.to_string())?;\n-        udp_sock.set_nonblocking(true).map_err(|e| e.to_string())?;\n-        let mut buf = [0u8; 4096];\n-\n-        loop {\n-            if SHUTDOWN.load(Ordering::SeqCst) {\n-                break;\n-            }\n-\n-            // UDP recv\n-            match udp_sock.recv_from(&mut buf) {\n-                Ok((len, src)) => {\n-                    self.handle_datagram(&buf[..len], src);\n-                }\n-                Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {\n-                    // No packet, continue\n-                }\n-                Err(e) => return Err(format!(\"recv_from: {}\", e)),\n-            }\n-\n-            // Control plane (if attached)\n-            if let Some(ref mut ctrl) = self.control {\n-                ctrl.poll_tick(&mut self.intents, &self.ledger)?;\n-            }\n-\n-            // Small sleep to avoid busy-wait (10ms)\n-            std::thread::sleep(std::time::Duration::from_millis(10));\n-        }\n-\n-        // Drain: flush ledger if attached\n-        if let Some(ref mut _ledger) = self.ledger {\n-            // TODO: add sync method to ledger\n-        }\n-\n-        Ok(())\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Process one inbound datagram\n     pub fn handle_datagram(&mut self, pkt: &[u8], src: SocketAddr) {\n         if pkt.is_empty() {\n             return;\n         }\n \n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::run_loop",
+      "return_type": "-> Result<(), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 107
+        },
+        "start": {
+          "column": 5,
+          "line": 70
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:72:9: replace Daemon::run_loop -> Result<(), String> with Ok(())",
+    "package": "bolina",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 106
+      },
+      "start": {
+        "column": 9,
+        "line": 72
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace match guard e.kind() == std::io::ErrorKind::WouldBlock with true in Daemon::run_loop\n@@ -78,17 +78,17 @@\n                 break;\n             }\n \n             // UDP recv\n             match udp_sock.recv_from(&mut buf) {\n                 Ok((len, src)) => {\n                     self.handle_datagram(&buf[..len], src);\n                 }\n-                Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {\n+                Err(e) if true /* ~ changed by cargo-mutants ~ */ => {\n                     // No packet, continue\n                 }\n                 Err(e) => return Err(format!(\"recv_from: {}\", e)),\n             }\n \n             // Control plane (if attached)\n             if let Some(ref mut ctrl) = self.control {\n                 ctrl.poll_tick(&mut self.intents, &self.ledger)?;\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::run_loop",
+      "return_type": "-> Result<(), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 107
+        },
+        "start": {
+          "column": 5,
+          "line": 70
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "src/daemon.rs:86:27: replace match guard e.kind() == std::io::ErrorKind::WouldBlock with true in Daemon::run_loop",
+    "package": "bolina",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 69,
+        "line": 86
+      },
+      "start": {
+        "column": 27,
+        "line": 86
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace match guard e.kind() == std::io::ErrorKind::WouldBlock with false in Daemon::run_loop\n@@ -78,17 +78,17 @@\n                 break;\n             }\n \n             // UDP recv\n             match udp_sock.recv_from(&mut buf) {\n                 Ok((len, src)) => {\n                     self.handle_datagram(&buf[..len], src);\n                 }\n-                Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {\n+                Err(e) if false /* ~ changed by cargo-mutants ~ */ => {\n                     // No packet, continue\n                 }\n                 Err(e) => return Err(format!(\"recv_from: {}\", e)),\n             }\n \n             // Control plane (if attached)\n             if let Some(ref mut ctrl) = self.control {\n                 ctrl.poll_tick(&mut self.intents, &self.ledger)?;\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::run_loop",
+      "return_type": "-> Result<(), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 107
+        },
+        "start": {
+          "column": 5,
+          "line": 70
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "src/daemon.rs:86:27: replace match guard e.kind() == std::io::ErrorKind::WouldBlock with false in Daemon::run_loop",
+    "package": "bolina",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 69,
+        "line": 86
+      },
+      "start": {
+        "column": 27,
+        "line": 86
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace == with != in Daemon::run_loop\n@@ -78,17 +78,17 @@\n                 break;\n             }\n \n             // UDP recv\n             match udp_sock.recv_from(&mut buf) {\n                 Ok((len, src)) => {\n                     self.handle_datagram(&buf[..len], src);\n                 }\n-                Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {\n+                Err(e) if e.kind() != /* ~ changed by cargo-mutants ~ */ std::io::ErrorKind::WouldBlock => {\n                     // No packet, continue\n                 }\n                 Err(e) => return Err(format!(\"recv_from: {}\", e)),\n             }\n \n             // Control plane (if attached)\n             if let Some(ref mut ctrl) = self.control {\n                 ctrl.poll_tick(&mut self.intents, &self.ledger)?;\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::run_loop",
+      "return_type": "-> Result<(), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 107
+        },
+        "start": {
+          "column": 5,
+          "line": 70
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/daemon.rs:86:36: replace == with != in Daemon::run_loop",
+    "package": "bolina",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 86
+      },
+      "start": {
+        "column": 36,
+        "line": 86
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace Daemon::handle_datagram with ()\n@@ -103,33 +103,17 @@\n             // TODO: add sync method to ledger\n         }\n \n         Ok(())\n     }\n \n     /// Process one inbound datagram\n     pub fn handle_datagram(&mut self, pkt: &[u8], src: SocketAddr) {\n-        if pkt.is_empty() {\n-            return;\n-        }\n-\n-        let msg_type = pkt[0];\n-        match msg_type {\n-            1 => self.handle_handshake(pkt, src),\n-            4 => self.handle_transport(pkt, src),\n-            5 | 6 => {\n-                // Relay role-gated: drop if no RelayServe attached\n-                // (sender-gate inheritance from relay_serve.md)\n-                // For now: silent drop fail-closed\n-            }\n-            _ => {\n-                // Unknown type: drop\n-            }\n-        }\n+        () /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn handle_handshake(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // mac1 gate FIRST (3 rejection sites before ANY X25519)\n         if pkt.len() < 144 {\n             return;\n         }\n         let mac1_bytes: &[u8; 16] = pkt[112..128].try_into().unwrap();\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_datagram",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 128
+        },
+        "start": {
+          "column": 5,
+          "line": 109
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:111:9: replace Daemon::handle_datagram with ()",
+    "package": "bolina",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 127
+      },
+      "start": {
+        "column": 9,
+        "line": 111
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ delete match arm 1 in Daemon::handle_datagram\n@@ -109,17 +109,17 @@\n     /// Process one inbound datagram\n     pub fn handle_datagram(&mut self, pkt: &[u8], src: SocketAddr) {\n         if pkt.is_empty() {\n             return;\n         }\n \n         let msg_type = pkt[0];\n         match msg_type {\n-            1 => self.handle_handshake(pkt, src),\n+             /* ~ changed by cargo-mutants ~ */\n             4 => self.handle_transport(pkt, src),\n             5 | 6 => {\n                 // Relay role-gated: drop if no RelayServe attached\n                 // (sender-gate inheritance from relay_serve.md)\n                 // For now: silent drop fail-closed\n             }\n             _ => {\n                 // Unknown type: drop\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_datagram",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 128
+        },
+        "start": {
+          "column": 5,
+          "line": 109
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/daemon.rs:117:13: delete match arm 1 in Daemon::handle_datagram",
+    "package": "bolina",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 50,
+        "line": 117
+      },
+      "start": {
+        "column": 13,
+        "line": 117
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ delete match arm 4 in Daemon::handle_datagram\n@@ -110,17 +110,17 @@\n     pub fn handle_datagram(&mut self, pkt: &[u8], src: SocketAddr) {\n         if pkt.is_empty() {\n             return;\n         }\n \n         let msg_type = pkt[0];\n         match msg_type {\n             1 => self.handle_handshake(pkt, src),\n-            4 => self.handle_transport(pkt, src),\n+             /* ~ changed by cargo-mutants ~ */\n             5 | 6 => {\n                 // Relay role-gated: drop if no RelayServe attached\n                 // (sender-gate inheritance from relay_serve.md)\n                 // For now: silent drop fail-closed\n             }\n             _ => {\n                 // Unknown type: drop\n             }\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_datagram",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 128
+        },
+        "start": {
+          "column": 5,
+          "line": 109
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/daemon.rs:118:13: delete match arm 4 in Daemon::handle_datagram",
+    "package": "bolina",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 50,
+        "line": 118
+      },
+      "start": {
+        "column": 13,
+        "line": 118
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ delete match arm 5 | 6 in Daemon::handle_datagram\n@@ -111,21 +111,17 @@\n         if pkt.is_empty() {\n             return;\n         }\n \n         let msg_type = pkt[0];\n         match msg_type {\n             1 => self.handle_handshake(pkt, src),\n             4 => self.handle_transport(pkt, src),\n-            5 | 6 => {\n-                // Relay role-gated: drop if no RelayServe attached\n-                // (sender-gate inheritance from relay_serve.md)\n-                // For now: silent drop fail-closed\n-            }\n+             /* ~ changed by cargo-mutants ~ */\n             _ => {\n                 // Unknown type: drop\n             }\n         }\n     }\n \n     fn handle_handshake(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // mac1 gate FIRST (3 rejection sites before ANY X25519)\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_datagram",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 128
+        },
+        "start": {
+          "column": 5,
+          "line": 109
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/daemon.rs:119:13: delete match arm 5 | 6 in Daemon::handle_datagram",
+    "package": "bolina",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 123
+      },
+      "start": {
+        "column": 13,
+        "line": 119
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace Daemon::handle_handshake with ()\n@@ -124,37 +124,17 @@\n             _ => {\n                 // Unknown type: drop\n             }\n         }\n     }\n \n     fn handle_handshake(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // mac1 gate FIRST (3 rejection sites before ANY X25519)\n-        if pkt.len() < 144 {\n-            return;\n-        }\n-        let mac1_bytes: &[u8; 16] = pkt[112..128].try_into().unwrap();\n-        let mac1_ok = mac1::verify_mac1(&self.keys.sig_pub, &pkt[..112], mac1_bytes);\n-        if !mac1_ok {\n-            return; // Mac1Failed - no X25519 work\n-        }\n-\n-        // Full Noise_IK processing\n-        match self.handshake.process_initiation(&pkt, &self.keys) {\n-            Ok((session, response)) => {\n-                // Send response (type-2 layout per SPEC 4.1a)\n-                // offset 4 = our sender_index, offset 8 = echo of their announced\n-                let _ = response; // TODO: send via UDP\n-                let _ = session;\n-            }\n-            Err(_) => {\n-                // Handshake failed: drop\n-            }\n-        }\n+        () /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn handle_transport(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // type-4: binding or envelope\n         if pkt.len() < 16 {\n             return;\n         }\n \n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_handshake",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 153
+        },
+        "start": {
+          "column": 5,
+          "line": 130
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:132:9: replace Daemon::handle_handshake with ()",
+    "package": "bolina",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 152
+      },
+      "start": {
+        "column": 9,
+        "line": 132
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace < with == in Daemon::handle_handshake\n@@ -124,17 +124,17 @@\n             _ => {\n                 // Unknown type: drop\n             }\n         }\n     }\n \n     fn handle_handshake(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // mac1 gate FIRST (3 rejection sites before ANY X25519)\n-        if pkt.len() < 144 {\n+        if pkt.len() == /* ~ changed by cargo-mutants ~ */ 144 {\n             return;\n         }\n         let mac1_bytes: &[u8; 16] = pkt[112..128].try_into().unwrap();\n         let mac1_ok = mac1::verify_mac1(&self.keys.sig_pub, &pkt[..112], mac1_bytes);\n         if !mac1_ok {\n             return; // Mac1Failed - no X25519 work\n         }\n \n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_handshake",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 153
+        },
+        "start": {
+          "column": 5,
+          "line": 130
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/daemon.rs:132:22: replace < with == in Daemon::handle_handshake",
+    "package": "bolina",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 132
+      },
+      "start": {
+        "column": 22,
+        "line": 132
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace < with > in Daemon::handle_handshake\n@@ -124,17 +124,17 @@\n             _ => {\n                 // Unknown type: drop\n             }\n         }\n     }\n \n     fn handle_handshake(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // mac1 gate FIRST (3 rejection sites before ANY X25519)\n-        if pkt.len() < 144 {\n+        if pkt.len() > /* ~ changed by cargo-mutants ~ */ 144 {\n             return;\n         }\n         let mac1_bytes: &[u8; 16] = pkt[112..128].try_into().unwrap();\n         let mac1_ok = mac1::verify_mac1(&self.keys.sig_pub, &pkt[..112], mac1_bytes);\n         if !mac1_ok {\n             return; // Mac1Failed - no X25519 work\n         }\n \n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_handshake",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 153
+        },
+        "start": {
+          "column": 5,
+          "line": 130
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/daemon.rs:132:22: replace < with > in Daemon::handle_handshake",
+    "package": "bolina",
+    "replacement": ">",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 132
+      },
+      "start": {
+        "column": 22,
+        "line": 132
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace < with <= in Daemon::handle_handshake\n@@ -124,17 +124,17 @@\n             _ => {\n                 // Unknown type: drop\n             }\n         }\n     }\n \n     fn handle_handshake(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // mac1 gate FIRST (3 rejection sites before ANY X25519)\n-        if pkt.len() < 144 {\n+        if pkt.len() <= /* ~ changed by cargo-mutants ~ */ 144 {\n             return;\n         }\n         let mac1_bytes: &[u8; 16] = pkt[112..128].try_into().unwrap();\n         let mac1_ok = mac1::verify_mac1(&self.keys.sig_pub, &pkt[..112], mac1_bytes);\n         if !mac1_ok {\n             return; // Mac1Failed - no X25519 work\n         }\n \n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_handshake",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 153
+        },
+        "start": {
+          "column": 5,
+          "line": 130
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/daemon.rs:132:22: replace < with <= in Daemon::handle_handshake",
+    "package": "bolina",
+    "replacement": "<=",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 132
+      },
+      "start": {
+        "column": 22,
+        "line": 132
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ delete ! in Daemon::handle_handshake\n@@ -129,17 +129,17 @@\n \n     fn handle_handshake(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // mac1 gate FIRST (3 rejection sites before ANY X25519)\n         if pkt.len() < 144 {\n             return;\n         }\n         let mac1_bytes: &[u8; 16] = pkt[112..128].try_into().unwrap();\n         let mac1_ok = mac1::verify_mac1(&self.keys.sig_pub, &pkt[..112], mac1_bytes);\n-        if !mac1_ok {\n+        if  /* ~ changed by cargo-mutants ~ */mac1_ok {\n             return; // Mac1Failed - no X25519 work\n         }\n \n         // Full Noise_IK processing\n         match self.handshake.process_initiation(&pkt, &self.keys) {\n             Ok((session, response)) => {\n                 // Send response (type-2 layout per SPEC 4.1a)\n                 // offset 4 = our sender_index, offset 8 = echo of their announced\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_handshake",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 153
+        },
+        "start": {
+          "column": 5,
+          "line": 130
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "src/daemon.rs:137:12: delete ! in Daemon::handle_handshake",
+    "package": "bolina",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 13,
+        "line": 137
+      },
+      "start": {
+        "column": 12,
+        "line": 137
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace Daemon::handle_transport with ()\n@@ -149,41 +149,17 @@\n             Err(_) => {\n                 // Handshake failed: drop\n             }\n         }\n     }\n \n     fn handle_transport(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // type-4: binding or envelope\n-        if pkt.len() < 16 {\n-            return;\n-        }\n-\n-        // Header: type(1) + reserved(3) + receiver_index(4) + counter(8)\n-        let receiver_idx = u32::from_be_bytes([pkt[4], pkt[5], pkt[6], pkt[7]]);\n-\n-        // Session lookup by receiver index\n-        match self.sessions.lookup(receiver_idx) {\n-            Some(session) => {\n-                if !session.bound {\n-                    // First packet: binding frame\n-                    // Verify F1 signature + cert kex must EQUAL handshake static\n-                    // (KexPubkeyMismatch if not)\n-                    // TODO: parse binding frame, verify, set bound=true\n-                } else {\n-                    // Envelope processing\n-                    // Decrypt with session keys, parse, dispatch\n-                    // TODO\n-                }\n-            }\n-            None => {\n-                // No session: drop\n-            }\n-        }\n+        () /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Signal handler: set shutdown flag\n pub fn install_shutdown_handler() {\n     ctrlc::set_handler(move || {\n         SHUTDOWN.store(true, Ordering::SeqCst);\n     })\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_transport",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 182
+        },
+        "start": {
+          "column": 5,
+          "line": 155
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:157:9: replace Daemon::handle_transport with ()",
+    "package": "bolina",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 181
+      },
+      "start": {
+        "column": 9,
+        "line": 157
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace < with == in Daemon::handle_transport\n@@ -149,17 +149,17 @@\n             Err(_) => {\n                 // Handshake failed: drop\n             }\n         }\n     }\n \n     fn handle_transport(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // type-4: binding or envelope\n-        if pkt.len() < 16 {\n+        if pkt.len() == /* ~ changed by cargo-mutants ~ */ 16 {\n             return;\n         }\n \n         // Header: type(1) + reserved(3) + receiver_index(4) + counter(8)\n         let receiver_idx = u32::from_be_bytes([pkt[4], pkt[5], pkt[6], pkt[7]]);\n \n         // Session lookup by receiver index\n         match self.sessions.lookup(receiver_idx) {\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_transport",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 182
+        },
+        "start": {
+          "column": 5,
+          "line": 155
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/daemon.rs:157:22: replace < with == in Daemon::handle_transport",
+    "package": "bolina",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 157
+      },
+      "start": {
+        "column": 22,
+        "line": 157
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace < with > in Daemon::handle_transport\n@@ -149,17 +149,17 @@\n             Err(_) => {\n                 // Handshake failed: drop\n             }\n         }\n     }\n \n     fn handle_transport(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // type-4: binding or envelope\n-        if pkt.len() < 16 {\n+        if pkt.len() > /* ~ changed by cargo-mutants ~ */ 16 {\n             return;\n         }\n \n         // Header: type(1) + reserved(3) + receiver_index(4) + counter(8)\n         let receiver_idx = u32::from_be_bytes([pkt[4], pkt[5], pkt[6], pkt[7]]);\n \n         // Session lookup by receiver index\n         match self.sessions.lookup(receiver_idx) {\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_transport",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 182
+        },
+        "start": {
+          "column": 5,
+          "line": 155
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/daemon.rs:157:22: replace < with > in Daemon::handle_transport",
+    "package": "bolina",
+    "replacement": ">",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 157
+      },
+      "start": {
+        "column": 22,
+        "line": 157
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace < with <= in Daemon::handle_transport\n@@ -149,17 +149,17 @@\n             Err(_) => {\n                 // Handshake failed: drop\n             }\n         }\n     }\n \n     fn handle_transport(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // type-4: binding or envelope\n-        if pkt.len() < 16 {\n+        if pkt.len() <= /* ~ changed by cargo-mutants ~ */ 16 {\n             return;\n         }\n \n         // Header: type(1) + reserved(3) + receiver_index(4) + counter(8)\n         let receiver_idx = u32::from_be_bytes([pkt[4], pkt[5], pkt[6], pkt[7]]);\n \n         // Session lookup by receiver index\n         match self.sessions.lookup(receiver_idx) {\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_transport",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 182
+        },
+        "start": {
+          "column": 5,
+          "line": 155
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/daemon.rs:157:22: replace < with <= in Daemon::handle_transport",
+    "package": "bolina",
+    "replacement": "<=",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 157
+      },
+      "start": {
+        "column": 22,
+        "line": 157
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ delete ! in Daemon::handle_transport\n@@ -159,17 +159,17 @@\n         }\n \n         // Header: type(1) + reserved(3) + receiver_index(4) + counter(8)\n         let receiver_idx = u32::from_be_bytes([pkt[4], pkt[5], pkt[6], pkt[7]]);\n \n         // Session lookup by receiver index\n         match self.sessions.lookup(receiver_idx) {\n             Some(session) => {\n-                if !session.bound {\n+                if  /* ~ changed by cargo-mutants ~ */session.bound {\n                     // First packet: binding frame\n                     // Verify F1 signature + cert kex must EQUAL handshake static\n                     // (KexPubkeyMismatch if not)\n                     // TODO: parse binding frame, verify, set bound=true\n                 } else {\n                     // Envelope processing\n                     // Decrypt with session keys, parse, dispatch\n                     // TODO\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_transport",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 182
+        },
+        "start": {
+          "column": 5,
+          "line": 155
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "src/daemon.rs:167:20: delete ! in Daemon::handle_transport",
+    "package": "bolina",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 167
+      },
+      "start": {
+        "column": 20,
+        "line": 167
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace install_shutdown_handler with ()\n@@ -179,20 +179,17 @@\n                 // No session: drop\n             }\n         }\n     }\n }\n \n /// Signal handler: set shutdown flag\n pub fn install_shutdown_handler() {\n-    ctrlc::set_handler(move || {\n-        SHUTDOWN.store(true, Ordering::SeqCst);\n-    })\n-    .ok();\n+    () /* ~ changed by cargo-mutants ~ */\n }\n \n /// Node keys (load_or_generate from main.rs)\n pub struct Keys {\n     pub kex_secret: [u8; 32],\n     pub kex_pub: [u8; 32],\n     pub sig_secret: [u8; 32],\n     pub sig_pub: [u8; 32],\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "install_shutdown_handler",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 191
+        },
+        "start": {
+          "column": 1,
+          "line": 185
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:187:5: replace install_shutdown_handler with ()",
+    "package": "bolina",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 190
+      },
+      "start": {
+        "column": 5,
+        "line": 187
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace Keys::load_or_generate -> Result<Self, String> with Ok(Default::default())\n@@ -198,17 +198,17 @@\n     pub sig_pub: [u8; 32],\n }\n \n impl Keys {\n     pub fn load_or_generate(_dir: &str) -> Result<Self, String> {\n         // Read or generate X25519 + Ed25519 keypairs\n         // 0600 files, 0700 dir\n         // TODO: implement via keys.md contract\n-        Err(\"not implemented\".into())\n+        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Session table (indexed by local slot)\n pub struct SessionTable {\n     sessions: Vec<Session>,\n }\n \n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Keys::load_or_generate",
+      "return_type": "-> Result<Self, String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 207
+        },
+        "start": {
+          "column": 5,
+          "line": 202
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:206:9: replace Keys::load_or_generate -> Result<Self, String> with Ok(Default::default())",
+    "package": "bolina",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 206
+      },
+      "start": {
+        "column": 9,
+        "line": 206
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace SessionTable::lookup -> Option<&Session> with None\n@@ -213,17 +213,17 @@\n }\n \n impl SessionTable {\n     pub fn new() -> Self {\n         Self { sessions: Vec::new() }\n     }\n \n     pub fn lookup(&self, idx: u32) -> Option<&Session> {\n-        self.sessions.get(idx as usize)\n+        None /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n pub struct Session {\n     pub bound: bool,\n     pub peer_kex: [u8; 32],\n     pub c1: [u8; 32],\n     pub c2: [u8; 32],\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "SessionTable::lookup",
+      "return_type": "-> Option<&Session>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 222
+        },
+        "start": {
+          "column": 5,
+          "line": 220
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:221:9: replace SessionTable::lookup -> Option<&Session> with None",
+    "package": "bolina",
+    "replacement": "None",
+    "span": {
+      "end": {
+        "column": 40,
+        "line": 221
+      },
+      "start": {
+        "column": 9,
+        "line": 221
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace SessionTable::lookup -> Option<&Session> with Some(Box::leak(Box::new(Default::default())))\n@@ -213,17 +213,17 @@\n }\n \n impl SessionTable {\n     pub fn new() -> Self {\n         Self { sessions: Vec::new() }\n     }\n \n     pub fn lookup(&self, idx: u32) -> Option<&Session> {\n-        self.sessions.get(idx as usize)\n+        Some(Box::leak(Box::new(Default::default()))) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n pub struct Session {\n     pub bound: bool,\n     pub peer_kex: [u8; 32],\n     pub c1: [u8; 32],\n     pub c2: [u8; 32],\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "SessionTable::lookup",
+      "return_type": "-> Option<&Session>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 222
+        },
+        "start": {
+          "column": 5,
+          "line": 220
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:221:9: replace SessionTable::lookup -> Option<&Session> with Some(Box::leak(Box::new(Default::default())))",
+    "package": "bolina",
+    "replacement": "Some(Box::leak(Box::new(Default::default())))",
+    "span": {
+      "end": {
+        "column": 40,
+        "line": 221
+      },
+      "start": {
+        "column": 9,
+        "line": 221
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![]))\n@@ -243,17 +243,17 @@\n \n     pub fn process_initiation(\n         &self,\n         _msg1: &[u8],\n         _keys: &Keys,\n     ) -> Result<(Session, Vec<u8>), String> {\n         // Noise_IK responder flow\n         // TODO: implement via transport/noise.md contract\n-        Err(\"not implemented\".into())\n+        Ok((Default::default(), vec![])) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Optional control plane (TCP HTTP)\n #[allow(dead_code)]\n pub struct ControlPlane {\n     addr: SocketAddr,\n }\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "HandshakeServer::process_initiation",
+      "return_type": "-> Result<(Session, Vec<u8>), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 252
+        },
+        "start": {
+          "column": 5,
+          "line": 244
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:251:9: replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![]))",
+    "package": "bolina",
+    "replacement": "Ok((Default::default(), vec![]))",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 251
+      },
+      "start": {
+        "column": 9,
+        "line": 251
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![0]))\n@@ -243,17 +243,17 @@\n \n     pub fn process_initiation(\n         &self,\n         _msg1: &[u8],\n         _keys: &Keys,\n     ) -> Result<(Session, Vec<u8>), String> {\n         // Noise_IK responder flow\n         // TODO: implement via transport/noise.md contract\n-        Err(\"not implemented\".into())\n+        Ok((Default::default(), vec![0])) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Optional control plane (TCP HTTP)\n #[allow(dead_code)]\n pub struct ControlPlane {\n     addr: SocketAddr,\n }\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "HandshakeServer::process_initiation",
+      "return_type": "-> Result<(Session, Vec<u8>), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 252
+        },
+        "start": {
+          "column": 5,
+          "line": 244
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:251:9: replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![0]))",
+    "package": "bolina",
+    "replacement": "Ok((Default::default(), vec![0]))",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 251
+      },
+      "start": {
+        "column": 9,
+        "line": 251
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![1]))\n@@ -243,17 +243,17 @@\n \n     pub fn process_initiation(\n         &self,\n         _msg1: &[u8],\n         _keys: &Keys,\n     ) -> Result<(Session, Vec<u8>), String> {\n         // Noise_IK responder flow\n         // TODO: implement via transport/noise.md contract\n-        Err(\"not implemented\".into())\n+        Ok((Default::default(), vec![1])) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Optional control plane (TCP HTTP)\n #[allow(dead_code)]\n pub struct ControlPlane {\n     addr: SocketAddr,\n }\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "HandshakeServer::process_initiation",
+      "return_type": "-> Result<(Session, Vec<u8>), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 252
+        },
+        "start": {
+          "column": 5,
+          "line": 244
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:251:9: replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![1]))",
+    "package": "bolina",
+    "replacement": "Ok((Default::default(), vec![1]))",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 251
+      },
+      "start": {
+        "column": 9,
+        "line": 251
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace Daemon::attach_ledger -> Result<(), String> with Ok(())\n@@ -53,18 +53,17 @@\n             handshake: HandshakeServer::new(),\n             control: None,\n             bind_addr: bind,\n             started: Instant::now(),\n         }\n     }\n \n     pub fn attach_ledger(&mut self, path: &std::path::Path) -> Result<(), String> {\n-        self.ledger = Some(ledger::GrantLedger::open(path).map_err(|e| format!(\"{:?}\", e))?);\n-        Ok(())\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub fn attach_control(&mut self, addr: SocketAddr) -> Result<(), String> {\n         self.control = Some(ControlPlane::new(addr)?);\n         Ok(())\n     }\n \n     /// Main poll loop: UDP wire + optional TCP control, single-threaded\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::attach_ledger",
+      "return_type": "-> Result<(), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 63
+        },
+        "start": {
+          "column": 5,
+          "line": 60
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:61:9: replace Daemon::attach_ledger -> Result<(), String> with Ok(())",
+    "package": "bolina",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 62
+      },
+      "start": {
+        "column": 9,
+        "line": 61
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace Daemon::attach_control -> Result<(), String> with Ok(())\n@@ -58,18 +58,17 @@\n     }\n \n     pub fn attach_ledger(&mut self, path: &std::path::Path) -> Result<(), String> {\n         self.ledger = Some(ledger::GrantLedger::open(path).map_err(|e| format!(\"{:?}\", e))?);\n         Ok(())\n     }\n \n     pub fn attach_control(&mut self, addr: SocketAddr) -> Result<(), String> {\n-        self.control = Some(ControlPlane::new(addr)?);\n-        Ok(())\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Main poll loop: UDP wire + optional TCP control, single-threaded\n     pub fn run_loop(&mut self) -> Result<(), String> {\n         let udp_sock = std::net::UdpSocket::bind(self.bind_addr).map_err(|e| e.to_string())?;\n         udp_sock.set_nonblocking(true).map_err(|e| e.to_string())?;\n         let mut buf = [0u8; 4096];\n \n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::attach_control",
+      "return_type": "-> Result<(), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 68
+        },
+        "start": {
+          "column": 5,
+          "line": 65
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:66:9: replace Daemon::attach_control -> Result<(), String> with Ok(())",
+    "package": "bolina",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 67
+      },
+      "start": {
+        "column": 9,
+        "line": 66
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace Daemon::run_loop -> Result<(), String> with Ok(())\n@@ -64,51 +64,17 @@\n \n     pub fn attach_control(&mut self, addr: SocketAddr) -> Result<(), String> {\n         self.control = Some(ControlPlane::new(addr)?);\n         Ok(())\n     }\n \n     /// Main poll loop: UDP wire + optional TCP control, single-threaded\n     pub fn run_loop(&mut self) -> Result<(), String> {\n-        let udp_sock = std::net::UdpSocket::bind(self.bind_addr).map_err(|e| e.to_string())?;\n-        udp_sock.set_nonblocking(true).map_err(|e| e.to_string())?;\n-        let mut buf = [0u8; 4096];\n-\n-        loop {\n-            if SHUTDOWN.load(Ordering::SeqCst) {\n-                break;\n-            }\n-\n-            // UDP recv\n-            match udp_sock.recv_from(&mut buf) {\n-                Ok((len, src)) => {\n-                    self.handle_datagram(&buf[..len], src);\n-                }\n-                Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {\n-                    // No packet, continue\n-                }\n-                Err(e) => return Err(format!(\"recv_from: {}\", e)),\n-            }\n-\n-            // Control plane (if attached)\n-            if let Some(ref mut ctrl) = self.control {\n-                ctrl.poll_tick(&mut self.intents, &self.ledger)?;\n-            }\n-\n-            // Small sleep to avoid busy-wait (10ms)\n-            std::thread::sleep(std::time::Duration::from_millis(10));\n-        }\n-\n-        // Drain: flush ledger if attached\n-        if let Some(ref mut _ledger) = self.ledger {\n-            // TODO: add sync method to ledger\n-        }\n-\n-        Ok(())\n+        Ok(()) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Process one inbound datagram\n     pub fn handle_datagram(&mut self, pkt: &[u8], src: SocketAddr) {\n         if pkt.is_empty() {\n             return;\n         }\n \n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::run_loop",
+      "return_type": "-> Result<(), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 107
+        },
+        "start": {
+          "column": 5,
+          "line": 70
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:72:9: replace Daemon::run_loop -> Result<(), String> with Ok(())",
+    "package": "bolina",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 106
+      },
+      "start": {
+        "column": 9,
+        "line": 72
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace match guard e.kind() == std::io::ErrorKind::WouldBlock with true in Daemon::run_loop\n@@ -78,17 +78,17 @@\n                 break;\n             }\n \n             // UDP recv\n             match udp_sock.recv_from(&mut buf) {\n                 Ok((len, src)) => {\n                     self.handle_datagram(&buf[..len], src);\n                 }\n-                Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {\n+                Err(e) if true /* ~ changed by cargo-mutants ~ */ => {\n                     // No packet, continue\n                 }\n                 Err(e) => return Err(format!(\"recv_from: {}\", e)),\n             }\n \n             // Control plane (if attached)\n             if let Some(ref mut ctrl) = self.control {\n                 ctrl.poll_tick(&mut self.intents, &self.ledger)?;\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::run_loop",
+      "return_type": "-> Result<(), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 107
+        },
+        "start": {
+          "column": 5,
+          "line": 70
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "src/daemon.rs:86:27: replace match guard e.kind() == std::io::ErrorKind::WouldBlock with true in Daemon::run_loop",
+    "package": "bolina",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 69,
+        "line": 86
+      },
+      "start": {
+        "column": 27,
+        "line": 86
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace match guard e.kind() == std::io::ErrorKind::WouldBlock with false in Daemon::run_loop\n@@ -78,17 +78,17 @@\n                 break;\n             }\n \n             // UDP recv\n             match udp_sock.recv_from(&mut buf) {\n                 Ok((len, src)) => {\n                     self.handle_datagram(&buf[..len], src);\n                 }\n-                Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {\n+                Err(e) if false /* ~ changed by cargo-mutants ~ */ => {\n                     // No packet, continue\n                 }\n                 Err(e) => return Err(format!(\"recv_from: {}\", e)),\n             }\n \n             // Control plane (if attached)\n             if let Some(ref mut ctrl) = self.control {\n                 ctrl.poll_tick(&mut self.intents, &self.ledger)?;\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::run_loop",
+      "return_type": "-> Result<(), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 107
+        },
+        "start": {
+          "column": 5,
+          "line": 70
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "src/daemon.rs:86:27: replace match guard e.kind() == std::io::ErrorKind::WouldBlock with false in Daemon::run_loop",
+    "package": "bolina",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 69,
+        "line": 86
+      },
+      "start": {
+        "column": 27,
+        "line": 86
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace == with != in Daemon::run_loop\n@@ -78,17 +78,17 @@\n                 break;\n             }\n \n             // UDP recv\n             match udp_sock.recv_from(&mut buf) {\n                 Ok((len, src)) => {\n                     self.handle_datagram(&buf[..len], src);\n                 }\n-                Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {\n+                Err(e) if e.kind() != /* ~ changed by cargo-mutants ~ */ std::io::ErrorKind::WouldBlock => {\n                     // No packet, continue\n                 }\n                 Err(e) => return Err(format!(\"recv_from: {}\", e)),\n             }\n \n             // Control plane (if attached)\n             if let Some(ref mut ctrl) = self.control {\n                 ctrl.poll_tick(&mut self.intents, &self.ledger)?;\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::run_loop",
+      "return_type": "-> Result<(), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 107
+        },
+        "start": {
+          "column": 5,
+          "line": 70
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/daemon.rs:86:36: replace == with != in Daemon::run_loop",
+    "package": "bolina",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 86
+      },
+      "start": {
+        "column": 36,
+        "line": 86
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace Daemon::handle_datagram with ()\n@@ -103,33 +103,17 @@\n             // TODO: add sync method to ledger\n         }\n \n         Ok(())\n     }\n \n     /// Process one inbound datagram\n     pub fn handle_datagram(&mut self, pkt: &[u8], src: SocketAddr) {\n-        if pkt.is_empty() {\n-            return;\n-        }\n-\n-        let msg_type = pkt[0];\n-        match msg_type {\n-            1 => self.handle_handshake(pkt, src),\n-            4 => self.handle_transport(pkt, src),\n-            5 | 6 => {\n-                // Relay role-gated: drop if no RelayServe attached\n-                // (sender-gate inheritance from relay_serve.md)\n-                // For now: silent drop fail-closed\n-            }\n-            _ => {\n-                // Unknown type: drop\n-            }\n-        }\n+        () /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn handle_handshake(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // mac1 gate FIRST (3 rejection sites before ANY X25519)\n         if pkt.len() < 144 {\n             return;\n         }\n         let mac1_bytes: &[u8; 16] = pkt[112..128].try_into().unwrap();\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_datagram",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 128
+        },
+        "start": {
+          "column": 5,
+          "line": 109
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:111:9: replace Daemon::handle_datagram with ()",
+    "package": "bolina",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 127
+      },
+      "start": {
+        "column": 9,
+        "line": 111
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ delete match arm 1 in Daemon::handle_datagram\n@@ -109,17 +109,17 @@\n     /// Process one inbound datagram\n     pub fn handle_datagram(&mut self, pkt: &[u8], src: SocketAddr) {\n         if pkt.is_empty() {\n             return;\n         }\n \n         let msg_type = pkt[0];\n         match msg_type {\n-            1 => self.handle_handshake(pkt, src),\n+             /* ~ changed by cargo-mutants ~ */\n             4 => self.handle_transport(pkt, src),\n             5 | 6 => {\n                 // Relay role-gated: drop if no RelayServe attached\n                 // (sender-gate inheritance from relay_serve.md)\n                 // For now: silent drop fail-closed\n             }\n             _ => {\n                 // Unknown type: drop\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_datagram",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 128
+        },
+        "start": {
+          "column": 5,
+          "line": 109
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/daemon.rs:117:13: delete match arm 1 in Daemon::handle_datagram",
+    "package": "bolina",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 50,
+        "line": 117
+      },
+      "start": {
+        "column": 13,
+        "line": 117
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ delete match arm 4 in Daemon::handle_datagram\n@@ -110,17 +110,17 @@\n     pub fn handle_datagram(&mut self, pkt: &[u8], src: SocketAddr) {\n         if pkt.is_empty() {\n             return;\n         }\n \n         let msg_type = pkt[0];\n         match msg_type {\n             1 => self.handle_handshake(pkt, src),\n-            4 => self.handle_transport(pkt, src),\n+             /* ~ changed by cargo-mutants ~ */\n             5 | 6 => {\n                 // Relay role-gated: drop if no RelayServe attached\n                 // (sender-gate inheritance from relay_serve.md)\n                 // For now: silent drop fail-closed\n             }\n             _ => {\n                 // Unknown type: drop\n             }\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_datagram",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 128
+        },
+        "start": {
+          "column": 5,
+          "line": 109
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/daemon.rs:118:13: delete match arm 4 in Daemon::handle_datagram",
+    "package": "bolina",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 50,
+        "line": 118
+      },
+      "start": {
+        "column": 13,
+        "line": 118
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ delete match arm 5 | 6 in Daemon::handle_datagram\n@@ -111,21 +111,17 @@\n         if pkt.is_empty() {\n             return;\n         }\n \n         let msg_type = pkt[0];\n         match msg_type {\n             1 => self.handle_handshake(pkt, src),\n             4 => self.handle_transport(pkt, src),\n-            5 | 6 => {\n-                // Relay role-gated: drop if no RelayServe attached\n-                // (sender-gate inheritance from relay_serve.md)\n-                // For now: silent drop fail-closed\n-            }\n+             /* ~ changed by cargo-mutants ~ */\n             _ => {\n                 // Unknown type: drop\n             }\n         }\n     }\n \n     fn handle_handshake(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // mac1 gate FIRST (3 rejection sites before ANY X25519)\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_datagram",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 128
+        },
+        "start": {
+          "column": 5,
+          "line": 109
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/daemon.rs:119:13: delete match arm 5 | 6 in Daemon::handle_datagram",
+    "package": "bolina",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 123
+      },
+      "start": {
+        "column": 13,
+        "line": 119
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace Daemon::handle_handshake with ()\n@@ -124,37 +124,17 @@\n             _ => {\n                 // Unknown type: drop\n             }\n         }\n     }\n \n     fn handle_handshake(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // mac1 gate FIRST (3 rejection sites before ANY X25519)\n-        if pkt.len() < 144 {\n-            return;\n-        }\n-        let mac1_bytes: &[u8; 16] = pkt[112..128].try_into().unwrap();\n-        let mac1_ok = mac1::verify_mac1(&self.keys.sig_pub, &pkt[..112], mac1_bytes);\n-        if !mac1_ok {\n-            return; // Mac1Failed - no X25519 work\n-        }\n-\n-        // Full Noise_IK processing\n-        match self.handshake.process_initiation(&pkt, &self.keys) {\n-            Ok((session, response)) => {\n-                // Send response (type-2 layout per SPEC 4.1a)\n-                // offset 4 = our sender_index, offset 8 = echo of their announced\n-                let _ = response; // TODO: send via UDP\n-                let _ = session;\n-            }\n-            Err(_) => {\n-                // Handshake failed: drop\n-            }\n-        }\n+        () /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn handle_transport(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // type-4: binding or envelope\n         if pkt.len() < 16 {\n             return;\n         }\n \n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_handshake",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 153
+        },
+        "start": {
+          "column": 5,
+          "line": 130
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:132:9: replace Daemon::handle_handshake with ()",
+    "package": "bolina",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 152
+      },
+      "start": {
+        "column": 9,
+        "line": 132
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace < with == in Daemon::handle_handshake\n@@ -124,17 +124,17 @@\n             _ => {\n                 // Unknown type: drop\n             }\n         }\n     }\n \n     fn handle_handshake(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // mac1 gate FIRST (3 rejection sites before ANY X25519)\n-        if pkt.len() < 144 {\n+        if pkt.len() == /* ~ changed by cargo-mutants ~ */ 144 {\n             return;\n         }\n         let mac1_bytes: &[u8; 16] = pkt[112..128].try_into().unwrap();\n         let mac1_ok = mac1::verify_mac1(&self.keys.sig_pub, &pkt[..112], mac1_bytes);\n         if !mac1_ok {\n             return; // Mac1Failed - no X25519 work\n         }\n \n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_handshake",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 153
+        },
+        "start": {
+          "column": 5,
+          "line": 130
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/daemon.rs:132:22: replace < with == in Daemon::handle_handshake",
+    "package": "bolina",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 132
+      },
+      "start": {
+        "column": 22,
+        "line": 132
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace < with > in Daemon::handle_handshake\n@@ -124,17 +124,17 @@\n             _ => {\n                 // Unknown type: drop\n             }\n         }\n     }\n \n     fn handle_handshake(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // mac1 gate FIRST (3 rejection sites before ANY X25519)\n-        if pkt.len() < 144 {\n+        if pkt.len() > /* ~ changed by cargo-mutants ~ */ 144 {\n             return;\n         }\n         let mac1_bytes: &[u8; 16] = pkt[112..128].try_into().unwrap();\n         let mac1_ok = mac1::verify_mac1(&self.keys.sig_pub, &pkt[..112], mac1_bytes);\n         if !mac1_ok {\n             return; // Mac1Failed - no X25519 work\n         }\n \n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_handshake",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 153
+        },
+        "start": {
+          "column": 5,
+          "line": 130
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/daemon.rs:132:22: replace < with > in Daemon::handle_handshake",
+    "package": "bolina",
+    "replacement": ">",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 132
+      },
+      "start": {
+        "column": 22,
+        "line": 132
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace < with <= in Daemon::handle_handshake\n@@ -124,17 +124,17 @@\n             _ => {\n                 // Unknown type: drop\n             }\n         }\n     }\n \n     fn handle_handshake(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // mac1 gate FIRST (3 rejection sites before ANY X25519)\n-        if pkt.len() < 144 {\n+        if pkt.len() <= /* ~ changed by cargo-mutants ~ */ 144 {\n             return;\n         }\n         let mac1_bytes: &[u8; 16] = pkt[112..128].try_into().unwrap();\n         let mac1_ok = mac1::verify_mac1(&self.keys.sig_pub, &pkt[..112], mac1_bytes);\n         if !mac1_ok {\n             return; // Mac1Failed - no X25519 work\n         }\n \n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_handshake",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 153
+        },
+        "start": {
+          "column": 5,
+          "line": 130
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/daemon.rs:132:22: replace < with <= in Daemon::handle_handshake",
+    "package": "bolina",
+    "replacement": "<=",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 132
+      },
+      "start": {
+        "column": 22,
+        "line": 132
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ delete ! in Daemon::handle_handshake\n@@ -129,17 +129,17 @@\n \n     fn handle_handshake(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // mac1 gate FIRST (3 rejection sites before ANY X25519)\n         if pkt.len() < 144 {\n             return;\n         }\n         let mac1_bytes: &[u8; 16] = pkt[112..128].try_into().unwrap();\n         let mac1_ok = mac1::verify_mac1(&self.keys.sig_pub, &pkt[..112], mac1_bytes);\n-        if !mac1_ok {\n+        if  /* ~ changed by cargo-mutants ~ */mac1_ok {\n             return; // Mac1Failed - no X25519 work\n         }\n \n         // Full Noise_IK processing\n         match self.handshake.process_initiation(&pkt, &self.keys) {\n             Ok((session, response)) => {\n                 // Send response (type-2 layout per SPEC 4.1a)\n                 // offset 4 = our sender_index, offset 8 = echo of their announced\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_handshake",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 153
+        },
+        "start": {
+          "column": 5,
+          "line": 130
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "src/daemon.rs:137:12: delete ! in Daemon::handle_handshake",
+    "package": "bolina",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 13,
+        "line": 137
+      },
+      "start": {
+        "column": 12,
+        "line": 137
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace Daemon::handle_transport with ()\n@@ -149,41 +149,17 @@\n             Err(_) => {\n                 // Handshake failed: drop\n             }\n         }\n     }\n \n     fn handle_transport(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // type-4: binding or envelope\n-        if pkt.len() < 16 {\n-            return;\n-        }\n-\n-        // Header: type(1) + reserved(3) + receiver_index(4) + counter(8)\n-        let receiver_idx = u32::from_be_bytes([pkt[4], pkt[5], pkt[6], pkt[7]]);\n-\n-        // Session lookup by receiver index\n-        match self.sessions.lookup(receiver_idx) {\n-            Some(session) => {\n-                if !session.bound {\n-                    // First packet: binding frame\n-                    // Verify F1 signature + cert kex must EQUAL handshake static\n-                    // (KexPubkeyMismatch if not)\n-                    // TODO: parse binding frame, verify, set bound=true\n-                } else {\n-                    // Envelope processing\n-                    // Decrypt with session keys, parse, dispatch\n-                    // TODO\n-                }\n-            }\n-            None => {\n-                // No session: drop\n-            }\n-        }\n+        () /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Signal handler: set shutdown flag\n pub fn install_shutdown_handler() {\n     ctrlc::set_handler(move || {\n         SHUTDOWN.store(true, Ordering::SeqCst);\n     })\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_transport",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 182
+        },
+        "start": {
+          "column": 5,
+          "line": 155
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:157:9: replace Daemon::handle_transport with ()",
+    "package": "bolina",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 181
+      },
+      "start": {
+        "column": 9,
+        "line": 157
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace < with == in Daemon::handle_transport\n@@ -149,17 +149,17 @@\n             Err(_) => {\n                 // Handshake failed: drop\n             }\n         }\n     }\n \n     fn handle_transport(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // type-4: binding or envelope\n-        if pkt.len() < 16 {\n+        if pkt.len() == /* ~ changed by cargo-mutants ~ */ 16 {\n             return;\n         }\n \n         // Header: type(1) + reserved(3) + receiver_index(4) + counter(8)\n         let receiver_idx = u32::from_be_bytes([pkt[4], pkt[5], pkt[6], pkt[7]]);\n \n         // Session lookup by receiver index\n         match self.sessions.lookup(receiver_idx) {\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_transport",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 182
+        },
+        "start": {
+          "column": 5,
+          "line": 155
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/daemon.rs:157:22: replace < with == in Daemon::handle_transport",
+    "package": "bolina",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 157
+      },
+      "start": {
+        "column": 22,
+        "line": 157
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace < with > in Daemon::handle_transport\n@@ -149,17 +149,17 @@\n             Err(_) => {\n                 // Handshake failed: drop\n             }\n         }\n     }\n \n     fn handle_transport(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // type-4: binding or envelope\n-        if pkt.len() < 16 {\n+        if pkt.len() > /* ~ changed by cargo-mutants ~ */ 16 {\n             return;\n         }\n \n         // Header: type(1) + reserved(3) + receiver_index(4) + counter(8)\n         let receiver_idx = u32::from_be_bytes([pkt[4], pkt[5], pkt[6], pkt[7]]);\n \n         // Session lookup by receiver index\n         match self.sessions.lookup(receiver_idx) {\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_transport",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 182
+        },
+        "start": {
+          "column": 5,
+          "line": 155
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/daemon.rs:157:22: replace < with > in Daemon::handle_transport",
+    "package": "bolina",
+    "replacement": ">",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 157
+      },
+      "start": {
+        "column": 22,
+        "line": 157
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace < with <= in Daemon::handle_transport\n@@ -149,17 +149,17 @@\n             Err(_) => {\n                 // Handshake failed: drop\n             }\n         }\n     }\n \n     fn handle_transport(&mut self, pkt: &[u8], _src: SocketAddr) {\n         // type-4: binding or envelope\n-        if pkt.len() < 16 {\n+        if pkt.len() <= /* ~ changed by cargo-mutants ~ */ 16 {\n             return;\n         }\n \n         // Header: type(1) + reserved(3) + receiver_index(4) + counter(8)\n         let receiver_idx = u32::from_be_bytes([pkt[4], pkt[5], pkt[6], pkt[7]]);\n \n         // Session lookup by receiver index\n         match self.sessions.lookup(receiver_idx) {\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_transport",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 182
+        },
+        "start": {
+          "column": 5,
+          "line": 155
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/daemon.rs:157:22: replace < with <= in Daemon::handle_transport",
+    "package": "bolina",
+    "replacement": "<=",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 157
+      },
+      "start": {
+        "column": 22,
+        "line": 157
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ delete ! in Daemon::handle_transport\n@@ -159,17 +159,17 @@\n         }\n \n         // Header: type(1) + reserved(3) + receiver_index(4) + counter(8)\n         let receiver_idx = u32::from_be_bytes([pkt[4], pkt[5], pkt[6], pkt[7]]);\n \n         // Session lookup by receiver index\n         match self.sessions.lookup(receiver_idx) {\n             Some(session) => {\n-                if !session.bound {\n+                if  /* ~ changed by cargo-mutants ~ */session.bound {\n                     // First packet: binding frame\n                     // Verify F1 signature + cert kex must EQUAL handshake static\n                     // (KexPubkeyMismatch if not)\n                     // TODO: parse binding frame, verify, set bound=true\n                 } else {\n                     // Envelope processing\n                     // Decrypt with session keys, parse, dispatch\n                     // TODO\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Daemon::handle_transport",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 182
+        },
+        "start": {
+          "column": 5,
+          "line": 155
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "src/daemon.rs:167:20: delete ! in Daemon::handle_transport",
+    "package": "bolina",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 167
+      },
+      "start": {
+        "column": 20,
+        "line": 167
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace install_shutdown_handler with ()\n@@ -179,20 +179,17 @@\n                 // No session: drop\n             }\n         }\n     }\n }\n \n /// Signal handler: set shutdown flag\n pub fn install_shutdown_handler() {\n-    ctrlc::set_handler(move || {\n-        SHUTDOWN.store(true, Ordering::SeqCst);\n-    })\n-    .ok();\n+    () /* ~ changed by cargo-mutants ~ */\n }\n \n /// Node keys (load_or_generate from main.rs)\n pub struct Keys {\n     pub kex_secret: [u8; 32],\n     pub kex_pub: [u8; 32],\n     pub sig_secret: [u8; 32],\n     pub sig_pub: [u8; 32],\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "install_shutdown_handler",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 191
+        },
+        "start": {
+          "column": 1,
+          "line": 185
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:187:5: replace install_shutdown_handler with ()",
+    "package": "bolina",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 190
+      },
+      "start": {
+        "column": 5,
+        "line": 187
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace Keys::load_or_generate -> Result<Self, String> with Ok(Default::default())\n@@ -198,17 +198,17 @@\n     pub sig_pub: [u8; 32],\n }\n \n impl Keys {\n     pub fn load_or_generate(_dir: &str) -> Result<Self, String> {\n         // Read or generate X25519 + Ed25519 keypairs\n         // 0600 files, 0700 dir\n         // TODO: implement via keys.md contract\n-        Err(\"not implemented\".into())\n+        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Session table (indexed by local slot)\n pub struct SessionTable {\n     sessions: Vec<Session>,\n }\n \n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "Keys::load_or_generate",
+      "return_type": "-> Result<Self, String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 207
+        },
+        "start": {
+          "column": 5,
+          "line": 202
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:206:9: replace Keys::load_or_generate -> Result<Self, String> with Ok(Default::default())",
+    "package": "bolina",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 206
+      },
+      "start": {
+        "column": 9,
+        "line": 206
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace SessionTable::lookup -> Option<&Session> with None\n@@ -213,17 +213,17 @@\n }\n \n impl SessionTable {\n     pub fn new() -> Self {\n         Self { sessions: Vec::new() }\n     }\n \n     pub fn lookup(&self, idx: u32) -> Option<&Session> {\n-        self.sessions.get(idx as usize)\n+        None /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n pub struct Session {\n     pub bound: bool,\n     pub peer_kex: [u8; 32],\n     pub c1: [u8; 32],\n     pub c2: [u8; 32],\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "SessionTable::lookup",
+      "return_type": "-> Option<&Session>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 222
+        },
+        "start": {
+          "column": 5,
+          "line": 220
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:221:9: replace SessionTable::lookup -> Option<&Session> with None",
+    "package": "bolina",
+    "replacement": "None",
+    "span": {
+      "end": {
+        "column": 40,
+        "line": 221
+      },
+      "start": {
+        "column": 9,
+        "line": 221
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace SessionTable::lookup -> Option<&Session> with Some(Box::leak(Box::new(Default::default())))\n@@ -213,17 +213,17 @@\n }\n \n impl SessionTable {\n     pub fn new() -> Self {\n         Self { sessions: Vec::new() }\n     }\n \n     pub fn lookup(&self, idx: u32) -> Option<&Session> {\n-        self.sessions.get(idx as usize)\n+        Some(Box::leak(Box::new(Default::default()))) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n pub struct Session {\n     pub bound: bool,\n     pub peer_kex: [u8; 32],\n     pub c1: [u8; 32],\n     pub c2: [u8; 32],\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "SessionTable::lookup",
+      "return_type": "-> Option<&Session>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 222
+        },
+        "start": {
+          "column": 5,
+          "line": 220
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:221:9: replace SessionTable::lookup -> Option<&Session> with Some(Box::leak(Box::new(Default::default())))",
+    "package": "bolina",
+    "replacement": "Some(Box::leak(Box::new(Default::default())))",
+    "span": {
+      "end": {
+        "column": 40,
+        "line": 221
+      },
+      "start": {
+        "column": 9,
+        "line": 221
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![]))\n@@ -243,17 +243,17 @@\n \n     pub fn process_initiation(\n         &self,\n         _msg1: &[u8],\n         _keys: &Keys,\n     ) -> Result<(Session, Vec<u8>), String> {\n         // Noise_IK responder flow\n         // TODO: implement via transport/noise.md contract\n-        Err(\"not implemented\".into())\n+        Ok((Default::default(), vec![])) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Optional control plane (TCP HTTP)\n #[allow(dead_code)]\n pub struct ControlPlane {\n     addr: SocketAddr,\n }\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "HandshakeServer::process_initiation",
+      "return_type": "-> Result<(Session, Vec<u8>), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 252
+        },
+        "start": {
+          "column": 5,
+          "line": 244
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:251:9: replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![]))",
+    "package": "bolina",
+    "replacement": "Ok((Default::default(), vec![]))",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 251
+      },
+      "start": {
+        "column": 9,
+        "line": 251
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![0]))\n@@ -243,17 +243,17 @@\n \n     pub fn process_initiation(\n         &self,\n         _msg1: &[u8],\n         _keys: &Keys,\n     ) -> Result<(Session, Vec<u8>), String> {\n         // Noise_IK responder flow\n         // TODO: implement via transport/noise.md contract\n-        Err(\"not implemented\".into())\n+        Ok((Default::default(), vec![0])) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Optional control plane (TCP HTTP)\n #[allow(dead_code)]\n pub struct ControlPlane {\n     addr: SocketAddr,\n }\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "HandshakeServer::process_initiation",
+      "return_type": "-> Result<(Session, Vec<u8>), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 252
+        },
+        "start": {
+          "column": 5,
+          "line": 244
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:251:9: replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![0]))",
+    "package": "bolina",
+    "replacement": "Ok((Default::default(), vec![0]))",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 251
+      },
+      "start": {
+        "column": 9,
+        "line": 251
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![1]))\n@@ -243,17 +243,17 @@\n \n     pub fn process_initiation(\n         &self,\n         _msg1: &[u8],\n         _keys: &Keys,\n     ) -> Result<(Session, Vec<u8>), String> {\n         // Noise_IK responder flow\n         // TODO: implement via transport/noise.md contract\n-        Err(\"not implemented\".into())\n+        Ok((Default::default(), vec![1])) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Optional control plane (TCP HTTP)\n #[allow(dead_code)]\n pub struct ControlPlane {\n     addr: SocketAddr,\n }\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "HandshakeServer::process_initiation",
+      "return_type": "-> Result<(Session, Vec<u8>), String>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 252
+        },
+        "start": {
+          "column": 5,
+          "line": 244
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:251:9: replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![1]))",
+    "package": "bolina",
+    "replacement": "Ok((Default::default(), vec![1]))",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 251
+      },
+      "start": {
+        "column": 9,
+        "line": 251
+      }
+    }
+  }
+]

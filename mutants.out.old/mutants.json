@@ -1,0 +1,3238 @@
+[
+  {
+    "diff": "--- src/ca.rs\n+++ replace + with -\n@@ -9,17 +9,17 @@\n use blake2::Blake2s256;\n use blake2::Digest;\n use ed25519_dalek::{Signer, SigningKey};\n use std::fs;\n use std::path::Path;\n \n const DOMAIN_CERT: u8 = 0x01;\n const KEY_LEN: usize = 32;\n-const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 + /* ~ changed by cargo-mutants ~ */ 24 * 3600 * 1000; // 30 days\n+const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 - /* ~ changed by cargo-mutants ~ */ /* ~ changed by cargo-mutants ~ */ 24 * 3600 * 1000; // 30 days\n \n #[derive(Debug, Clone, Copy, PartialEq, Eq)]\n pub enum CaError {\n     BadRole,\n     BadTtl,\n     BadCount,\n     NoCaKeys,\n     TtlOverCap,\n",
+    "file": "src/ca.rs",
+    "function": null,
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:17:44: replace + with -",
+    "package": "bolina",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 45,
+        "line": 17
+      },
+      "start": {
+        "column": 44,
+        "line": 17
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace + with *\n@@ -9,17 +9,17 @@\n use blake2::Blake2s256;\n use blake2::Digest;\n use ed25519_dalek::{Signer, SigningKey};\n use std::fs;\n use std::path::Path;\n \n const DOMAIN_CERT: u8 = 0x01;\n const KEY_LEN: usize = 32;\n-const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 + /* ~ changed by cargo-mutants ~ */ 24 * 3600 * 1000; // 30 days\n+const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 * /* ~ changed by cargo-mutants ~ */ /* ~ changed by cargo-mutants ~ */ 24 * 3600 * 1000; // 30 days\n \n #[derive(Debug, Clone, Copy, PartialEq, Eq)]\n pub enum CaError {\n     BadRole,\n     BadTtl,\n     BadCount,\n     NoCaKeys,\n     TtlOverCap,\n",
+    "file": "src/ca.rs",
+    "function": null,
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:17:44: replace + with *",
+    "package": "bolina",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 45,
+        "line": 17
+      },
+      "start": {
+        "column": 44,
+        "line": 17
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace * with +\n@@ -9,17 +9,17 @@\n use blake2::Blake2s256;\n use blake2::Digest;\n use ed25519_dalek::{Signer, SigningKey};\n use std::fs;\n use std::path::Path;\n \n const DOMAIN_CERT: u8 = 0x01;\n const KEY_LEN: usize = 32;\n-const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 + /* ~ changed by cargo-mutants ~ */ 24 * 3600 * 1000; // 30 days\n+const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 + /* ~ changed by cargo-mutants ~ */ 24 * 3600 + /* ~ changed by cargo-mutants ~ */ 1000; // 30 days\n \n #[derive(Debug, Clone, Copy, PartialEq, Eq)]\n pub enum CaError {\n     BadRole,\n     BadTtl,\n     BadCount,\n     NoCaKeys,\n     TtlOverCap,\n",
+    "file": "src/ca.rs",
+    "function": null,
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:17:91: replace * with +",
+    "package": "bolina",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 92,
+        "line": 17
+      },
+      "start": {
+        "column": 91,
+        "line": 17
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace * with /\n@@ -9,17 +9,17 @@\n use blake2::Blake2s256;\n use blake2::Digest;\n use ed25519_dalek::{Signer, SigningKey};\n use std::fs;\n use std::path::Path;\n \n const DOMAIN_CERT: u8 = 0x01;\n const KEY_LEN: usize = 32;\n-const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 + /* ~ changed by cargo-mutants ~ */ 24 * 3600 * 1000; // 30 days\n+const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 + /* ~ changed by cargo-mutants ~ */ 24 * 3600 / /* ~ changed by cargo-mutants ~ */ 1000; // 30 days\n \n #[derive(Debug, Clone, Copy, PartialEq, Eq)]\n pub enum CaError {\n     BadRole,\n     BadTtl,\n     BadCount,\n     NoCaKeys,\n     TtlOverCap,\n",
+    "file": "src/ca.rs",
+    "function": null,
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:17:91: replace * with /",
+    "package": "bolina",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 92,
+        "line": 17
+      },
+      "start": {
+        "column": 91,
+        "line": 17
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace * with +\n@@ -9,17 +9,17 @@\n use blake2::Blake2s256;\n use blake2::Digest;\n use ed25519_dalek::{Signer, SigningKey};\n use std::fs;\n use std::path::Path;\n \n const DOMAIN_CERT: u8 = 0x01;\n const KEY_LEN: usize = 32;\n-const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 + /* ~ changed by cargo-mutants ~ */ 24 * 3600 * 1000; // 30 days\n+const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 + /* ~ changed by cargo-mutants ~ */ 24 + /* ~ changed by cargo-mutants ~ */ 3600 * 1000; // 30 days\n \n #[derive(Debug, Clone, Copy, PartialEq, Eq)]\n pub enum CaError {\n     BadRole,\n     BadTtl,\n     BadCount,\n     NoCaKeys,\n     TtlOverCap,\n",
+    "file": "src/ca.rs",
+    "function": null,
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:17:84: replace * with +",
+    "package": "bolina",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 85,
+        "line": 17
+      },
+      "start": {
+        "column": 84,
+        "line": 17
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace * with /\n@@ -9,17 +9,17 @@\n use blake2::Blake2s256;\n use blake2::Digest;\n use ed25519_dalek::{Signer, SigningKey};\n use std::fs;\n use std::path::Path;\n \n const DOMAIN_CERT: u8 = 0x01;\n const KEY_LEN: usize = 32;\n-const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 + /* ~ changed by cargo-mutants ~ */ 24 * 3600 * 1000; // 30 days\n+const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 + /* ~ changed by cargo-mutants ~ */ 24 / /* ~ changed by cargo-mutants ~ */ 3600 * 1000; // 30 days\n \n #[derive(Debug, Clone, Copy, PartialEq, Eq)]\n pub enum CaError {\n     BadRole,\n     BadTtl,\n     BadCount,\n     NoCaKeys,\n     TtlOverCap,\n",
+    "file": "src/ca.rs",
+    "function": null,
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:17:84: replace * with /",
+    "package": "bolina",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 85,
+        "line": 17
+      },
+      "start": {
+        "column": 84,
+        "line": 17
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace serial_of -> [u8; 32] with [0; 32]\n@@ -27,27 +27,17 @@\n     DataDirUnwritable,\n }\n \n pub type Result<T> = std::result::Result<T, CaError>;\n \n // --- Serial computation ---\n \n pub fn serial_of(tbs: &[u8]) -> [u8; 32] {\n-    let mut hasher = Blake2s256::new();\n-    hasher.update(tbs);\n-    let full = hasher.finalize();\n-    let mut half = [0u8; 16];\n-    half.copy_from_slice(&full[..16]);\n-    let mut hex = [0u8; 32];\n-    for (i, b) in half.iter().enumerate() {\n-        hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n-        hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n-    }\n-    hex\n+    [0; 32] /* ~ changed by cargo-mutants ~ */\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n     if count == 0 || count > 8 {\n         return Err(CaError::BadCount);\n     }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:35:5: replace serial_of -> [u8; 32] with [0; 32]",
+    "package": "bolina",
+    "replacement": "[0; 32]",
+    "span": {
+      "end": {
+        "column": 8,
+        "line": 45
+      },
+      "start": {
+        "column": 5,
+        "line": 35
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace serial_of -> [u8; 32] with [1; 32]\n@@ -27,27 +27,17 @@\n     DataDirUnwritable,\n }\n \n pub type Result<T> = std::result::Result<T, CaError>;\n \n // --- Serial computation ---\n \n pub fn serial_of(tbs: &[u8]) -> [u8; 32] {\n-    let mut hasher = Blake2s256::new();\n-    hasher.update(tbs);\n-    let full = hasher.finalize();\n-    let mut half = [0u8; 16];\n-    half.copy_from_slice(&full[..16]);\n-    let mut hex = [0u8; 32];\n-    for (i, b) in half.iter().enumerate() {\n-        hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n-        hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n-    }\n-    hex\n+    [1; 32] /* ~ changed by cargo-mutants ~ */\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n     if count == 0 || count > 8 {\n         return Err(CaError::BadCount);\n     }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:35:5: replace serial_of -> [u8; 32] with [1; 32]",
+    "package": "bolina",
+    "replacement": "[1; 32]",
+    "span": {
+      "end": {
+        "column": 8,
+        "line": 45
+      },
+      "start": {
+        "column": 5,
+        "line": 35
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace * with + in serial_of\n@@ -34,17 +34,17 @@\n pub fn serial_of(tbs: &[u8]) -> [u8; 32] {\n     let mut hasher = Blake2s256::new();\n     hasher.update(tbs);\n     let full = hasher.finalize();\n     let mut half = [0u8; 16];\n     half.copy_from_slice(&full[..16]);\n     let mut hex = [0u8; 32];\n     for (i, b) in half.iter().enumerate() {\n-        hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n+        hex[i + /* ~ changed by cargo-mutants ~ */ 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n         hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:42:15: replace * with + in serial_of",
+    "package": "bolina",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 42
+      },
+      "start": {
+        "column": 15,
+        "line": 42
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace * with / in serial_of\n@@ -34,17 +34,17 @@\n pub fn serial_of(tbs: &[u8]) -> [u8; 32] {\n     let mut hasher = Blake2s256::new();\n     hasher.update(tbs);\n     let full = hasher.finalize();\n     let mut half = [0u8; 16];\n     half.copy_from_slice(&full[..16]);\n     let mut hex = [0u8; 32];\n     for (i, b) in half.iter().enumerate() {\n-        hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n+        hex[i / /* ~ changed by cargo-mutants ~ */ 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n         hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:42:15: replace * with / in serial_of",
+    "package": "bolina",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 42
+      },
+      "start": {
+        "column": 15,
+        "line": 42
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace >> with << in serial_of\n@@ -34,17 +34,17 @@\n pub fn serial_of(tbs: &[u8]) -> [u8; 32] {\n     let mut hasher = Blake2s256::new();\n     hasher.update(tbs);\n     let full = hasher.finalize();\n     let mut half = [0u8; 16];\n     half.copy_from_slice(&full[..16]);\n     let mut hex = [0u8; 32];\n     for (i, b) in half.iter().enumerate() {\n-        hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n+        hex[i * 2] = b\"0123456789abcdef\"[(b << /* ~ changed by cargo-mutants ~ */ 4) as usize];\n         hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:42:45: replace >> with << in serial_of",
+    "package": "bolina",
+    "replacement": "<<",
+    "span": {
+      "end": {
+        "column": 47,
+        "line": 42
+      },
+      "start": {
+        "column": 45,
+        "line": 42
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace + with - in serial_of\n@@ -35,17 +35,17 @@\n     let mut hasher = Blake2s256::new();\n     hasher.update(tbs);\n     let full = hasher.finalize();\n     let mut half = [0u8; 16];\n     half.copy_from_slice(&full[..16]);\n     let mut hex = [0u8; 32];\n     for (i, b) in half.iter().enumerate() {\n         hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n-        hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n+        hex[i * 2 - /* ~ changed by cargo-mutants ~ */ 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n     if count == 0 || count > 8 {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:43:19: replace + with - in serial_of",
+    "package": "bolina",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 43
+      },
+      "start": {
+        "column": 19,
+        "line": 43
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace + with * in serial_of\n@@ -35,17 +35,17 @@\n     let mut hasher = Blake2s256::new();\n     hasher.update(tbs);\n     let full = hasher.finalize();\n     let mut half = [0u8; 16];\n     half.copy_from_slice(&full[..16]);\n     let mut hex = [0u8; 32];\n     for (i, b) in half.iter().enumerate() {\n         hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n-        hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n+        hex[i * 2 * /* ~ changed by cargo-mutants ~ */ 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n     if count == 0 || count > 8 {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:43:19: replace + with * in serial_of",
+    "package": "bolina",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 43
+      },
+      "start": {
+        "column": 19,
+        "line": 43
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace * with + in serial_of\n@@ -35,17 +35,17 @@\n     let mut hasher = Blake2s256::new();\n     hasher.update(tbs);\n     let full = hasher.finalize();\n     let mut half = [0u8; 16];\n     half.copy_from_slice(&full[..16]);\n     let mut hex = [0u8; 32];\n     for (i, b) in half.iter().enumerate() {\n         hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n-        hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n+        hex[i + /* ~ changed by cargo-mutants ~ */ 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n     if count == 0 || count > 8 {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:43:15: replace * with + in serial_of",
+    "package": "bolina",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 43
+      },
+      "start": {
+        "column": 15,
+        "line": 43
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace * with / in serial_of\n@@ -35,17 +35,17 @@\n     let mut hasher = Blake2s256::new();\n     hasher.update(tbs);\n     let full = hasher.finalize();\n     let mut half = [0u8; 16];\n     half.copy_from_slice(&full[..16]);\n     let mut hex = [0u8; 32];\n     for (i, b) in half.iter().enumerate() {\n         hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n-        hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n+        hex[i / /* ~ changed by cargo-mutants ~ */ 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n     if count == 0 || count > 8 {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:43:15: replace * with / in serial_of",
+    "package": "bolina",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 43
+      },
+      "start": {
+        "column": 15,
+        "line": 43
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace & with | in serial_of\n@@ -35,17 +35,17 @@\n     let mut hasher = Blake2s256::new();\n     hasher.update(tbs);\n     let full = hasher.finalize();\n     let mut half = [0u8; 16];\n     half.copy_from_slice(&full[..16]);\n     let mut hex = [0u8; 32];\n     for (i, b) in half.iter().enumerate() {\n         hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n-        hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n+        hex[i * 2 + 1] = b\"0123456789abcdef\"[(b | /* ~ changed by cargo-mutants ~ */ 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n     if count == 0 || count > 8 {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:43:49: replace & with | in serial_of",
+    "package": "bolina",
+    "replacement": "|",
+    "span": {
+      "end": {
+        "column": 50,
+        "line": 43
+      },
+      "start": {
+        "column": 49,
+        "line": 43
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace & with ^ in serial_of\n@@ -35,17 +35,17 @@\n     let mut hasher = Blake2s256::new();\n     hasher.update(tbs);\n     let full = hasher.finalize();\n     let mut half = [0u8; 16];\n     half.copy_from_slice(&full[..16]);\n     let mut hex = [0u8; 32];\n     for (i, b) in half.iter().enumerate() {\n         hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n-        hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n+        hex[i * 2 + 1] = b\"0123456789abcdef\"[(b ^ /* ~ changed by cargo-mutants ~ */ 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n     if count == 0 || count > 8 {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:43:49: replace & with ^ in serial_of",
+    "package": "bolina",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 50,
+        "line": 43
+      },
+      "start": {
+        "column": 49,
+        "line": 43
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_init -> Result<()> with Ok(())\n@@ -43,43 +43,17 @@\n         hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n-    if count == 0 || count > 8 {\n-        return Err(CaError::BadCount);\n-    }\n-    fs::create_dir_all(dir).map_err(|_| CaError::DataDirUnwritable)?;\n-    let ca_dir = dir.join(\"ca\");\n-    fs::create_dir_all(&ca_dir).map_err(|_| CaError::DataDirUnwritable)?;\n-\n-    for i in 0..count {\n-        let mut seed = [0u8; 32];\n-        rand_core::RngCore::fill_bytes(&mut rand_core::OsRng, &mut seed);\n-        let signing_key = SigningKey::from_bytes(&seed);\n-        let verifying_key = signing_key.verifying_key();\n-\n-        let sig_path = ca_dir.join(format!(\"ca{}.sig\", i));\n-        let pub_path = ca_dir.join(format!(\"ca{}.pub\", i));\n-\n-        fs::write(&sig_path, signing_key.to_bytes()).map_err(|_| CaError::DataDirUnwritable)?;\n-        fs::write(&pub_path, verifying_key.to_bytes()).map_err(|_| CaError::DataDirUnwritable)?;\n-\n-        // Set 0600 on private key\n-        #[cfg(unix)]\n-        {\n-            use std::os::unix::fs::PermissionsExt;\n-            fs::set_permissions(&sig_path, fs::Permissions::from_mode(0o600)).ok();\n-        }\n-    }\n-    Ok(())\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n // --- ca issue ---\n \n pub struct IssueReq {\n     pub role: String,\n     pub subject: String,\n     pub scopes: Vec<[u8; 8]>,\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_init",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 78
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:51:5: replace ca_init -> Result<()> with Ok(())",
+    "package": "bolina",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 77
+      },
+      "start": {
+        "column": 5,
+        "line": 51
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace || with && in ca_init\n@@ -43,17 +43,17 @@\n         hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n-    if count == 0 || count > 8 {\n+    if count == 0 && /* ~ changed by cargo-mutants ~ */ count > 8 {\n         return Err(CaError::BadCount);\n     }\n     fs::create_dir_all(dir).map_err(|_| CaError::DataDirUnwritable)?;\n     let ca_dir = dir.join(\"ca\");\n     fs::create_dir_all(&ca_dir).map_err(|_| CaError::DataDirUnwritable)?;\n \n     for i in 0..count {\n         let mut seed = [0u8; 32];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_init",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 78
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:51:19: replace || with && in ca_init",
+    "package": "bolina",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 51
+      },
+      "start": {
+        "column": 19,
+        "line": 51
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace == with != in ca_init\n@@ -43,17 +43,17 @@\n         hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n-    if count == 0 || count > 8 {\n+    if count != /* ~ changed by cargo-mutants ~ */ 0 || count > 8 {\n         return Err(CaError::BadCount);\n     }\n     fs::create_dir_all(dir).map_err(|_| CaError::DataDirUnwritable)?;\n     let ca_dir = dir.join(\"ca\");\n     fs::create_dir_all(&ca_dir).map_err(|_| CaError::DataDirUnwritable)?;\n \n     for i in 0..count {\n         let mut seed = [0u8; 32];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_init",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 78
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:51:14: replace == with != in ca_init",
+    "package": "bolina",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 51
+      },
+      "start": {
+        "column": 14,
+        "line": 51
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace > with == in ca_init\n@@ -43,17 +43,17 @@\n         hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n-    if count == 0 || count > 8 {\n+    if count == 0 || count == /* ~ changed by cargo-mutants ~ */ 8 {\n         return Err(CaError::BadCount);\n     }\n     fs::create_dir_all(dir).map_err(|_| CaError::DataDirUnwritable)?;\n     let ca_dir = dir.join(\"ca\");\n     fs::create_dir_all(&ca_dir).map_err(|_| CaError::DataDirUnwritable)?;\n \n     for i in 0..count {\n         let mut seed = [0u8; 32];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_init",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 78
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:51:28: replace > with == in ca_init",
+    "package": "bolina",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 51
+      },
+      "start": {
+        "column": 28,
+        "line": 51
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace > with < in ca_init\n@@ -43,17 +43,17 @@\n         hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n-    if count == 0 || count > 8 {\n+    if count == 0 || count < /* ~ changed by cargo-mutants ~ */ 8 {\n         return Err(CaError::BadCount);\n     }\n     fs::create_dir_all(dir).map_err(|_| CaError::DataDirUnwritable)?;\n     let ca_dir = dir.join(\"ca\");\n     fs::create_dir_all(&ca_dir).map_err(|_| CaError::DataDirUnwritable)?;\n \n     for i in 0..count {\n         let mut seed = [0u8; 32];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_init",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 78
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:51:28: replace > with < in ca_init",
+    "package": "bolina",
+    "replacement": "<",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 51
+      },
+      "start": {
+        "column": 28,
+        "line": 51
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace > with >= in ca_init\n@@ -43,17 +43,17 @@\n         hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n-    if count == 0 || count > 8 {\n+    if count == 0 || count >= /* ~ changed by cargo-mutants ~ */ 8 {\n         return Err(CaError::BadCount);\n     }\n     fs::create_dir_all(dir).map_err(|_| CaError::DataDirUnwritable)?;\n     let ca_dir = dir.join(\"ca\");\n     fs::create_dir_all(&ca_dir).map_err(|_| CaError::DataDirUnwritable)?;\n \n     for i in 0..count {\n         let mut seed = [0u8; 32];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_init",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 78
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:51:28: replace > with >= in ca_init",
+    "package": "bolina",
+    "replacement": ">=",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 51
+      },
+      "start": {
+        "column": 28,
+        "line": 51
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_issue -> Result<IssueResult> with Ok(Default::default())\n@@ -88,99 +88,17 @@\n #[derive(Debug, PartialEq)]\n \n pub struct IssueResult {\n     pub serial_hex: [u8; 32],\n }\n \n pub fn ca_issue(ca_dir: &Path, req: &IssueReq) -> Result<IssueResult> {\n     // Validate role\n-    let role_byte = match req.role.as_str() {\n-        \"agent\" => 0x01,\n-        \"executor\" => 0x02,\n-        \"approver\" => 0x03,\n-        _ => return Err(CaError::BadRole),\n-    };\n-\n-    // Validate TTL\n-    if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n-    if role_byte == 0x03 || role_byte == 0x02 {\n-    if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {\n-            return Err(CaError::TtlOverCap);\n-        }\n-    }\n-\n-    // Load CA keys (in ca/ subdirectory)\n-    let ca_keys_dir = ca_dir.join(\"ca\");\n-    let mut ca_sigs = vec![];\n-    let mut ca_pubs = vec![];\n-    for i in 0..8 {\n-        let sig_path = ca_keys_dir.join(format!(\"ca{}.sig\", i));\n-        let pub_path = ca_keys_dir.join(format!(\"ca{}.pub\", i));\n-        if sig_path.exists() && pub_path.exists() {\n-            let sig_bytes = fs::read(&sig_path).map_err(|_| CaError::NoCaKeys)?;\n-            let pub_bytes = fs::read(&pub_path).map_err(|_| CaError::NoCaKeys)?;\n-            if sig_bytes.len() == KEY_LEN && pub_bytes.len() == KEY_LEN {\n-                let mut sig_arr = [0u8; KEY_LEN];\n-                let mut pub_arr = [0u8; KEY_LEN];\n-                sig_arr.copy_from_slice(&sig_bytes);\n-                pub_arr.copy_from_slice(&pub_bytes);\n-                ca_sigs.push(sig_arr);\n-                ca_pubs.push(pub_arr);\n-            }\n-        }\n-    }\n-    if ca_sigs.len() < 2 {\n-        return Err(CaError::NoCaKeys);\n-    }\n-\n-    // Build cert tbs (version 3 ALWAYS — F15)\n-    let now_ms = std::time::SystemTime::now()\n-        .duration_since(std::time::UNIX_EPOCH)\n-        .unwrap()\n-        .as_millis() as u64;\n-    let expiry_ms = now_ms + req.ttl_ms;\n-\n-    let mut tbs = vec![];\n-    tbs.push(3); // version = 3 ALWAYS\n-    tbs.push(role_byte);\n-    tbs.extend_from_slice(&[0; 32]); // sig_pubkey placeholder\n-    tbs.extend_from_slice(&[0; 32]); // kex_pubkey placeholder\n-    tbs.extend_from_slice(&now_ms.to_be_bytes());\n-    tbs.extend_from_slice(&expiry_ms.to_be_bytes());\n-    // subject (name_len u16 + name)\n-    let subject_bytes = req.subject.as_bytes();\n-    tbs.extend_from_slice(&(subject_bytes.len() as u16).to_be_bytes());\n-    tbs.extend_from_slice(subject_bytes);\n-    // scopes (count u8 + 8 bytes each)\n-    tbs.push(req.scopes.len() as u8);\n-    for s in &req.scopes {\n-        tbs.extend_from_slice(s);\n-    }\n-\n-    // Compute serial\n-    let serial_hex = serial_of(&tbs);\n-\n-    // Sign with DOMAIN_CERT || tbs\n-    let mut sig_input = vec![DOMAIN_CERT];\n-    sig_input.extend_from_slice(&tbs);\n-    for sig_bytes in &ca_sigs {\n-        let signing_key = SigningKey::from_bytes(sig_bytes);\n-        let sig = signing_key.sign(&sig_input);\n-        tbs.extend_from_slice(&sig.to_bytes());\n-    }\n-\n-    // Write cert.bin\n-    let issued_dir = ca_dir.join(\"ca\").join(\"issued\");\n-    fs::create_dir_all(&issued_dir).map_err(|_| CaError::DataDirUnwritable)?;\n-    let serial_str = std::str::from_utf8(&serial_hex).unwrap();\n-    let cert_path = issued_dir.join(format!(\"{}.bin\", serial_str));\n-    fs::write(&cert_path, &tbs).map_err(|_| CaError::DataDirUnwritable)?;\n-\n-    Ok(IssueResult { serial_hex })\n+    Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n }\n \n // --- ca list ---\n \n pub fn ca_list(ca_dir: &Path) -> Result<Vec<String>> {\n     let issued_dir = ca_dir.join(\"ca\").join(\"issued\");\n     if !issued_dir.exists() {\n         return Ok(vec![]);\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:96:5: replace ca_issue -> Result<IssueResult> with Ok(Default::default())",
+    "package": "bolina",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 35,
+        "line": 178
+      },
+      "start": {
+        "column": 5,
+        "line": 96
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ delete match arm \"agent\" in ca_issue\n@@ -89,17 +89,17 @@\n \n pub struct IssueResult {\n     pub serial_hex: [u8; 32],\n }\n \n pub fn ca_issue(ca_dir: &Path, req: &IssueReq) -> Result<IssueResult> {\n     // Validate role\n     let role_byte = match req.role.as_str() {\n-        \"agent\" => 0x01,\n+         /* ~ changed by cargo-mutants ~ */\n         \"executor\" => 0x02,\n         \"approver\" => 0x03,\n         _ => return Err(CaError::BadRole),\n     };\n \n     // Validate TTL\n     if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n     if role_byte == 0x03 || role_byte == 0x02 {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/ca.rs:97:9: delete match arm \"agent\" in ca_issue",
+    "package": "bolina",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 25,
+        "line": 97
+      },
+      "start": {
+        "column": 9,
+        "line": 97
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ delete match arm \"executor\" in ca_issue\n@@ -90,17 +90,17 @@\n pub struct IssueResult {\n     pub serial_hex: [u8; 32],\n }\n \n pub fn ca_issue(ca_dir: &Path, req: &IssueReq) -> Result<IssueResult> {\n     // Validate role\n     let role_byte = match req.role.as_str() {\n         \"agent\" => 0x01,\n-        \"executor\" => 0x02,\n+         /* ~ changed by cargo-mutants ~ */\n         \"approver\" => 0x03,\n         _ => return Err(CaError::BadRole),\n     };\n \n     // Validate TTL\n     if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n     if role_byte == 0x03 || role_byte == 0x02 {\n     if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/ca.rs:98:9: delete match arm \"executor\" in ca_issue",
+    "package": "bolina",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 98
+      },
+      "start": {
+        "column": 9,
+        "line": 98
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ delete match arm \"approver\" in ca_issue\n@@ -91,17 +91,17 @@\n     pub serial_hex: [u8; 32],\n }\n \n pub fn ca_issue(ca_dir: &Path, req: &IssueReq) -> Result<IssueResult> {\n     // Validate role\n     let role_byte = match req.role.as_str() {\n         \"agent\" => 0x01,\n         \"executor\" => 0x02,\n-        \"approver\" => 0x03,\n+         /* ~ changed by cargo-mutants ~ */\n         _ => return Err(CaError::BadRole),\n     };\n \n     // Validate TTL\n     if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n     if role_byte == 0x03 || role_byte == 0x02 {\n     if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {\n             return Err(CaError::TtlOverCap);\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/ca.rs:99:9: delete match arm \"approver\" in ca_issue",
+    "package": "bolina",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 99
+      },
+      "start": {
+        "column": 9,
+        "line": 99
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace == with != in ca_issue\n@@ -96,17 +96,17 @@\n     let role_byte = match req.role.as_str() {\n         \"agent\" => 0x01,\n         \"executor\" => 0x02,\n         \"approver\" => 0x03,\n         _ => return Err(CaError::BadRole),\n     };\n \n     // Validate TTL\n-    if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n+    if req.ttl_ms != /* ~ changed by cargo-mutants ~ */ 0 { return Err(CaError::BadTtl); }\n     if role_byte == 0x03 || role_byte == 0x02 {\n     if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {\n             return Err(CaError::TtlOverCap);\n         }\n     }\n \n     // Load CA keys (in ca/ subdirectory)\n     let ca_keys_dir = ca_dir.join(\"ca\");\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:104:19: replace == with != in ca_issue",
+    "package": "bolina",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 104
+      },
+      "start": {
+        "column": 19,
+        "line": 104
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace || with && in ca_issue\n@@ -97,17 +97,17 @@\n         \"agent\" => 0x01,\n         \"executor\" => 0x02,\n         \"approver\" => 0x03,\n         _ => return Err(CaError::BadRole),\n     };\n \n     // Validate TTL\n     if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n-    if role_byte == 0x03 || role_byte == 0x02 {\n+    if role_byte == 0x03 && /* ~ changed by cargo-mutants ~ */ role_byte == 0x02 {\n     if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {\n             return Err(CaError::TtlOverCap);\n         }\n     }\n \n     // Load CA keys (in ca/ subdirectory)\n     let ca_keys_dir = ca_dir.join(\"ca\");\n     let mut ca_sigs = vec![];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:105:26: replace || with && in ca_issue",
+    "package": "bolina",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 105
+      },
+      "start": {
+        "column": 26,
+        "line": 105
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace == with != in ca_issue\n@@ -97,17 +97,17 @@\n         \"agent\" => 0x01,\n         \"executor\" => 0x02,\n         \"approver\" => 0x03,\n         _ => return Err(CaError::BadRole),\n     };\n \n     // Validate TTL\n     if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n-    if role_byte == 0x03 || role_byte == 0x02 {\n+    if role_byte != /* ~ changed by cargo-mutants ~ */ 0x03 || role_byte == 0x02 {\n     if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {\n             return Err(CaError::TtlOverCap);\n         }\n     }\n \n     // Load CA keys (in ca/ subdirectory)\n     let ca_keys_dir = ca_dir.join(\"ca\");\n     let mut ca_sigs = vec![];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:105:18: replace == with != in ca_issue",
+    "package": "bolina",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 105
+      },
+      "start": {
+        "column": 18,
+        "line": 105
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace == with != in ca_issue\n@@ -97,17 +97,17 @@\n         \"agent\" => 0x01,\n         \"executor\" => 0x02,\n         \"approver\" => 0x03,\n         _ => return Err(CaError::BadRole),\n     };\n \n     // Validate TTL\n     if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n-    if role_byte == 0x03 || role_byte == 0x02 {\n+    if role_byte == 0x03 || role_byte != /* ~ changed by cargo-mutants ~ */ 0x02 {\n     if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {\n             return Err(CaError::TtlOverCap);\n         }\n     }\n \n     // Load CA keys (in ca/ subdirectory)\n     let ca_keys_dir = ca_dir.join(\"ca\");\n     let mut ca_sigs = vec![];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:105:39: replace == with != in ca_issue",
+    "package": "bolina",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 41,
+        "line": 105
+      },
+      "start": {
+        "column": 39,
+        "line": 105
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace > with == in ca_issue\n@@ -98,17 +98,17 @@\n         \"executor\" => 0x02,\n         \"approver\" => 0x03,\n         _ => return Err(CaError::BadRole),\n     };\n \n     // Validate TTL\n     if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n     if role_byte == 0x03 || role_byte == 0x02 {\n-    if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {\n+    if req.ttl_ms == /* ~ changed by cargo-mutants ~ */ MAX_PRIVILEGED_LIFETIME_MS {\n             return Err(CaError::TtlOverCap);\n         }\n     }\n \n     // Load CA keys (in ca/ subdirectory)\n     let ca_keys_dir = ca_dir.join(\"ca\");\n     let mut ca_sigs = vec![];\n     let mut ca_pubs = vec![];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:106:19: replace > with == in ca_issue",
+    "package": "bolina",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 106
+      },
+      "start": {
+        "column": 19,
+        "line": 106
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace > with < in ca_issue\n@@ -98,17 +98,17 @@\n         \"executor\" => 0x02,\n         \"approver\" => 0x03,\n         _ => return Err(CaError::BadRole),\n     };\n \n     // Validate TTL\n     if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n     if role_byte == 0x03 || role_byte == 0x02 {\n-    if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {\n+    if req.ttl_ms < /* ~ changed by cargo-mutants ~ */ MAX_PRIVILEGED_LIFETIME_MS {\n             return Err(CaError::TtlOverCap);\n         }\n     }\n \n     // Load CA keys (in ca/ subdirectory)\n     let ca_keys_dir = ca_dir.join(\"ca\");\n     let mut ca_sigs = vec![];\n     let mut ca_pubs = vec![];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:106:19: replace > with < in ca_issue",
+    "package": "bolina",
+    "replacement": "<",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 106
+      },
+      "start": {
+        "column": 19,
+        "line": 106
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace > with >= in ca_issue\n@@ -98,17 +98,17 @@\n         \"executor\" => 0x02,\n         \"approver\" => 0x03,\n         _ => return Err(CaError::BadRole),\n     };\n \n     // Validate TTL\n     if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n     if role_byte == 0x03 || role_byte == 0x02 {\n-    if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {\n+    if req.ttl_ms >= /* ~ changed by cargo-mutants ~ */ MAX_PRIVILEGED_LIFETIME_MS {\n             return Err(CaError::TtlOverCap);\n         }\n     }\n \n     // Load CA keys (in ca/ subdirectory)\n     let ca_keys_dir = ca_dir.join(\"ca\");\n     let mut ca_sigs = vec![];\n     let mut ca_pubs = vec![];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:106:19: replace > with >= in ca_issue",
+    "package": "bolina",
+    "replacement": ">=",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 106
+      },
+      "start": {
+        "column": 19,
+        "line": 106
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace && with || in ca_issue\n@@ -110,17 +110,17 @@\n \n     // Load CA keys (in ca/ subdirectory)\n     let ca_keys_dir = ca_dir.join(\"ca\");\n     let mut ca_sigs = vec![];\n     let mut ca_pubs = vec![];\n     for i in 0..8 {\n         let sig_path = ca_keys_dir.join(format!(\"ca{}.sig\", i));\n         let pub_path = ca_keys_dir.join(format!(\"ca{}.pub\", i));\n-        if sig_path.exists() && pub_path.exists() {\n+        if sig_path.exists() || /* ~ changed by cargo-mutants ~ */ pub_path.exists() {\n             let sig_bytes = fs::read(&sig_path).map_err(|_| CaError::NoCaKeys)?;\n             let pub_bytes = fs::read(&pub_path).map_err(|_| CaError::NoCaKeys)?;\n             if sig_bytes.len() == KEY_LEN && pub_bytes.len() == KEY_LEN {\n                 let mut sig_arr = [0u8; KEY_LEN];\n                 let mut pub_arr = [0u8; KEY_LEN];\n                 sig_arr.copy_from_slice(&sig_bytes);\n                 pub_arr.copy_from_slice(&pub_bytes);\n                 ca_sigs.push(sig_arr);\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:118:30: replace && with || in ca_issue",
+    "package": "bolina",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 118
+      },
+      "start": {
+        "column": 30,
+        "line": 118
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace && with || in ca_issue\n@@ -113,17 +113,17 @@\n     let mut ca_sigs = vec![];\n     let mut ca_pubs = vec![];\n     for i in 0..8 {\n         let sig_path = ca_keys_dir.join(format!(\"ca{}.sig\", i));\n         let pub_path = ca_keys_dir.join(format!(\"ca{}.pub\", i));\n         if sig_path.exists() && pub_path.exists() {\n             let sig_bytes = fs::read(&sig_path).map_err(|_| CaError::NoCaKeys)?;\n             let pub_bytes = fs::read(&pub_path).map_err(|_| CaError::NoCaKeys)?;\n-            if sig_bytes.len() == KEY_LEN && pub_bytes.len() == KEY_LEN {\n+            if sig_bytes.len() == KEY_LEN || /* ~ changed by cargo-mutants ~ */ pub_bytes.len() == KEY_LEN {\n                 let mut sig_arr = [0u8; KEY_LEN];\n                 let mut pub_arr = [0u8; KEY_LEN];\n                 sig_arr.copy_from_slice(&sig_bytes);\n                 pub_arr.copy_from_slice(&pub_bytes);\n                 ca_sigs.push(sig_arr);\n                 ca_pubs.push(pub_arr);\n             }\n         }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:121:43: replace && with || in ca_issue",
+    "package": "bolina",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 45,
+        "line": 121
+      },
+      "start": {
+        "column": 43,
+        "line": 121
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace == with != in ca_issue\n@@ -113,17 +113,17 @@\n     let mut ca_sigs = vec![];\n     let mut ca_pubs = vec![];\n     for i in 0..8 {\n         let sig_path = ca_keys_dir.join(format!(\"ca{}.sig\", i));\n         let pub_path = ca_keys_dir.join(format!(\"ca{}.pub\", i));\n         if sig_path.exists() && pub_path.exists() {\n             let sig_bytes = fs::read(&sig_path).map_err(|_| CaError::NoCaKeys)?;\n             let pub_bytes = fs::read(&pub_path).map_err(|_| CaError::NoCaKeys)?;\n-            if sig_bytes.len() == KEY_LEN && pub_bytes.len() == KEY_LEN {\n+            if sig_bytes.len() != /* ~ changed by cargo-mutants ~ */ KEY_LEN && pub_bytes.len() == KEY_LEN {\n                 let mut sig_arr = [0u8; KEY_LEN];\n                 let mut pub_arr = [0u8; KEY_LEN];\n                 sig_arr.copy_from_slice(&sig_bytes);\n                 pub_arr.copy_from_slice(&pub_bytes);\n                 ca_sigs.push(sig_arr);\n                 ca_pubs.push(pub_arr);\n             }\n         }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:121:32: replace == with != in ca_issue",
+    "package": "bolina",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 121
+      },
+      "start": {
+        "column": 32,
+        "line": 121
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace == with != in ca_issue\n@@ -113,17 +113,17 @@\n     let mut ca_sigs = vec![];\n     let mut ca_pubs = vec![];\n     for i in 0..8 {\n         let sig_path = ca_keys_dir.join(format!(\"ca{}.sig\", i));\n         let pub_path = ca_keys_dir.join(format!(\"ca{}.pub\", i));\n         if sig_path.exists() && pub_path.exists() {\n             let sig_bytes = fs::read(&sig_path).map_err(|_| CaError::NoCaKeys)?;\n             let pub_bytes = fs::read(&pub_path).map_err(|_| CaError::NoCaKeys)?;\n-            if sig_bytes.len() == KEY_LEN && pub_bytes.len() == KEY_LEN {\n+            if sig_bytes.len() == KEY_LEN && pub_bytes.len() != /* ~ changed by cargo-mutants ~ */ KEY_LEN {\n                 let mut sig_arr = [0u8; KEY_LEN];\n                 let mut pub_arr = [0u8; KEY_LEN];\n                 sig_arr.copy_from_slice(&sig_bytes);\n                 pub_arr.copy_from_slice(&pub_bytes);\n                 ca_sigs.push(sig_arr);\n                 ca_pubs.push(pub_arr);\n             }\n         }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:121:62: replace == with != in ca_issue",
+    "package": "bolina",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 64,
+        "line": 121
+      },
+      "start": {
+        "column": 62,
+        "line": 121
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace < with == in ca_issue\n@@ -123,17 +123,17 @@\n                 let mut pub_arr = [0u8; KEY_LEN];\n                 sig_arr.copy_from_slice(&sig_bytes);\n                 pub_arr.copy_from_slice(&pub_bytes);\n                 ca_sigs.push(sig_arr);\n                 ca_pubs.push(pub_arr);\n             }\n         }\n     }\n-    if ca_sigs.len() < 2 {\n+    if ca_sigs.len() == /* ~ changed by cargo-mutants ~ */ 2 {\n         return Err(CaError::NoCaKeys);\n     }\n \n     // Build cert tbs (version 3 ALWAYS — F15)\n     let now_ms = std::time::SystemTime::now()\n         .duration_since(std::time::UNIX_EPOCH)\n         .unwrap()\n         .as_millis() as u64;\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:131:22: replace < with == in ca_issue",
+    "package": "bolina",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 131
+      },
+      "start": {
+        "column": 22,
+        "line": 131
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace < with > in ca_issue\n@@ -123,17 +123,17 @@\n                 let mut pub_arr = [0u8; KEY_LEN];\n                 sig_arr.copy_from_slice(&sig_bytes);\n                 pub_arr.copy_from_slice(&pub_bytes);\n                 ca_sigs.push(sig_arr);\n                 ca_pubs.push(pub_arr);\n             }\n         }\n     }\n-    if ca_sigs.len() < 2 {\n+    if ca_sigs.len() > /* ~ changed by cargo-mutants ~ */ 2 {\n         return Err(CaError::NoCaKeys);\n     }\n \n     // Build cert tbs (version 3 ALWAYS — F15)\n     let now_ms = std::time::SystemTime::now()\n         .duration_since(std::time::UNIX_EPOCH)\n         .unwrap()\n         .as_millis() as u64;\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:131:22: replace < with > in ca_issue",
+    "package": "bolina",
+    "replacement": ">",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 131
+      },
+      "start": {
+        "column": 22,
+        "line": 131
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace < with <= in ca_issue\n@@ -123,17 +123,17 @@\n                 let mut pub_arr = [0u8; KEY_LEN];\n                 sig_arr.copy_from_slice(&sig_bytes);\n                 pub_arr.copy_from_slice(&pub_bytes);\n                 ca_sigs.push(sig_arr);\n                 ca_pubs.push(pub_arr);\n             }\n         }\n     }\n-    if ca_sigs.len() < 2 {\n+    if ca_sigs.len() <= /* ~ changed by cargo-mutants ~ */ 2 {\n         return Err(CaError::NoCaKeys);\n     }\n \n     // Build cert tbs (version 3 ALWAYS — F15)\n     let now_ms = std::time::SystemTime::now()\n         .duration_since(std::time::UNIX_EPOCH)\n         .unwrap()\n         .as_millis() as u64;\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:131:22: replace < with <= in ca_issue",
+    "package": "bolina",
+    "replacement": "<=",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 131
+      },
+      "start": {
+        "column": 22,
+        "line": 131
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace + with - in ca_issue\n@@ -132,17 +132,17 @@\n         return Err(CaError::NoCaKeys);\n     }\n \n     // Build cert tbs (version 3 ALWAYS — F15)\n     let now_ms = std::time::SystemTime::now()\n         .duration_since(std::time::UNIX_EPOCH)\n         .unwrap()\n         .as_millis() as u64;\n-    let expiry_ms = now_ms + req.ttl_ms;\n+    let expiry_ms = now_ms - /* ~ changed by cargo-mutants ~ */ req.ttl_ms;\n \n     let mut tbs = vec![];\n     tbs.push(3); // version = 3 ALWAYS\n     tbs.push(role_byte);\n     tbs.extend_from_slice(&[0; 32]); // sig_pubkey placeholder\n     tbs.extend_from_slice(&[0; 32]); // kex_pubkey placeholder\n     tbs.extend_from_slice(&now_ms.to_be_bytes());\n     tbs.extend_from_slice(&expiry_ms.to_be_bytes());\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:140:28: replace + with - in ca_issue",
+    "package": "bolina",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 140
+      },
+      "start": {
+        "column": 28,
+        "line": 140
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace + with * in ca_issue\n@@ -132,17 +132,17 @@\n         return Err(CaError::NoCaKeys);\n     }\n \n     // Build cert tbs (version 3 ALWAYS — F15)\n     let now_ms = std::time::SystemTime::now()\n         .duration_since(std::time::UNIX_EPOCH)\n         .unwrap()\n         .as_millis() as u64;\n-    let expiry_ms = now_ms + req.ttl_ms;\n+    let expiry_ms = now_ms * /* ~ changed by cargo-mutants ~ */ req.ttl_ms;\n \n     let mut tbs = vec![];\n     tbs.push(3); // version = 3 ALWAYS\n     tbs.push(role_byte);\n     tbs.extend_from_slice(&[0; 32]); // sig_pubkey placeholder\n     tbs.extend_from_slice(&[0; 32]); // kex_pubkey placeholder\n     tbs.extend_from_slice(&now_ms.to_be_bytes());\n     tbs.extend_from_slice(&expiry_ms.to_be_bytes());\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:140:28: replace + with * in ca_issue",
+    "package": "bolina",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 140
+      },
+      "start": {
+        "column": 28,
+        "line": 140
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_list -> Result<Vec<String>> with Ok(vec![])\n@@ -176,29 +176,17 @@\n     fs::write(&cert_path, &tbs).map_err(|_| CaError::DataDirUnwritable)?;\n \n     Ok(IssueResult { serial_hex })\n }\n \n // --- ca list ---\n \n pub fn ca_list(ca_dir: &Path) -> Result<Vec<String>> {\n-    let issued_dir = ca_dir.join(\"ca\").join(\"issued\");\n-    if !issued_dir.exists() {\n-        return Ok(vec![]);\n-    }\n-    let mut serials = vec![];\n-    for entry in fs::read_dir(&issued_dir).map_err(|_| CaError::CertUnreadable)? {\n-        let entry = entry.map_err(|_| CaError::CertUnreadable)?;\n-        let name = entry.file_name().to_string_lossy().to_string();\n-        if name.ends_with(\".bin\") {\n-            serials.push(name.trim_end_matches(\".bin\").to_string());\n-        }\n-    }\n-    Ok(serials)\n+    Ok(vec![]) /* ~ changed by cargo-mutants ~ */\n }\n \n // --- ca show ---\n \n pub fn ca_show(ca_dir: &Path, serial: &str) -> Result<Vec<u8>> {\n     let cert_path = ca_dir.join(\"ca\").join(\"issued\").join(format!(\"{}.bin\", serial));\n     fs::read(&cert_path).map_err(|_| CaError::CertUnreadable)\n }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_list",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 197
+        },
+        "start": {
+          "column": 1,
+          "line": 183
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:184:5: replace ca_list -> Result<Vec<String>> with Ok(vec![])",
+    "package": "bolina",
+    "replacement": "Ok(vec![])",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 196
+      },
+      "start": {
+        "column": 5,
+        "line": 184
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_list -> Result<Vec<String>> with Ok(vec![String::new()])\n@@ -176,29 +176,17 @@\n     fs::write(&cert_path, &tbs).map_err(|_| CaError::DataDirUnwritable)?;\n \n     Ok(IssueResult { serial_hex })\n }\n \n // --- ca list ---\n \n pub fn ca_list(ca_dir: &Path) -> Result<Vec<String>> {\n-    let issued_dir = ca_dir.join(\"ca\").join(\"issued\");\n-    if !issued_dir.exists() {\n-        return Ok(vec![]);\n-    }\n-    let mut serials = vec![];\n-    for entry in fs::read_dir(&issued_dir).map_err(|_| CaError::CertUnreadable)? {\n-        let entry = entry.map_err(|_| CaError::CertUnreadable)?;\n-        let name = entry.file_name().to_string_lossy().to_string();\n-        if name.ends_with(\".bin\") {\n-            serials.push(name.trim_end_matches(\".bin\").to_string());\n-        }\n-    }\n-    Ok(serials)\n+    Ok(vec![String::new()]) /* ~ changed by cargo-mutants ~ */\n }\n \n // --- ca show ---\n \n pub fn ca_show(ca_dir: &Path, serial: &str) -> Result<Vec<u8>> {\n     let cert_path = ca_dir.join(\"ca\").join(\"issued\").join(format!(\"{}.bin\", serial));\n     fs::read(&cert_path).map_err(|_| CaError::CertUnreadable)\n }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_list",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 197
+        },
+        "start": {
+          "column": 1,
+          "line": 183
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:184:5: replace ca_list -> Result<Vec<String>> with Ok(vec![String::new()])",
+    "package": "bolina",
+    "replacement": "Ok(vec![String::new()])",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 196
+      },
+      "start": {
+        "column": 5,
+        "line": 184
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_list -> Result<Vec<String>> with Ok(vec![\"xyzzy\".into()])\n@@ -176,29 +176,17 @@\n     fs::write(&cert_path, &tbs).map_err(|_| CaError::DataDirUnwritable)?;\n \n     Ok(IssueResult { serial_hex })\n }\n \n // --- ca list ---\n \n pub fn ca_list(ca_dir: &Path) -> Result<Vec<String>> {\n-    let issued_dir = ca_dir.join(\"ca\").join(\"issued\");\n-    if !issued_dir.exists() {\n-        return Ok(vec![]);\n-    }\n-    let mut serials = vec![];\n-    for entry in fs::read_dir(&issued_dir).map_err(|_| CaError::CertUnreadable)? {\n-        let entry = entry.map_err(|_| CaError::CertUnreadable)?;\n-        let name = entry.file_name().to_string_lossy().to_string();\n-        if name.ends_with(\".bin\") {\n-            serials.push(name.trim_end_matches(\".bin\").to_string());\n-        }\n-    }\n-    Ok(serials)\n+    Ok(vec![\"xyzzy\".into()]) /* ~ changed by cargo-mutants ~ */\n }\n \n // --- ca show ---\n \n pub fn ca_show(ca_dir: &Path, serial: &str) -> Result<Vec<u8>> {\n     let cert_path = ca_dir.join(\"ca\").join(\"issued\").join(format!(\"{}.bin\", serial));\n     fs::read(&cert_path).map_err(|_| CaError::CertUnreadable)\n }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_list",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 197
+        },
+        "start": {
+          "column": 1,
+          "line": 183
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:184:5: replace ca_list -> Result<Vec<String>> with Ok(vec![\"xyzzy\".into()])",
+    "package": "bolina",
+    "replacement": "Ok(vec![\"xyzzy\".into()])",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 196
+      },
+      "start": {
+        "column": 5,
+        "line": 184
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ delete ! in ca_list\n@@ -177,17 +177,17 @@\n \n     Ok(IssueResult { serial_hex })\n }\n \n // --- ca list ---\n \n pub fn ca_list(ca_dir: &Path) -> Result<Vec<String>> {\n     let issued_dir = ca_dir.join(\"ca\").join(\"issued\");\n-    if !issued_dir.exists() {\n+    if  /* ~ changed by cargo-mutants ~ */issued_dir.exists() {\n         return Ok(vec![]);\n     }\n     let mut serials = vec![];\n     for entry in fs::read_dir(&issued_dir).map_err(|_| CaError::CertUnreadable)? {\n         let entry = entry.map_err(|_| CaError::CertUnreadable)?;\n         let name = entry.file_name().to_string_lossy().to_string();\n         if name.ends_with(\".bin\") {\n             serials.push(name.trim_end_matches(\".bin\").to_string());\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_list",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 197
+        },
+        "start": {
+          "column": 1,
+          "line": 183
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "src/ca.rs:185:8: delete ! in ca_list",
+    "package": "bolina",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 9,
+        "line": 185
+      },
+      "start": {
+        "column": 8,
+        "line": 185
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_show -> Result<Vec<u8>> with Ok(vec![])\n@@ -194,18 +194,17 @@\n         }\n     }\n     Ok(serials)\n }\n \n // --- ca show ---\n \n pub fn ca_show(ca_dir: &Path, serial: &str) -> Result<Vec<u8>> {\n-    let cert_path = ca_dir.join(\"ca\").join(\"issued\").join(format!(\"{}.bin\", serial));\n-    fs::read(&cert_path).map_err(|_| CaError::CertUnreadable)\n+    Ok(vec![]) /* ~ changed by cargo-mutants ~ */\n }\n \n // --- ca revoke ---\n \n pub fn ca_revoke(ca_dir: &Path, serial: &str, subject_expiry_ms: Option<u64>) -> Result<Vec<u8>> {\n     let cert_bytes = ca_show(ca_dir, serial)?;\n     // Build revoke envelope (type 7, action 2)\n     let mut envelope = vec![];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_show",
+      "return_type": "-> Result<Vec<u8>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 204
+        },
+        "start": {
+          "column": 1,
+          "line": 201
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:202:5: replace ca_show -> Result<Vec<u8>> with Ok(vec![])",
+    "package": "bolina",
+    "replacement": "Ok(vec![])",
+    "span": {
+      "end": {
+        "column": 62,
+        "line": 203
+      },
+      "start": {
+        "column": 5,
+        "line": 202
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_show -> Result<Vec<u8>> with Ok(vec![0])\n@@ -194,18 +194,17 @@\n         }\n     }\n     Ok(serials)\n }\n \n // --- ca show ---\n \n pub fn ca_show(ca_dir: &Path, serial: &str) -> Result<Vec<u8>> {\n-    let cert_path = ca_dir.join(\"ca\").join(\"issued\").join(format!(\"{}.bin\", serial));\n-    fs::read(&cert_path).map_err(|_| CaError::CertUnreadable)\n+    Ok(vec![0]) /* ~ changed by cargo-mutants ~ */\n }\n \n // --- ca revoke ---\n \n pub fn ca_revoke(ca_dir: &Path, serial: &str, subject_expiry_ms: Option<u64>) -> Result<Vec<u8>> {\n     let cert_bytes = ca_show(ca_dir, serial)?;\n     // Build revoke envelope (type 7, action 2)\n     let mut envelope = vec![];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_show",
+      "return_type": "-> Result<Vec<u8>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 204
+        },
+        "start": {
+          "column": 1,
+          "line": 201
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:202:5: replace ca_show -> Result<Vec<u8>> with Ok(vec![0])",
+    "package": "bolina",
+    "replacement": "Ok(vec![0])",
+    "span": {
+      "end": {
+        "column": 62,
+        "line": 203
+      },
+      "start": {
+        "column": 5,
+        "line": 202
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_show -> Result<Vec<u8>> with Ok(vec![1])\n@@ -194,18 +194,17 @@\n         }\n     }\n     Ok(serials)\n }\n \n // --- ca show ---\n \n pub fn ca_show(ca_dir: &Path, serial: &str) -> Result<Vec<u8>> {\n-    let cert_path = ca_dir.join(\"ca\").join(\"issued\").join(format!(\"{}.bin\", serial));\n-    fs::read(&cert_path).map_err(|_| CaError::CertUnreadable)\n+    Ok(vec![1]) /* ~ changed by cargo-mutants ~ */\n }\n \n // --- ca revoke ---\n \n pub fn ca_revoke(ca_dir: &Path, serial: &str, subject_expiry_ms: Option<u64>) -> Result<Vec<u8>> {\n     let cert_bytes = ca_show(ca_dir, serial)?;\n     // Build revoke envelope (type 7, action 2)\n     let mut envelope = vec![];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_show",
+      "return_type": "-> Result<Vec<u8>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 204
+        },
+        "start": {
+          "column": 1,
+          "line": 201
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:202:5: replace ca_show -> Result<Vec<u8>> with Ok(vec![1])",
+    "package": "bolina",
+    "replacement": "Ok(vec![1])",
+    "span": {
+      "end": {
+        "column": 62,
+        "line": 203
+      },
+      "start": {
+        "column": 5,
+        "line": 202
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_revoke -> Result<Vec<u8>> with Ok(vec![])\n@@ -201,19 +201,10 @@\n pub fn ca_show(ca_dir: &Path, serial: &str) -> Result<Vec<u8>> {\n     let cert_path = ca_dir.join(\"ca\").join(\"issued\").join(format!(\"{}.bin\", serial));\n     fs::read(&cert_path).map_err(|_| CaError::CertUnreadable)\n }\n \n // --- ca revoke ---\n \n pub fn ca_revoke(ca_dir: &Path, serial: &str, subject_expiry_ms: Option<u64>) -> Result<Vec<u8>> {\n-    let cert_bytes = ca_show(ca_dir, serial)?;\n-    // Build revoke envelope (type 7, action 2)\n-    let mut envelope = vec![];\n-    envelope.push(7); // type\n-    envelope.push(2); // action = revoke\n-    envelope.extend_from_slice(&cert_bytes[..32]); // subject pubkey (placeholder)\n-    if let Some(expiry) = subject_expiry_ms {\n-        envelope.extend_from_slice(&expiry.to_be_bytes());\n-    }\n-    Ok(envelope)\n+    Ok(vec![]) /* ~ changed by cargo-mutants ~ */\n }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_revoke",
+      "return_type": "-> Result<Vec<u8>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 219
+        },
+        "start": {
+          "column": 1,
+          "line": 208
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:209:5: replace ca_revoke -> Result<Vec<u8>> with Ok(vec![])",
+    "package": "bolina",
+    "replacement": "Ok(vec![])",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 218
+      },
+      "start": {
+        "column": 5,
+        "line": 209
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_revoke -> Result<Vec<u8>> with Ok(vec![0])\n@@ -201,19 +201,10 @@\n pub fn ca_show(ca_dir: &Path, serial: &str) -> Result<Vec<u8>> {\n     let cert_path = ca_dir.join(\"ca\").join(\"issued\").join(format!(\"{}.bin\", serial));\n     fs::read(&cert_path).map_err(|_| CaError::CertUnreadable)\n }\n \n // --- ca revoke ---\n \n pub fn ca_revoke(ca_dir: &Path, serial: &str, subject_expiry_ms: Option<u64>) -> Result<Vec<u8>> {\n-    let cert_bytes = ca_show(ca_dir, serial)?;\n-    // Build revoke envelope (type 7, action 2)\n-    let mut envelope = vec![];\n-    envelope.push(7); // type\n-    envelope.push(2); // action = revoke\n-    envelope.extend_from_slice(&cert_bytes[..32]); // subject pubkey (placeholder)\n-    if let Some(expiry) = subject_expiry_ms {\n-        envelope.extend_from_slice(&expiry.to_be_bytes());\n-    }\n-    Ok(envelope)\n+    Ok(vec![0]) /* ~ changed by cargo-mutants ~ */\n }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_revoke",
+      "return_type": "-> Result<Vec<u8>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 219
+        },
+        "start": {
+          "column": 1,
+          "line": 208
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:209:5: replace ca_revoke -> Result<Vec<u8>> with Ok(vec![0])",
+    "package": "bolina",
+    "replacement": "Ok(vec![0])",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 218
+      },
+      "start": {
+        "column": 5,
+        "line": 209
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_revoke -> Result<Vec<u8>> with Ok(vec![1])\n@@ -201,19 +201,10 @@\n pub fn ca_show(ca_dir: &Path, serial: &str) -> Result<Vec<u8>> {\n     let cert_path = ca_dir.join(\"ca\").join(\"issued\").join(format!(\"{}.bin\", serial));\n     fs::read(&cert_path).map_err(|_| CaError::CertUnreadable)\n }\n \n // --- ca revoke ---\n \n pub fn ca_revoke(ca_dir: &Path, serial: &str, subject_expiry_ms: Option<u64>) -> Result<Vec<u8>> {\n-    let cert_bytes = ca_show(ca_dir, serial)?;\n-    // Build revoke envelope (type 7, action 2)\n-    let mut envelope = vec![];\n-    envelope.push(7); // type\n-    envelope.push(2); // action = revoke\n-    envelope.extend_from_slice(&cert_bytes[..32]); // subject pubkey (placeholder)\n-    if let Some(expiry) = subject_expiry_ms {\n-        envelope.extend_from_slice(&expiry.to_be_bytes());\n-    }\n-    Ok(envelope)\n+    Ok(vec![1]) /* ~ changed by cargo-mutants ~ */\n }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_revoke",
+      "return_type": "-> Result<Vec<u8>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 219
+        },
+        "start": {
+          "column": 1,
+          "line": 208
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:209:5: replace ca_revoke -> Result<Vec<u8>> with Ok(vec![1])",
+    "package": "bolina",
+    "replacement": "Ok(vec![1])",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 218
+      },
+      "start": {
+        "column": 5,
+        "line": 209
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace + with -\n@@ -9,17 +9,17 @@\n use blake2::Blake2s256;\n use blake2::Digest;\n use ed25519_dalek::{Signer, SigningKey};\n use std::fs;\n use std::path::Path;\n \n const DOMAIN_CERT: u8 = 0x01;\n const KEY_LEN: usize = 32;\n-const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 + /* ~ changed by cargo-mutants ~ */ 24 * 3600 * 1000; // 30 days\n+const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 - /* ~ changed by cargo-mutants ~ */ /* ~ changed by cargo-mutants ~ */ 24 * 3600 * 1000; // 30 days\n \n #[derive(Debug, Clone, Copy, PartialEq, Eq)]\n pub enum CaError {\n     BadRole,\n     BadTtl,\n     BadCount,\n     NoCaKeys,\n     TtlOverCap,\n",
+    "file": "src/ca.rs",
+    "function": null,
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:17:44: replace + with -",
+    "package": "bolina",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 45,
+        "line": 17
+      },
+      "start": {
+        "column": 44,
+        "line": 17
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace + with *\n@@ -9,17 +9,17 @@\n use blake2::Blake2s256;\n use blake2::Digest;\n use ed25519_dalek::{Signer, SigningKey};\n use std::fs;\n use std::path::Path;\n \n const DOMAIN_CERT: u8 = 0x01;\n const KEY_LEN: usize = 32;\n-const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 + /* ~ changed by cargo-mutants ~ */ 24 * 3600 * 1000; // 30 days\n+const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 * /* ~ changed by cargo-mutants ~ */ /* ~ changed by cargo-mutants ~ */ 24 * 3600 * 1000; // 30 days\n \n #[derive(Debug, Clone, Copy, PartialEq, Eq)]\n pub enum CaError {\n     BadRole,\n     BadTtl,\n     BadCount,\n     NoCaKeys,\n     TtlOverCap,\n",
+    "file": "src/ca.rs",
+    "function": null,
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:17:44: replace + with *",
+    "package": "bolina",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 45,
+        "line": 17
+      },
+      "start": {
+        "column": 44,
+        "line": 17
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace * with +\n@@ -9,17 +9,17 @@\n use blake2::Blake2s256;\n use blake2::Digest;\n use ed25519_dalek::{Signer, SigningKey};\n use std::fs;\n use std::path::Path;\n \n const DOMAIN_CERT: u8 = 0x01;\n const KEY_LEN: usize = 32;\n-const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 + /* ~ changed by cargo-mutants ~ */ 24 * 3600 * 1000; // 30 days\n+const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 + /* ~ changed by cargo-mutants ~ */ 24 * 3600 + /* ~ changed by cargo-mutants ~ */ 1000; // 30 days\n \n #[derive(Debug, Clone, Copy, PartialEq, Eq)]\n pub enum CaError {\n     BadRole,\n     BadTtl,\n     BadCount,\n     NoCaKeys,\n     TtlOverCap,\n",
+    "file": "src/ca.rs",
+    "function": null,
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:17:91: replace * with +",
+    "package": "bolina",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 92,
+        "line": 17
+      },
+      "start": {
+        "column": 91,
+        "line": 17
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace * with /\n@@ -9,17 +9,17 @@\n use blake2::Blake2s256;\n use blake2::Digest;\n use ed25519_dalek::{Signer, SigningKey};\n use std::fs;\n use std::path::Path;\n \n const DOMAIN_CERT: u8 = 0x01;\n const KEY_LEN: usize = 32;\n-const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 + /* ~ changed by cargo-mutants ~ */ 24 * 3600 * 1000; // 30 days\n+const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 + /* ~ changed by cargo-mutants ~ */ 24 * 3600 / /* ~ changed by cargo-mutants ~ */ 1000; // 30 days\n \n #[derive(Debug, Clone, Copy, PartialEq, Eq)]\n pub enum CaError {\n     BadRole,\n     BadTtl,\n     BadCount,\n     NoCaKeys,\n     TtlOverCap,\n",
+    "file": "src/ca.rs",
+    "function": null,
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:17:91: replace * with /",
+    "package": "bolina",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 92,
+        "line": 17
+      },
+      "start": {
+        "column": 91,
+        "line": 17
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace * with +\n@@ -9,17 +9,17 @@\n use blake2::Blake2s256;\n use blake2::Digest;\n use ed25519_dalek::{Signer, SigningKey};\n use std::fs;\n use std::path::Path;\n \n const DOMAIN_CERT: u8 = 0x01;\n const KEY_LEN: usize = 32;\n-const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 + /* ~ changed by cargo-mutants ~ */ 24 * 3600 * 1000; // 30 days\n+const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 + /* ~ changed by cargo-mutants ~ */ 24 + /* ~ changed by cargo-mutants ~ */ 3600 * 1000; // 30 days\n \n #[derive(Debug, Clone, Copy, PartialEq, Eq)]\n pub enum CaError {\n     BadRole,\n     BadTtl,\n     BadCount,\n     NoCaKeys,\n     TtlOverCap,\n",
+    "file": "src/ca.rs",
+    "function": null,
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:17:84: replace * with +",
+    "package": "bolina",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 85,
+        "line": 17
+      },
+      "start": {
+        "column": 84,
+        "line": 17
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace * with /\n@@ -9,17 +9,17 @@\n use blake2::Blake2s256;\n use blake2::Digest;\n use ed25519_dalek::{Signer, SigningKey};\n use std::fs;\n use std::path::Path;\n \n const DOMAIN_CERT: u8 = 0x01;\n const KEY_LEN: usize = 32;\n-const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 + /* ~ changed by cargo-mutants ~ */ 24 * 3600 * 1000; // 30 days\n+const MAX_PRIVILEGED_LIFETIME_MS: u64 = 30 + /* ~ changed by cargo-mutants ~ */ 24 / /* ~ changed by cargo-mutants ~ */ 3600 * 1000; // 30 days\n \n #[derive(Debug, Clone, Copy, PartialEq, Eq)]\n pub enum CaError {\n     BadRole,\n     BadTtl,\n     BadCount,\n     NoCaKeys,\n     TtlOverCap,\n",
+    "file": "src/ca.rs",
+    "function": null,
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:17:84: replace * with /",
+    "package": "bolina",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 85,
+        "line": 17
+      },
+      "start": {
+        "column": 84,
+        "line": 17
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace serial_of -> [u8; 32] with [0; 32]\n@@ -27,27 +27,17 @@\n     DataDirUnwritable,\n }\n \n pub type Result<T> = std::result::Result<T, CaError>;\n \n // --- Serial computation ---\n \n pub fn serial_of(tbs: &[u8]) -> [u8; 32] {\n-    let mut hasher = Blake2s256::new();\n-    hasher.update(tbs);\n-    let full = hasher.finalize();\n-    let mut half = [0u8; 16];\n-    half.copy_from_slice(&full[..16]);\n-    let mut hex = [0u8; 32];\n-    for (i, b) in half.iter().enumerate() {\n-        hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n-        hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n-    }\n-    hex\n+    [0; 32] /* ~ changed by cargo-mutants ~ */\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n     if count == 0 || count > 8 {\n         return Err(CaError::BadCount);\n     }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:35:5: replace serial_of -> [u8; 32] with [0; 32]",
+    "package": "bolina",
+    "replacement": "[0; 32]",
+    "span": {
+      "end": {
+        "column": 8,
+        "line": 45
+      },
+      "start": {
+        "column": 5,
+        "line": 35
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace serial_of -> [u8; 32] with [1; 32]\n@@ -27,27 +27,17 @@\n     DataDirUnwritable,\n }\n \n pub type Result<T> = std::result::Result<T, CaError>;\n \n // --- Serial computation ---\n \n pub fn serial_of(tbs: &[u8]) -> [u8; 32] {\n-    let mut hasher = Blake2s256::new();\n-    hasher.update(tbs);\n-    let full = hasher.finalize();\n-    let mut half = [0u8; 16];\n-    half.copy_from_slice(&full[..16]);\n-    let mut hex = [0u8; 32];\n-    for (i, b) in half.iter().enumerate() {\n-        hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n-        hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n-    }\n-    hex\n+    [1; 32] /* ~ changed by cargo-mutants ~ */\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n     if count == 0 || count > 8 {\n         return Err(CaError::BadCount);\n     }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:35:5: replace serial_of -> [u8; 32] with [1; 32]",
+    "package": "bolina",
+    "replacement": "[1; 32]",
+    "span": {
+      "end": {
+        "column": 8,
+        "line": 45
+      },
+      "start": {
+        "column": 5,
+        "line": 35
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace * with + in serial_of\n@@ -34,17 +34,17 @@\n pub fn serial_of(tbs: &[u8]) -> [u8; 32] {\n     let mut hasher = Blake2s256::new();\n     hasher.update(tbs);\n     let full = hasher.finalize();\n     let mut half = [0u8; 16];\n     half.copy_from_slice(&full[..16]);\n     let mut hex = [0u8; 32];\n     for (i, b) in half.iter().enumerate() {\n-        hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n+        hex[i + /* ~ changed by cargo-mutants ~ */ 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n         hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:42:15: replace * with + in serial_of",
+    "package": "bolina",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 42
+      },
+      "start": {
+        "column": 15,
+        "line": 42
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace * with / in serial_of\n@@ -34,17 +34,17 @@\n pub fn serial_of(tbs: &[u8]) -> [u8; 32] {\n     let mut hasher = Blake2s256::new();\n     hasher.update(tbs);\n     let full = hasher.finalize();\n     let mut half = [0u8; 16];\n     half.copy_from_slice(&full[..16]);\n     let mut hex = [0u8; 32];\n     for (i, b) in half.iter().enumerate() {\n-        hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n+        hex[i / /* ~ changed by cargo-mutants ~ */ 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n         hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:42:15: replace * with / in serial_of",
+    "package": "bolina",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 42
+      },
+      "start": {
+        "column": 15,
+        "line": 42
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace >> with << in serial_of\n@@ -34,17 +34,17 @@\n pub fn serial_of(tbs: &[u8]) -> [u8; 32] {\n     let mut hasher = Blake2s256::new();\n     hasher.update(tbs);\n     let full = hasher.finalize();\n     let mut half = [0u8; 16];\n     half.copy_from_slice(&full[..16]);\n     let mut hex = [0u8; 32];\n     for (i, b) in half.iter().enumerate() {\n-        hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n+        hex[i * 2] = b\"0123456789abcdef\"[(b << /* ~ changed by cargo-mutants ~ */ 4) as usize];\n         hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:42:45: replace >> with << in serial_of",
+    "package": "bolina",
+    "replacement": "<<",
+    "span": {
+      "end": {
+        "column": 47,
+        "line": 42
+      },
+      "start": {
+        "column": 45,
+        "line": 42
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace + with - in serial_of\n@@ -35,17 +35,17 @@\n     let mut hasher = Blake2s256::new();\n     hasher.update(tbs);\n     let full = hasher.finalize();\n     let mut half = [0u8; 16];\n     half.copy_from_slice(&full[..16]);\n     let mut hex = [0u8; 32];\n     for (i, b) in half.iter().enumerate() {\n         hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n-        hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n+        hex[i * 2 - /* ~ changed by cargo-mutants ~ */ 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n     if count == 0 || count > 8 {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:43:19: replace + with - in serial_of",
+    "package": "bolina",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 43
+      },
+      "start": {
+        "column": 19,
+        "line": 43
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace + with * in serial_of\n@@ -35,17 +35,17 @@\n     let mut hasher = Blake2s256::new();\n     hasher.update(tbs);\n     let full = hasher.finalize();\n     let mut half = [0u8; 16];\n     half.copy_from_slice(&full[..16]);\n     let mut hex = [0u8; 32];\n     for (i, b) in half.iter().enumerate() {\n         hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n-        hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n+        hex[i * 2 * /* ~ changed by cargo-mutants ~ */ 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n     if count == 0 || count > 8 {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:43:19: replace + with * in serial_of",
+    "package": "bolina",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 43
+      },
+      "start": {
+        "column": 19,
+        "line": 43
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace * with + in serial_of\n@@ -35,17 +35,17 @@\n     let mut hasher = Blake2s256::new();\n     hasher.update(tbs);\n     let full = hasher.finalize();\n     let mut half = [0u8; 16];\n     half.copy_from_slice(&full[..16]);\n     let mut hex = [0u8; 32];\n     for (i, b) in half.iter().enumerate() {\n         hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n-        hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n+        hex[i + /* ~ changed by cargo-mutants ~ */ 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n     if count == 0 || count > 8 {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:43:15: replace * with + in serial_of",
+    "package": "bolina",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 43
+      },
+      "start": {
+        "column": 15,
+        "line": 43
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace * with / in serial_of\n@@ -35,17 +35,17 @@\n     let mut hasher = Blake2s256::new();\n     hasher.update(tbs);\n     let full = hasher.finalize();\n     let mut half = [0u8; 16];\n     half.copy_from_slice(&full[..16]);\n     let mut hex = [0u8; 32];\n     for (i, b) in half.iter().enumerate() {\n         hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n-        hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n+        hex[i / /* ~ changed by cargo-mutants ~ */ 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n     if count == 0 || count > 8 {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:43:15: replace * with / in serial_of",
+    "package": "bolina",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 43
+      },
+      "start": {
+        "column": 15,
+        "line": 43
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace & with | in serial_of\n@@ -35,17 +35,17 @@\n     let mut hasher = Blake2s256::new();\n     hasher.update(tbs);\n     let full = hasher.finalize();\n     let mut half = [0u8; 16];\n     half.copy_from_slice(&full[..16]);\n     let mut hex = [0u8; 32];\n     for (i, b) in half.iter().enumerate() {\n         hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n-        hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n+        hex[i * 2 + 1] = b\"0123456789abcdef\"[(b | /* ~ changed by cargo-mutants ~ */ 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n     if count == 0 || count > 8 {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:43:49: replace & with | in serial_of",
+    "package": "bolina",
+    "replacement": "|",
+    "span": {
+      "end": {
+        "column": 50,
+        "line": 43
+      },
+      "start": {
+        "column": 49,
+        "line": 43
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace & with ^ in serial_of\n@@ -35,17 +35,17 @@\n     let mut hasher = Blake2s256::new();\n     hasher.update(tbs);\n     let full = hasher.finalize();\n     let mut half = [0u8; 16];\n     half.copy_from_slice(&full[..16]);\n     let mut hex = [0u8; 32];\n     for (i, b) in half.iter().enumerate() {\n         hex[i * 2] = b\"0123456789abcdef\"[(b >> 4) as usize];\n-        hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n+        hex[i * 2 + 1] = b\"0123456789abcdef\"[(b ^ /* ~ changed by cargo-mutants ~ */ 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n     if count == 0 || count > 8 {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "serial_of",
+      "return_type": "-> [u8; 32]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 34
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:43:49: replace & with ^ in serial_of",
+    "package": "bolina",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 50,
+        "line": 43
+      },
+      "start": {
+        "column": 49,
+        "line": 43
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_init -> Result<()> with Ok(())\n@@ -43,43 +43,17 @@\n         hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n-    if count == 0 || count > 8 {\n-        return Err(CaError::BadCount);\n-    }\n-    fs::create_dir_all(dir).map_err(|_| CaError::DataDirUnwritable)?;\n-    let ca_dir = dir.join(\"ca\");\n-    fs::create_dir_all(&ca_dir).map_err(|_| CaError::DataDirUnwritable)?;\n-\n-    for i in 0..count {\n-        let mut seed = [0u8; 32];\n-        rand_core::RngCore::fill_bytes(&mut rand_core::OsRng, &mut seed);\n-        let signing_key = SigningKey::from_bytes(&seed);\n-        let verifying_key = signing_key.verifying_key();\n-\n-        let sig_path = ca_dir.join(format!(\"ca{}.sig\", i));\n-        let pub_path = ca_dir.join(format!(\"ca{}.pub\", i));\n-\n-        fs::write(&sig_path, signing_key.to_bytes()).map_err(|_| CaError::DataDirUnwritable)?;\n-        fs::write(&pub_path, verifying_key.to_bytes()).map_err(|_| CaError::DataDirUnwritable)?;\n-\n-        // Set 0600 on private key\n-        #[cfg(unix)]\n-        {\n-            use std::os::unix::fs::PermissionsExt;\n-            fs::set_permissions(&sig_path, fs::Permissions::from_mode(0o600)).ok();\n-        }\n-    }\n-    Ok(())\n+    Ok(()) /* ~ changed by cargo-mutants ~ */\n }\n \n // --- ca issue ---\n \n pub struct IssueReq {\n     pub role: String,\n     pub subject: String,\n     pub scopes: Vec<[u8; 8]>,\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_init",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 78
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:51:5: replace ca_init -> Result<()> with Ok(())",
+    "package": "bolina",
+    "replacement": "Ok(())",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 77
+      },
+      "start": {
+        "column": 5,
+        "line": 51
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace || with && in ca_init\n@@ -43,17 +43,17 @@\n         hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n-    if count == 0 || count > 8 {\n+    if count == 0 && /* ~ changed by cargo-mutants ~ */ count > 8 {\n         return Err(CaError::BadCount);\n     }\n     fs::create_dir_all(dir).map_err(|_| CaError::DataDirUnwritable)?;\n     let ca_dir = dir.join(\"ca\");\n     fs::create_dir_all(&ca_dir).map_err(|_| CaError::DataDirUnwritable)?;\n \n     for i in 0..count {\n         let mut seed = [0u8; 32];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_init",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 78
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:51:19: replace || with && in ca_init",
+    "package": "bolina",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 51
+      },
+      "start": {
+        "column": 19,
+        "line": 51
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace == with != in ca_init\n@@ -43,17 +43,17 @@\n         hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n-    if count == 0 || count > 8 {\n+    if count != /* ~ changed by cargo-mutants ~ */ 0 || count > 8 {\n         return Err(CaError::BadCount);\n     }\n     fs::create_dir_all(dir).map_err(|_| CaError::DataDirUnwritable)?;\n     let ca_dir = dir.join(\"ca\");\n     fs::create_dir_all(&ca_dir).map_err(|_| CaError::DataDirUnwritable)?;\n \n     for i in 0..count {\n         let mut seed = [0u8; 32];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_init",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 78
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:51:14: replace == with != in ca_init",
+    "package": "bolina",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 51
+      },
+      "start": {
+        "column": 14,
+        "line": 51
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace > with == in ca_init\n@@ -43,17 +43,17 @@\n         hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n-    if count == 0 || count > 8 {\n+    if count == 0 || count == /* ~ changed by cargo-mutants ~ */ 8 {\n         return Err(CaError::BadCount);\n     }\n     fs::create_dir_all(dir).map_err(|_| CaError::DataDirUnwritable)?;\n     let ca_dir = dir.join(\"ca\");\n     fs::create_dir_all(&ca_dir).map_err(|_| CaError::DataDirUnwritable)?;\n \n     for i in 0..count {\n         let mut seed = [0u8; 32];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_init",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 78
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:51:28: replace > with == in ca_init",
+    "package": "bolina",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 51
+      },
+      "start": {
+        "column": 28,
+        "line": 51
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace > with < in ca_init\n@@ -43,17 +43,17 @@\n         hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n-    if count == 0 || count > 8 {\n+    if count == 0 || count < /* ~ changed by cargo-mutants ~ */ 8 {\n         return Err(CaError::BadCount);\n     }\n     fs::create_dir_all(dir).map_err(|_| CaError::DataDirUnwritable)?;\n     let ca_dir = dir.join(\"ca\");\n     fs::create_dir_all(&ca_dir).map_err(|_| CaError::DataDirUnwritable)?;\n \n     for i in 0..count {\n         let mut seed = [0u8; 32];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_init",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 78
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:51:28: replace > with < in ca_init",
+    "package": "bolina",
+    "replacement": "<",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 51
+      },
+      "start": {
+        "column": 28,
+        "line": 51
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace > with >= in ca_init\n@@ -43,17 +43,17 @@\n         hex[i * 2 + 1] = b\"0123456789abcdef\"[(b & 0xf) as usize];\n     }\n     hex\n }\n \n // --- ca init ---\n \n pub fn ca_init(dir: &Path, count: usize) -> Result<()> {\n-    if count == 0 || count > 8 {\n+    if count == 0 || count >= /* ~ changed by cargo-mutants ~ */ 8 {\n         return Err(CaError::BadCount);\n     }\n     fs::create_dir_all(dir).map_err(|_| CaError::DataDirUnwritable)?;\n     let ca_dir = dir.join(\"ca\");\n     fs::create_dir_all(&ca_dir).map_err(|_| CaError::DataDirUnwritable)?;\n \n     for i in 0..count {\n         let mut seed = [0u8; 32];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_init",
+      "return_type": "-> Result<()>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 78
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:51:28: replace > with >= in ca_init",
+    "package": "bolina",
+    "replacement": ">=",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 51
+      },
+      "start": {
+        "column": 28,
+        "line": 51
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_issue -> Result<IssueResult> with Ok(Default::default())\n@@ -88,99 +88,17 @@\n #[derive(Debug, PartialEq)]\n \n pub struct IssueResult {\n     pub serial_hex: [u8; 32],\n }\n \n pub fn ca_issue(ca_dir: &Path, req: &IssueReq) -> Result<IssueResult> {\n     // Validate role\n-    let role_byte = match req.role.as_str() {\n-        \"agent\" => 0x01,\n-        \"executor\" => 0x02,\n-        \"approver\" => 0x03,\n-        _ => return Err(CaError::BadRole),\n-    };\n-\n-    // Validate TTL\n-    if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n-    if role_byte == 0x03 || role_byte == 0x02 {\n-    if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {\n-            return Err(CaError::TtlOverCap);\n-        }\n-    }\n-\n-    // Load CA keys (in ca/ subdirectory)\n-    let ca_keys_dir = ca_dir.join(\"ca\");\n-    let mut ca_sigs = vec![];\n-    let mut ca_pubs = vec![];\n-    for i in 0..8 {\n-        let sig_path = ca_keys_dir.join(format!(\"ca{}.sig\", i));\n-        let pub_path = ca_keys_dir.join(format!(\"ca{}.pub\", i));\n-        if sig_path.exists() && pub_path.exists() {\n-            let sig_bytes = fs::read(&sig_path).map_err(|_| CaError::NoCaKeys)?;\n-            let pub_bytes = fs::read(&pub_path).map_err(|_| CaError::NoCaKeys)?;\n-            if sig_bytes.len() == KEY_LEN && pub_bytes.len() == KEY_LEN {\n-                let mut sig_arr = [0u8; KEY_LEN];\n-                let mut pub_arr = [0u8; KEY_LEN];\n-                sig_arr.copy_from_slice(&sig_bytes);\n-                pub_arr.copy_from_slice(&pub_bytes);\n-                ca_sigs.push(sig_arr);\n-                ca_pubs.push(pub_arr);\n-            }\n-        }\n-    }\n-    if ca_sigs.len() < 2 {\n-        return Err(CaError::NoCaKeys);\n-    }\n-\n-    // Build cert tbs (version 3 ALWAYS — F15)\n-    let now_ms = std::time::SystemTime::now()\n-        .duration_since(std::time::UNIX_EPOCH)\n-        .unwrap()\n-        .as_millis() as u64;\n-    let expiry_ms = now_ms + req.ttl_ms;\n-\n-    let mut tbs = vec![];\n-    tbs.push(3); // version = 3 ALWAYS\n-    tbs.push(role_byte);\n-    tbs.extend_from_slice(&[0; 32]); // sig_pubkey placeholder\n-    tbs.extend_from_slice(&[0; 32]); // kex_pubkey placeholder\n-    tbs.extend_from_slice(&now_ms.to_be_bytes());\n-    tbs.extend_from_slice(&expiry_ms.to_be_bytes());\n-    // subject (name_len u16 + name)\n-    let subject_bytes = req.subject.as_bytes();\n-    tbs.extend_from_slice(&(subject_bytes.len() as u16).to_be_bytes());\n-    tbs.extend_from_slice(subject_bytes);\n-    // scopes (count u8 + 8 bytes each)\n-    tbs.push(req.scopes.len() as u8);\n-    for s in &req.scopes {\n-        tbs.extend_from_slice(s);\n-    }\n-\n-    // Compute serial\n-    let serial_hex = serial_of(&tbs);\n-\n-    // Sign with DOMAIN_CERT || tbs\n-    let mut sig_input = vec![DOMAIN_CERT];\n-    sig_input.extend_from_slice(&tbs);\n-    for sig_bytes in &ca_sigs {\n-        let signing_key = SigningKey::from_bytes(sig_bytes);\n-        let sig = signing_key.sign(&sig_input);\n-        tbs.extend_from_slice(&sig.to_bytes());\n-    }\n-\n-    // Write cert.bin\n-    let issued_dir = ca_dir.join(\"ca\").join(\"issued\");\n-    fs::create_dir_all(&issued_dir).map_err(|_| CaError::DataDirUnwritable)?;\n-    let serial_str = std::str::from_utf8(&serial_hex).unwrap();\n-    let cert_path = issued_dir.join(format!(\"{}.bin\", serial_str));\n-    fs::write(&cert_path, &tbs).map_err(|_| CaError::DataDirUnwritable)?;\n-\n-    Ok(IssueResult { serial_hex })\n+    Ok(Default::default()) /* ~ changed by cargo-mutants ~ */\n }\n \n // --- ca list ---\n \n pub fn ca_list(ca_dir: &Path) -> Result<Vec<String>> {\n     let issued_dir = ca_dir.join(\"ca\").join(\"issued\");\n     if !issued_dir.exists() {\n         return Ok(vec![]);\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:96:5: replace ca_issue -> Result<IssueResult> with Ok(Default::default())",
+    "package": "bolina",
+    "replacement": "Ok(Default::default())",
+    "span": {
+      "end": {
+        "column": 35,
+        "line": 178
+      },
+      "start": {
+        "column": 5,
+        "line": 96
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ delete match arm \"agent\" in ca_issue\n@@ -89,17 +89,17 @@\n \n pub struct IssueResult {\n     pub serial_hex: [u8; 32],\n }\n \n pub fn ca_issue(ca_dir: &Path, req: &IssueReq) -> Result<IssueResult> {\n     // Validate role\n     let role_byte = match req.role.as_str() {\n-        \"agent\" => 0x01,\n+         /* ~ changed by cargo-mutants ~ */\n         \"executor\" => 0x02,\n         \"approver\" => 0x03,\n         _ => return Err(CaError::BadRole),\n     };\n \n     // Validate TTL\n     if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n     if role_byte == 0x03 || role_byte == 0x02 {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/ca.rs:97:9: delete match arm \"agent\" in ca_issue",
+    "package": "bolina",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 25,
+        "line": 97
+      },
+      "start": {
+        "column": 9,
+        "line": 97
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ delete match arm \"executor\" in ca_issue\n@@ -90,17 +90,17 @@\n pub struct IssueResult {\n     pub serial_hex: [u8; 32],\n }\n \n pub fn ca_issue(ca_dir: &Path, req: &IssueReq) -> Result<IssueResult> {\n     // Validate role\n     let role_byte = match req.role.as_str() {\n         \"agent\" => 0x01,\n-        \"executor\" => 0x02,\n+         /* ~ changed by cargo-mutants ~ */\n         \"approver\" => 0x03,\n         _ => return Err(CaError::BadRole),\n     };\n \n     // Validate TTL\n     if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n     if role_byte == 0x03 || role_byte == 0x02 {\n     if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/ca.rs:98:9: delete match arm \"executor\" in ca_issue",
+    "package": "bolina",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 98
+      },
+      "start": {
+        "column": 9,
+        "line": 98
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ delete match arm \"approver\" in ca_issue\n@@ -91,17 +91,17 @@\n     pub serial_hex: [u8; 32],\n }\n \n pub fn ca_issue(ca_dir: &Path, req: &IssueReq) -> Result<IssueResult> {\n     // Validate role\n     let role_byte = match req.role.as_str() {\n         \"agent\" => 0x01,\n         \"executor\" => 0x02,\n-        \"approver\" => 0x03,\n+         /* ~ changed by cargo-mutants ~ */\n         _ => return Err(CaError::BadRole),\n     };\n \n     // Validate TTL\n     if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n     if role_byte == 0x03 || role_byte == 0x02 {\n     if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {\n             return Err(CaError::TtlOverCap);\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/ca.rs:99:9: delete match arm \"approver\" in ca_issue",
+    "package": "bolina",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 99
+      },
+      "start": {
+        "column": 9,
+        "line": 99
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace == with != in ca_issue\n@@ -96,17 +96,17 @@\n     let role_byte = match req.role.as_str() {\n         \"agent\" => 0x01,\n         \"executor\" => 0x02,\n         \"approver\" => 0x03,\n         _ => return Err(CaError::BadRole),\n     };\n \n     // Validate TTL\n-    if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n+    if req.ttl_ms != /* ~ changed by cargo-mutants ~ */ 0 { return Err(CaError::BadTtl); }\n     if role_byte == 0x03 || role_byte == 0x02 {\n     if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {\n             return Err(CaError::TtlOverCap);\n         }\n     }\n \n     // Load CA keys (in ca/ subdirectory)\n     let ca_keys_dir = ca_dir.join(\"ca\");\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:104:19: replace == with != in ca_issue",
+    "package": "bolina",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 104
+      },
+      "start": {
+        "column": 19,
+        "line": 104
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace || with && in ca_issue\n@@ -97,17 +97,17 @@\n         \"agent\" => 0x01,\n         \"executor\" => 0x02,\n         \"approver\" => 0x03,\n         _ => return Err(CaError::BadRole),\n     };\n \n     // Validate TTL\n     if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n-    if role_byte == 0x03 || role_byte == 0x02 {\n+    if role_byte == 0x03 && /* ~ changed by cargo-mutants ~ */ role_byte == 0x02 {\n     if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {\n             return Err(CaError::TtlOverCap);\n         }\n     }\n \n     // Load CA keys (in ca/ subdirectory)\n     let ca_keys_dir = ca_dir.join(\"ca\");\n     let mut ca_sigs = vec![];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:105:26: replace || with && in ca_issue",
+    "package": "bolina",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 105
+      },
+      "start": {
+        "column": 26,
+        "line": 105
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace == with != in ca_issue\n@@ -97,17 +97,17 @@\n         \"agent\" => 0x01,\n         \"executor\" => 0x02,\n         \"approver\" => 0x03,\n         _ => return Err(CaError::BadRole),\n     };\n \n     // Validate TTL\n     if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n-    if role_byte == 0x03 || role_byte == 0x02 {\n+    if role_byte != /* ~ changed by cargo-mutants ~ */ 0x03 || role_byte == 0x02 {\n     if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {\n             return Err(CaError::TtlOverCap);\n         }\n     }\n \n     // Load CA keys (in ca/ subdirectory)\n     let ca_keys_dir = ca_dir.join(\"ca\");\n     let mut ca_sigs = vec![];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:105:18: replace == with != in ca_issue",
+    "package": "bolina",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 105
+      },
+      "start": {
+        "column": 18,
+        "line": 105
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace == with != in ca_issue\n@@ -97,17 +97,17 @@\n         \"agent\" => 0x01,\n         \"executor\" => 0x02,\n         \"approver\" => 0x03,\n         _ => return Err(CaError::BadRole),\n     };\n \n     // Validate TTL\n     if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n-    if role_byte == 0x03 || role_byte == 0x02 {\n+    if role_byte == 0x03 || role_byte != /* ~ changed by cargo-mutants ~ */ 0x02 {\n     if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {\n             return Err(CaError::TtlOverCap);\n         }\n     }\n \n     // Load CA keys (in ca/ subdirectory)\n     let ca_keys_dir = ca_dir.join(\"ca\");\n     let mut ca_sigs = vec![];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:105:39: replace == with != in ca_issue",
+    "package": "bolina",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 41,
+        "line": 105
+      },
+      "start": {
+        "column": 39,
+        "line": 105
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace > with == in ca_issue\n@@ -98,17 +98,17 @@\n         \"executor\" => 0x02,\n         \"approver\" => 0x03,\n         _ => return Err(CaError::BadRole),\n     };\n \n     // Validate TTL\n     if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n     if role_byte == 0x03 || role_byte == 0x02 {\n-    if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {\n+    if req.ttl_ms == /* ~ changed by cargo-mutants ~ */ MAX_PRIVILEGED_LIFETIME_MS {\n             return Err(CaError::TtlOverCap);\n         }\n     }\n \n     // Load CA keys (in ca/ subdirectory)\n     let ca_keys_dir = ca_dir.join(\"ca\");\n     let mut ca_sigs = vec![];\n     let mut ca_pubs = vec![];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:106:19: replace > with == in ca_issue",
+    "package": "bolina",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 106
+      },
+      "start": {
+        "column": 19,
+        "line": 106
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace > with < in ca_issue\n@@ -98,17 +98,17 @@\n         \"executor\" => 0x02,\n         \"approver\" => 0x03,\n         _ => return Err(CaError::BadRole),\n     };\n \n     // Validate TTL\n     if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n     if role_byte == 0x03 || role_byte == 0x02 {\n-    if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {\n+    if req.ttl_ms < /* ~ changed by cargo-mutants ~ */ MAX_PRIVILEGED_LIFETIME_MS {\n             return Err(CaError::TtlOverCap);\n         }\n     }\n \n     // Load CA keys (in ca/ subdirectory)\n     let ca_keys_dir = ca_dir.join(\"ca\");\n     let mut ca_sigs = vec![];\n     let mut ca_pubs = vec![];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:106:19: replace > with < in ca_issue",
+    "package": "bolina",
+    "replacement": "<",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 106
+      },
+      "start": {
+        "column": 19,
+        "line": 106
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace > with >= in ca_issue\n@@ -98,17 +98,17 @@\n         \"executor\" => 0x02,\n         \"approver\" => 0x03,\n         _ => return Err(CaError::BadRole),\n     };\n \n     // Validate TTL\n     if req.ttl_ms == 0 { return Err(CaError::BadTtl); }\n     if role_byte == 0x03 || role_byte == 0x02 {\n-    if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {\n+    if req.ttl_ms >= /* ~ changed by cargo-mutants ~ */ MAX_PRIVILEGED_LIFETIME_MS {\n             return Err(CaError::TtlOverCap);\n         }\n     }\n \n     // Load CA keys (in ca/ subdirectory)\n     let ca_keys_dir = ca_dir.join(\"ca\");\n     let mut ca_sigs = vec![];\n     let mut ca_pubs = vec![];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:106:19: replace > with >= in ca_issue",
+    "package": "bolina",
+    "replacement": ">=",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 106
+      },
+      "start": {
+        "column": 19,
+        "line": 106
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace && with || in ca_issue\n@@ -110,17 +110,17 @@\n \n     // Load CA keys (in ca/ subdirectory)\n     let ca_keys_dir = ca_dir.join(\"ca\");\n     let mut ca_sigs = vec![];\n     let mut ca_pubs = vec![];\n     for i in 0..8 {\n         let sig_path = ca_keys_dir.join(format!(\"ca{}.sig\", i));\n         let pub_path = ca_keys_dir.join(format!(\"ca{}.pub\", i));\n-        if sig_path.exists() && pub_path.exists() {\n+        if sig_path.exists() || /* ~ changed by cargo-mutants ~ */ pub_path.exists() {\n             let sig_bytes = fs::read(&sig_path).map_err(|_| CaError::NoCaKeys)?;\n             let pub_bytes = fs::read(&pub_path).map_err(|_| CaError::NoCaKeys)?;\n             if sig_bytes.len() == KEY_LEN && pub_bytes.len() == KEY_LEN {\n                 let mut sig_arr = [0u8; KEY_LEN];\n                 let mut pub_arr = [0u8; KEY_LEN];\n                 sig_arr.copy_from_slice(&sig_bytes);\n                 pub_arr.copy_from_slice(&pub_bytes);\n                 ca_sigs.push(sig_arr);\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:118:30: replace && with || in ca_issue",
+    "package": "bolina",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 118
+      },
+      "start": {
+        "column": 30,
+        "line": 118
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace && with || in ca_issue\n@@ -113,17 +113,17 @@\n     let mut ca_sigs = vec![];\n     let mut ca_pubs = vec![];\n     for i in 0..8 {\n         let sig_path = ca_keys_dir.join(format!(\"ca{}.sig\", i));\n         let pub_path = ca_keys_dir.join(format!(\"ca{}.pub\", i));\n         if sig_path.exists() && pub_path.exists() {\n             let sig_bytes = fs::read(&sig_path).map_err(|_| CaError::NoCaKeys)?;\n             let pub_bytes = fs::read(&pub_path).map_err(|_| CaError::NoCaKeys)?;\n-            if sig_bytes.len() == KEY_LEN && pub_bytes.len() == KEY_LEN {\n+            if sig_bytes.len() == KEY_LEN || /* ~ changed by cargo-mutants ~ */ pub_bytes.len() == KEY_LEN {\n                 let mut sig_arr = [0u8; KEY_LEN];\n                 let mut pub_arr = [0u8; KEY_LEN];\n                 sig_arr.copy_from_slice(&sig_bytes);\n                 pub_arr.copy_from_slice(&pub_bytes);\n                 ca_sigs.push(sig_arr);\n                 ca_pubs.push(pub_arr);\n             }\n         }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:121:43: replace && with || in ca_issue",
+    "package": "bolina",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 45,
+        "line": 121
+      },
+      "start": {
+        "column": 43,
+        "line": 121
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace == with != in ca_issue\n@@ -113,17 +113,17 @@\n     let mut ca_sigs = vec![];\n     let mut ca_pubs = vec![];\n     for i in 0..8 {\n         let sig_path = ca_keys_dir.join(format!(\"ca{}.sig\", i));\n         let pub_path = ca_keys_dir.join(format!(\"ca{}.pub\", i));\n         if sig_path.exists() && pub_path.exists() {\n             let sig_bytes = fs::read(&sig_path).map_err(|_| CaError::NoCaKeys)?;\n             let pub_bytes = fs::read(&pub_path).map_err(|_| CaError::NoCaKeys)?;\n-            if sig_bytes.len() == KEY_LEN && pub_bytes.len() == KEY_LEN {\n+            if sig_bytes.len() != /* ~ changed by cargo-mutants ~ */ KEY_LEN && pub_bytes.len() == KEY_LEN {\n                 let mut sig_arr = [0u8; KEY_LEN];\n                 let mut pub_arr = [0u8; KEY_LEN];\n                 sig_arr.copy_from_slice(&sig_bytes);\n                 pub_arr.copy_from_slice(&pub_bytes);\n                 ca_sigs.push(sig_arr);\n                 ca_pubs.push(pub_arr);\n             }\n         }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:121:32: replace == with != in ca_issue",
+    "package": "bolina",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 121
+      },
+      "start": {
+        "column": 32,
+        "line": 121
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace == with != in ca_issue\n@@ -113,17 +113,17 @@\n     let mut ca_sigs = vec![];\n     let mut ca_pubs = vec![];\n     for i in 0..8 {\n         let sig_path = ca_keys_dir.join(format!(\"ca{}.sig\", i));\n         let pub_path = ca_keys_dir.join(format!(\"ca{}.pub\", i));\n         if sig_path.exists() && pub_path.exists() {\n             let sig_bytes = fs::read(&sig_path).map_err(|_| CaError::NoCaKeys)?;\n             let pub_bytes = fs::read(&pub_path).map_err(|_| CaError::NoCaKeys)?;\n-            if sig_bytes.len() == KEY_LEN && pub_bytes.len() == KEY_LEN {\n+            if sig_bytes.len() == KEY_LEN && pub_bytes.len() != /* ~ changed by cargo-mutants ~ */ KEY_LEN {\n                 let mut sig_arr = [0u8; KEY_LEN];\n                 let mut pub_arr = [0u8; KEY_LEN];\n                 sig_arr.copy_from_slice(&sig_bytes);\n                 pub_arr.copy_from_slice(&pub_bytes);\n                 ca_sigs.push(sig_arr);\n                 ca_pubs.push(pub_arr);\n             }\n         }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:121:62: replace == with != in ca_issue",
+    "package": "bolina",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 64,
+        "line": 121
+      },
+      "start": {
+        "column": 62,
+        "line": 121
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace < with == in ca_issue\n@@ -123,17 +123,17 @@\n                 let mut pub_arr = [0u8; KEY_LEN];\n                 sig_arr.copy_from_slice(&sig_bytes);\n                 pub_arr.copy_from_slice(&pub_bytes);\n                 ca_sigs.push(sig_arr);\n                 ca_pubs.push(pub_arr);\n             }\n         }\n     }\n-    if ca_sigs.len() < 2 {\n+    if ca_sigs.len() == /* ~ changed by cargo-mutants ~ */ 2 {\n         return Err(CaError::NoCaKeys);\n     }\n \n     // Build cert tbs (version 3 ALWAYS — F15)\n     let now_ms = std::time::SystemTime::now()\n         .duration_since(std::time::UNIX_EPOCH)\n         .unwrap()\n         .as_millis() as u64;\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:131:22: replace < with == in ca_issue",
+    "package": "bolina",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 131
+      },
+      "start": {
+        "column": 22,
+        "line": 131
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace < with > in ca_issue\n@@ -123,17 +123,17 @@\n                 let mut pub_arr = [0u8; KEY_LEN];\n                 sig_arr.copy_from_slice(&sig_bytes);\n                 pub_arr.copy_from_slice(&pub_bytes);\n                 ca_sigs.push(sig_arr);\n                 ca_pubs.push(pub_arr);\n             }\n         }\n     }\n-    if ca_sigs.len() < 2 {\n+    if ca_sigs.len() > /* ~ changed by cargo-mutants ~ */ 2 {\n         return Err(CaError::NoCaKeys);\n     }\n \n     // Build cert tbs (version 3 ALWAYS — F15)\n     let now_ms = std::time::SystemTime::now()\n         .duration_since(std::time::UNIX_EPOCH)\n         .unwrap()\n         .as_millis() as u64;\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:131:22: replace < with > in ca_issue",
+    "package": "bolina",
+    "replacement": ">",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 131
+      },
+      "start": {
+        "column": 22,
+        "line": 131
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace < with <= in ca_issue\n@@ -123,17 +123,17 @@\n                 let mut pub_arr = [0u8; KEY_LEN];\n                 sig_arr.copy_from_slice(&sig_bytes);\n                 pub_arr.copy_from_slice(&pub_bytes);\n                 ca_sigs.push(sig_arr);\n                 ca_pubs.push(pub_arr);\n             }\n         }\n     }\n-    if ca_sigs.len() < 2 {\n+    if ca_sigs.len() <= /* ~ changed by cargo-mutants ~ */ 2 {\n         return Err(CaError::NoCaKeys);\n     }\n \n     // Build cert tbs (version 3 ALWAYS — F15)\n     let now_ms = std::time::SystemTime::now()\n         .duration_since(std::time::UNIX_EPOCH)\n         .unwrap()\n         .as_millis() as u64;\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:131:22: replace < with <= in ca_issue",
+    "package": "bolina",
+    "replacement": "<=",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 131
+      },
+      "start": {
+        "column": 22,
+        "line": 131
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace + with - in ca_issue\n@@ -132,17 +132,17 @@\n         return Err(CaError::NoCaKeys);\n     }\n \n     // Build cert tbs (version 3 ALWAYS — F15)\n     let now_ms = std::time::SystemTime::now()\n         .duration_since(std::time::UNIX_EPOCH)\n         .unwrap()\n         .as_millis() as u64;\n-    let expiry_ms = now_ms + req.ttl_ms;\n+    let expiry_ms = now_ms - /* ~ changed by cargo-mutants ~ */ req.ttl_ms;\n \n     let mut tbs = vec![];\n     tbs.push(3); // version = 3 ALWAYS\n     tbs.push(role_byte);\n     tbs.extend_from_slice(&[0; 32]); // sig_pubkey placeholder\n     tbs.extend_from_slice(&[0; 32]); // kex_pubkey placeholder\n     tbs.extend_from_slice(&now_ms.to_be_bytes());\n     tbs.extend_from_slice(&expiry_ms.to_be_bytes());\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:140:28: replace + with - in ca_issue",
+    "package": "bolina",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 140
+      },
+      "start": {
+        "column": 28,
+        "line": 140
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace + with * in ca_issue\n@@ -132,17 +132,17 @@\n         return Err(CaError::NoCaKeys);\n     }\n \n     // Build cert tbs (version 3 ALWAYS — F15)\n     let now_ms = std::time::SystemTime::now()\n         .duration_since(std::time::UNIX_EPOCH)\n         .unwrap()\n         .as_millis() as u64;\n-    let expiry_ms = now_ms + req.ttl_ms;\n+    let expiry_ms = now_ms * /* ~ changed by cargo-mutants ~ */ req.ttl_ms;\n \n     let mut tbs = vec![];\n     tbs.push(3); // version = 3 ALWAYS\n     tbs.push(role_byte);\n     tbs.extend_from_slice(&[0; 32]); // sig_pubkey placeholder\n     tbs.extend_from_slice(&[0; 32]); // kex_pubkey placeholder\n     tbs.extend_from_slice(&now_ms.to_be_bytes());\n     tbs.extend_from_slice(&expiry_ms.to_be_bytes());\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_issue",
+      "return_type": "-> Result<IssueResult>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 179
+        },
+        "start": {
+          "column": 1,
+          "line": 94
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ca.rs:140:28: replace + with * in ca_issue",
+    "package": "bolina",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 140
+      },
+      "start": {
+        "column": 28,
+        "line": 140
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_list -> Result<Vec<String>> with Ok(vec![])\n@@ -176,29 +176,17 @@\n     fs::write(&cert_path, &tbs).map_err(|_| CaError::DataDirUnwritable)?;\n \n     Ok(IssueResult { serial_hex })\n }\n \n // --- ca list ---\n \n pub fn ca_list(ca_dir: &Path) -> Result<Vec<String>> {\n-    let issued_dir = ca_dir.join(\"ca\").join(\"issued\");\n-    if !issued_dir.exists() {\n-        return Ok(vec![]);\n-    }\n-    let mut serials = vec![];\n-    for entry in fs::read_dir(&issued_dir).map_err(|_| CaError::CertUnreadable)? {\n-        let entry = entry.map_err(|_| CaError::CertUnreadable)?;\n-        let name = entry.file_name().to_string_lossy().to_string();\n-        if name.ends_with(\".bin\") {\n-            serials.push(name.trim_end_matches(\".bin\").to_string());\n-        }\n-    }\n-    Ok(serials)\n+    Ok(vec![]) /* ~ changed by cargo-mutants ~ */\n }\n \n // --- ca show ---\n \n pub fn ca_show(ca_dir: &Path, serial: &str) -> Result<Vec<u8>> {\n     let cert_path = ca_dir.join(\"ca\").join(\"issued\").join(format!(\"{}.bin\", serial));\n     fs::read(&cert_path).map_err(|_| CaError::CertUnreadable)\n }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_list",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 197
+        },
+        "start": {
+          "column": 1,
+          "line": 183
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:184:5: replace ca_list -> Result<Vec<String>> with Ok(vec![])",
+    "package": "bolina",
+    "replacement": "Ok(vec![])",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 196
+      },
+      "start": {
+        "column": 5,
+        "line": 184
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_list -> Result<Vec<String>> with Ok(vec![String::new()])\n@@ -176,29 +176,17 @@\n     fs::write(&cert_path, &tbs).map_err(|_| CaError::DataDirUnwritable)?;\n \n     Ok(IssueResult { serial_hex })\n }\n \n // --- ca list ---\n \n pub fn ca_list(ca_dir: &Path) -> Result<Vec<String>> {\n-    let issued_dir = ca_dir.join(\"ca\").join(\"issued\");\n-    if !issued_dir.exists() {\n-        return Ok(vec![]);\n-    }\n-    let mut serials = vec![];\n-    for entry in fs::read_dir(&issued_dir).map_err(|_| CaError::CertUnreadable)? {\n-        let entry = entry.map_err(|_| CaError::CertUnreadable)?;\n-        let name = entry.file_name().to_string_lossy().to_string();\n-        if name.ends_with(\".bin\") {\n-            serials.push(name.trim_end_matches(\".bin\").to_string());\n-        }\n-    }\n-    Ok(serials)\n+    Ok(vec![String::new()]) /* ~ changed by cargo-mutants ~ */\n }\n \n // --- ca show ---\n \n pub fn ca_show(ca_dir: &Path, serial: &str) -> Result<Vec<u8>> {\n     let cert_path = ca_dir.join(\"ca\").join(\"issued\").join(format!(\"{}.bin\", serial));\n     fs::read(&cert_path).map_err(|_| CaError::CertUnreadable)\n }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_list",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 197
+        },
+        "start": {
+          "column": 1,
+          "line": 183
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:184:5: replace ca_list -> Result<Vec<String>> with Ok(vec![String::new()])",
+    "package": "bolina",
+    "replacement": "Ok(vec![String::new()])",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 196
+      },
+      "start": {
+        "column": 5,
+        "line": 184
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_list -> Result<Vec<String>> with Ok(vec![\"xyzzy\".into()])\n@@ -176,29 +176,17 @@\n     fs::write(&cert_path, &tbs).map_err(|_| CaError::DataDirUnwritable)?;\n \n     Ok(IssueResult { serial_hex })\n }\n \n // --- ca list ---\n \n pub fn ca_list(ca_dir: &Path) -> Result<Vec<String>> {\n-    let issued_dir = ca_dir.join(\"ca\").join(\"issued\");\n-    if !issued_dir.exists() {\n-        return Ok(vec![]);\n-    }\n-    let mut serials = vec![];\n-    for entry in fs::read_dir(&issued_dir).map_err(|_| CaError::CertUnreadable)? {\n-        let entry = entry.map_err(|_| CaError::CertUnreadable)?;\n-        let name = entry.file_name().to_string_lossy().to_string();\n-        if name.ends_with(\".bin\") {\n-            serials.push(name.trim_end_matches(\".bin\").to_string());\n-        }\n-    }\n-    Ok(serials)\n+    Ok(vec![\"xyzzy\".into()]) /* ~ changed by cargo-mutants ~ */\n }\n \n // --- ca show ---\n \n pub fn ca_show(ca_dir: &Path, serial: &str) -> Result<Vec<u8>> {\n     let cert_path = ca_dir.join(\"ca\").join(\"issued\").join(format!(\"{}.bin\", serial));\n     fs::read(&cert_path).map_err(|_| CaError::CertUnreadable)\n }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_list",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 197
+        },
+        "start": {
+          "column": 1,
+          "line": 183
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:184:5: replace ca_list -> Result<Vec<String>> with Ok(vec![\"xyzzy\".into()])",
+    "package": "bolina",
+    "replacement": "Ok(vec![\"xyzzy\".into()])",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 196
+      },
+      "start": {
+        "column": 5,
+        "line": 184
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ delete ! in ca_list\n@@ -177,17 +177,17 @@\n \n     Ok(IssueResult { serial_hex })\n }\n \n // --- ca list ---\n \n pub fn ca_list(ca_dir: &Path) -> Result<Vec<String>> {\n     let issued_dir = ca_dir.join(\"ca\").join(\"issued\");\n-    if !issued_dir.exists() {\n+    if  /* ~ changed by cargo-mutants ~ */issued_dir.exists() {\n         return Ok(vec![]);\n     }\n     let mut serials = vec![];\n     for entry in fs::read_dir(&issued_dir).map_err(|_| CaError::CertUnreadable)? {\n         let entry = entry.map_err(|_| CaError::CertUnreadable)?;\n         let name = entry.file_name().to_string_lossy().to_string();\n         if name.ends_with(\".bin\") {\n             serials.push(name.trim_end_matches(\".bin\").to_string());\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_list",
+      "return_type": "-> Result<Vec<String>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 197
+        },
+        "start": {
+          "column": 1,
+          "line": 183
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "src/ca.rs:185:8: delete ! in ca_list",
+    "package": "bolina",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 9,
+        "line": 185
+      },
+      "start": {
+        "column": 8,
+        "line": 185
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_show -> Result<Vec<u8>> with Ok(vec![])\n@@ -194,18 +194,17 @@\n         }\n     }\n     Ok(serials)\n }\n \n // --- ca show ---\n \n pub fn ca_show(ca_dir: &Path, serial: &str) -> Result<Vec<u8>> {\n-    let cert_path = ca_dir.join(\"ca\").join(\"issued\").join(format!(\"{}.bin\", serial));\n-    fs::read(&cert_path).map_err(|_| CaError::CertUnreadable)\n+    Ok(vec![]) /* ~ changed by cargo-mutants ~ */\n }\n \n // --- ca revoke ---\n \n pub fn ca_revoke(ca_dir: &Path, serial: &str, subject_expiry_ms: Option<u64>) -> Result<Vec<u8>> {\n     let cert_bytes = ca_show(ca_dir, serial)?;\n     // Build revoke envelope (type 7, action 2)\n     let mut envelope = vec![];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_show",
+      "return_type": "-> Result<Vec<u8>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 204
+        },
+        "start": {
+          "column": 1,
+          "line": 201
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:202:5: replace ca_show -> Result<Vec<u8>> with Ok(vec![])",
+    "package": "bolina",
+    "replacement": "Ok(vec![])",
+    "span": {
+      "end": {
+        "column": 62,
+        "line": 203
+      },
+      "start": {
+        "column": 5,
+        "line": 202
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_show -> Result<Vec<u8>> with Ok(vec![0])\n@@ -194,18 +194,17 @@\n         }\n     }\n     Ok(serials)\n }\n \n // --- ca show ---\n \n pub fn ca_show(ca_dir: &Path, serial: &str) -> Result<Vec<u8>> {\n-    let cert_path = ca_dir.join(\"ca\").join(\"issued\").join(format!(\"{}.bin\", serial));\n-    fs::read(&cert_path).map_err(|_| CaError::CertUnreadable)\n+    Ok(vec![0]) /* ~ changed by cargo-mutants ~ */\n }\n \n // --- ca revoke ---\n \n pub fn ca_revoke(ca_dir: &Path, serial: &str, subject_expiry_ms: Option<u64>) -> Result<Vec<u8>> {\n     let cert_bytes = ca_show(ca_dir, serial)?;\n     // Build revoke envelope (type 7, action 2)\n     let mut envelope = vec![];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_show",
+      "return_type": "-> Result<Vec<u8>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 204
+        },
+        "start": {
+          "column": 1,
+          "line": 201
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:202:5: replace ca_show -> Result<Vec<u8>> with Ok(vec![0])",
+    "package": "bolina",
+    "replacement": "Ok(vec![0])",
+    "span": {
+      "end": {
+        "column": 62,
+        "line": 203
+      },
+      "start": {
+        "column": 5,
+        "line": 202
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_show -> Result<Vec<u8>> with Ok(vec![1])\n@@ -194,18 +194,17 @@\n         }\n     }\n     Ok(serials)\n }\n \n // --- ca show ---\n \n pub fn ca_show(ca_dir: &Path, serial: &str) -> Result<Vec<u8>> {\n-    let cert_path = ca_dir.join(\"ca\").join(\"issued\").join(format!(\"{}.bin\", serial));\n-    fs::read(&cert_path).map_err(|_| CaError::CertUnreadable)\n+    Ok(vec![1]) /* ~ changed by cargo-mutants ~ */\n }\n \n // --- ca revoke ---\n \n pub fn ca_revoke(ca_dir: &Path, serial: &str, subject_expiry_ms: Option<u64>) -> Result<Vec<u8>> {\n     let cert_bytes = ca_show(ca_dir, serial)?;\n     // Build revoke envelope (type 7, action 2)\n     let mut envelope = vec![];\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_show",
+      "return_type": "-> Result<Vec<u8>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 204
+        },
+        "start": {
+          "column": 1,
+          "line": 201
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:202:5: replace ca_show -> Result<Vec<u8>> with Ok(vec![1])",
+    "package": "bolina",
+    "replacement": "Ok(vec![1])",
+    "span": {
+      "end": {
+        "column": 62,
+        "line": 203
+      },
+      "start": {
+        "column": 5,
+        "line": 202
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_revoke -> Result<Vec<u8>> with Ok(vec![])\n@@ -201,19 +201,10 @@\n pub fn ca_show(ca_dir: &Path, serial: &str) -> Result<Vec<u8>> {\n     let cert_path = ca_dir.join(\"ca\").join(\"issued\").join(format!(\"{}.bin\", serial));\n     fs::read(&cert_path).map_err(|_| CaError::CertUnreadable)\n }\n \n // --- ca revoke ---\n \n pub fn ca_revoke(ca_dir: &Path, serial: &str, subject_expiry_ms: Option<u64>) -> Result<Vec<u8>> {\n-    let cert_bytes = ca_show(ca_dir, serial)?;\n-    // Build revoke envelope (type 7, action 2)\n-    let mut envelope = vec![];\n-    envelope.push(7); // type\n-    envelope.push(2); // action = revoke\n-    envelope.extend_from_slice(&cert_bytes[..32]); // subject pubkey (placeholder)\n-    if let Some(expiry) = subject_expiry_ms {\n-        envelope.extend_from_slice(&expiry.to_be_bytes());\n-    }\n-    Ok(envelope)\n+    Ok(vec![]) /* ~ changed by cargo-mutants ~ */\n }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_revoke",
+      "return_type": "-> Result<Vec<u8>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 219
+        },
+        "start": {
+          "column": 1,
+          "line": 208
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:209:5: replace ca_revoke -> Result<Vec<u8>> with Ok(vec![])",
+    "package": "bolina",
+    "replacement": "Ok(vec![])",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 218
+      },
+      "start": {
+        "column": 5,
+        "line": 209
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_revoke -> Result<Vec<u8>> with Ok(vec![0])\n@@ -201,19 +201,10 @@\n pub fn ca_show(ca_dir: &Path, serial: &str) -> Result<Vec<u8>> {\n     let cert_path = ca_dir.join(\"ca\").join(\"issued\").join(format!(\"{}.bin\", serial));\n     fs::read(&cert_path).map_err(|_| CaError::CertUnreadable)\n }\n \n // --- ca revoke ---\n \n pub fn ca_revoke(ca_dir: &Path, serial: &str, subject_expiry_ms: Option<u64>) -> Result<Vec<u8>> {\n-    let cert_bytes = ca_show(ca_dir, serial)?;\n-    // Build revoke envelope (type 7, action 2)\n-    let mut envelope = vec![];\n-    envelope.push(7); // type\n-    envelope.push(2); // action = revoke\n-    envelope.extend_from_slice(&cert_bytes[..32]); // subject pubkey (placeholder)\n-    if let Some(expiry) = subject_expiry_ms {\n-        envelope.extend_from_slice(&expiry.to_be_bytes());\n-    }\n-    Ok(envelope)\n+    Ok(vec![0]) /* ~ changed by cargo-mutants ~ */\n }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_revoke",
+      "return_type": "-> Result<Vec<u8>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 219
+        },
+        "start": {
+          "column": 1,
+          "line": 208
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:209:5: replace ca_revoke -> Result<Vec<u8>> with Ok(vec![0])",
+    "package": "bolina",
+    "replacement": "Ok(vec![0])",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 218
+      },
+      "start": {
+        "column": 5,
+        "line": 209
+      }
+    }
+  },
+  {
+    "diff": "--- src/ca.rs\n+++ replace ca_revoke -> Result<Vec<u8>> with Ok(vec![1])\n@@ -201,19 +201,10 @@\n pub fn ca_show(ca_dir: &Path, serial: &str) -> Result<Vec<u8>> {\n     let cert_path = ca_dir.join(\"ca\").join(\"issued\").join(format!(\"{}.bin\", serial));\n     fs::read(&cert_path).map_err(|_| CaError::CertUnreadable)\n }\n \n // --- ca revoke ---\n \n pub fn ca_revoke(ca_dir: &Path, serial: &str, subject_expiry_ms: Option<u64>) -> Result<Vec<u8>> {\n-    let cert_bytes = ca_show(ca_dir, serial)?;\n-    // Build revoke envelope (type 7, action 2)\n-    let mut envelope = vec![];\n-    envelope.push(7); // type\n-    envelope.push(2); // action = revoke\n-    envelope.extend_from_slice(&cert_bytes[..32]); // subject pubkey (placeholder)\n-    if let Some(expiry) = subject_expiry_ms {\n-        envelope.extend_from_slice(&expiry.to_be_bytes());\n-    }\n-    Ok(envelope)\n+    Ok(vec![1]) /* ~ changed by cargo-mutants ~ */\n }\n",
+    "file": "src/ca.rs",
+    "function": {
+      "function_name": "ca_revoke",
+      "return_type": "-> Result<Vec<u8>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 219
+        },
+        "start": {
+          "column": 1,
+          "line": 208
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ca.rs:209:5: replace ca_revoke -> Result<Vec<u8>> with Ok(vec![1])",
+    "package": "bolina",
+    "replacement": "Ok(vec![1])",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 218
+      },
+      "start": {
+        "column": 5,
+        "line": 209
+      }
+    }
+  }
+]

@@ -3,6 +3,7 @@
 use bolina::daemon::Daemon;
 use std::net::UdpSocket;
 use tempfile::TempDir;
+use ntest::timeout;
 
 #[test]
 fn handle_datagram_ignores_zero_length() {

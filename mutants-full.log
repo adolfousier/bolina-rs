@@ -1,0 +1,278 @@
+Found 1407 mutants to test
+ok       Unmutated baseline in 10s build + 3s test
+ INFO Auto-set test timeout to 20s
+MISSED   src/main.rs:27:5: reFound 1407 mutants to test
+ok       Unmutated baseline in 8s build + 3s test
+ INFO Auto-set test timeout to 20s
+MISSED   src/main.rs:27:5: replace env_or -> String with String::new() in 0s build + 0s test
+MISSED   src/main.rs:27:5: replace env_or -> String with "xyzzy".into() in 0s build + 0s test
+MISSED   src/main.rs:36:5: replace parse_bind -> Option<SocketAddr> with None in 0s build + 0s test
+MISSED   src/main.rs:41:5: replace main with () in 0s build + 0s test
+MISSED   src/codec.rs:24:40: replace - with + in 1s build + 3s test
+MISSED   src/codec.rs:24:40: replace - with / in 1s build + 3s test
+MISSED   src/codec.rs:27:33: replace * with + in 1s build + 3s test
+MISSED   src/codec.rs:28:36: replace * with + in 1s build + 3s test
+MISSED   src/codec.rs:111:31: replace + with * in Cursor<'a>::u32be in 1s build + 4s test
+MISSED   src/codec.rs:134:16: replace > with == in Cursor<'a>::field16 in 1s build + 5s test
+MISSED   src/codec.rs:134:16: replace > with >= in Cursor<'a>::field16 in 1s build + 5s test
+MISSED   src/codec.rs:142:16: replace > with == in Cursor<'a>::field32 in 1s build + 5s test
+MISSED   src/codec.rs:142:16: replace > with >= in Cursor<'a>::field32 in 1s build + 5s test
+MISSED   src/codec.rs:244:21: replace > with == in parse_envelope in 1s build + 5s test
+MISSED   src/codec.rs:244:21: replace > with >= in parse_envelope in 1s build + 5s test
+MISSED   src/codec.rs:251:17: replace > with == in parse_envelope in 1s build + 5s test
+MISSED   src/codec.rs:251:17: replace > with >= in parse_envelope in 1s build + 6s test
+MISSED   src/codec.rs:401:20: replace > with == in parse_cert in 1s build + 7s test
+MISSED   src/codec.rs:401:20: replace > with >= in parse_cert in 1s build + 6s test
+MISSED   src/codec.rs:410:21: replace > with == in parse_cert in 1s build + 6s test
+MISSED   src/codec.rs:410:21: replace > with >= in parse_cert in 1s build + 6s test
+MISSED   src/codec.rs:417:14: replace > with == in parse_cert in 1s build + 6s test
+MISSED   src/codec.rs:417:14: replace > with < in parse_cert in 1s build + 7s test
+MISSED   src/codec.rs:417:14: replace > with >= in parse_cert in 1s build + 6s test
+MISSED   src/daemon.rs:61:9: replace Daemon::attach_ledger -> Result<(), String> with Ok(()) in 2s build + 8s test
+MISSED   src/daemon.rs:66:9: replace Daemon::attach_control -> Result<(), String> with Ok(()) in 2s build + 8s test
+MISSED   src/daemon.rs:72:9: replace Daemon::run_loop -> Result<(), String> with Ok(()) in 2s build + 8s test
+MISSED   src/daemon.rs:86:27: replace match guard e.kind() == std::io::ErrorKind::WouldBlock with true in Daemon::run_loop in 2s build + 8s test
+MISSED   src/daemon.rs:86:27: replace match guard e.kind() == std::io::ErrorKind::WouldBlock with false in Daemon::run_loop in 2s build + 8s test
+MISSED   src/daemon.rs:86:36: replace == with != in Daemon::run_loop in 2s build + 8s test
+MISSED   src/daemon.rs:111:9: replace Daemon::handle_datagram with () in 2s build + 8s test
+MISSED   src/daemon.rs:117:13: delete match arm 1 in Daemon::handle_datagram in 2s build + 8s test
+MISSED   src/daemon.rs:118:13: delete match arm 4 in Daemon::handle_datagram in 2s build + 8s test
+MISSED   src/daemon.rs:119:13: delete match arm 5 | 6 in Daemon::handle_datagram in 2s build + 8s test
+MISSED   src/daemon.rs:132:9: replace Daemon::handle_handshake with () in 2s build + 8s test
+MISSED   src/daemon.rs:132:22: replace < with == in Daemon::handle_handshake in 2s build + 8s test
+MISSED   src/daemon.rs:132:22: replace < with > in Daemon::handle_handshake in 2s build + 8s test
+MISSED   src/daemon.rs:132:22: replace < with <= in Daemon::handle_handshake in 2s build + 9s test
+MISSED   src/daemon.rs:137:12: delete ! in Daemon::handle_handshake in 2s build + 8s test
+MISSED   src/daemon.rs:157:9: replace Daemon::handle_transport with () in 2s build + 9s test
+MISSED   src/daemon.rs:157:22: replace < with == in Daemon::handle_transport in 2s build + 8s test
+MISSED   src/daemon.rs:157:22: replace < with > in Daemon::handle_transport in 2s build + 8s test
+MISSED   src/daemon.rs:157:22: replace < with <= in Daemon::handle_transport in 2s build + 9s test
+MISSED   src/daemon.rs:167:20: delete ! in Daemon::handle_transport in 2s build + 9s test
+MISSED   src/daemon.rs:187:5: replace install_shutdown_handler with () in 2s build + 8s test
+MISSED   src/daemon.rs:221:9: replace SessionTable::lookup -> Option<&Session> with None in 2s build + 8s test
+MISSED   src/ca.rs:17:49: replace * with + in 2s build + 9s test
+MISSED   src/ca.rs:17:44: replace * with + in 2s build + 9s test
+MISSED   src/ca.rs:17:44: replace * with / in 2s build + 9s test
+MISSED   src/ca.rs:35:5: replace serial_of -> [u8; 32] with [1; 32] in 2s build + 9s test
+MISSED   src/ca.rs:51:28: replace > with >= in ca_init in 2s build + 10s test
+MISSED   src/ca.rs:104:39: replace == with != in ca_issue in 2s build + 11s test
+MISSED   src/ca.rs:105:23: replace > with >= in ca_issue in 2s build + 11s test
+MISSED   src/ca.rs:117:30: replace && with || in ca_issue in 2s build + 10s test
+MISSED   src/ca.rs:120:43: replace && with || in ca_issue in 2s build + 10s test
+MISSED   src/ca.rs:130:22: replace < with > in ca_issue in 2s build + 11s test
+MISSED   src/ca.rs:139:28: replace + with - in ca_issue in 2s build + 11s test
+MISSED   src/ca.rs:139:28: replace + with * in ca_issue in 2s build + 10s test
+MISSED   src/control.rs:58:9: replace Connection::poll_readable -> Result<(), String> with Ok(()) in 2s build + 12s test
+MISSED   src/control.rs:58:27: replace > with == in Connection::poll_readable in 3s build + 12s test
+MISSED   src/control.rs:58:27: replace > with < in Connection::poll_readable in 2s build + 12s test
+MISSED   src/control.rs:58:27: replace > with >= in Connection::poll_readable in 2s build + 11s test
+MISSED   src/control.rs:73:21: replace && with || in Connection::poll_readable in 2s build + 11s test
+MISSED   src/control.rs:72:21: replace && with || in Connection::poll_readable in 2s build + 11s test
+MISSED   src/control.rs:71:31: replace == with != in Connection::poll_readable in 2s build + 11s test
+MISSED   src/control.rs:72:39: replace >= with < in Connection::poll_readable in 2s build + 12s test
+MISSED   src/control.rs:73:24: delete ! in Connection::poll_readable in 2s build + 11s test
+MISSED   src/control.rs:73:55: replace == with != in Connection::poll_readable in 2s build + 11s test
+MISSED   src/control.rs:79:31: replace == with != in Connection::poll_readable in 2s build + 12s test
+MISSED   src/control.rs:80:75: replace == with != in Connection::poll_readable in 2s build + 14s test
+MISSED   src/control.rs:81:47: replace + with - in Connection::poll_readable in 3s build + 12s test
+MISSED   src/control.rs:81:47: replace + with * in Connection::poll_readable in 3s build + 12s test
+MISSED   src/control.rs:90:47: replace < with == in Connection::poll_readable in 2s build + 12s test
+MISSED   src/control.rs:90:47: replace < with > in Connection::poll_readable in 3s build + 12s test
+MISSED   src/control.rs:90:47: replace < with <= in Connection::poll_readable in 3s build + 12s test
+MISSED   src/control.rs:90:61: replace + with - in Connection::poll_readable in 3s build + 12s test
+MISSED   src/control.rs:90:61: replace + with * in Connection::poll_readable in 3s build + 12s test
+MISSED   src/control.rs:109:9: replace Connection::write_response -> Result<(), String> with Ok(()) in 3s build + 13s test
+MISSED   src/control.rs:110:13: delete match arm 200 in Connection::write_response in 3s build + 12s test
+MISSED   src/control.rs:111:13: delete match arm 400 in Connection::write_response in 3s build + 12s test
+MISSED   src/control.rs:112:13: delete match arm 403 in Connection::write_response in 2s build + 12s test
+MISSED   src/control.rs:113:13: delete match arm 404 in Connection::write_response in 3s build + 13s test
+MISSED   src/control.rs:114:13: delete match arm 500 in Connection::write_response in 3s build + 12s test
+MISSED   src/control.rs:115:13: delete match arm 501 in Connection::write_response in 3s build + 12s test
+MISSED   src/control.rs:116:13: delete match arm 503 in Connection::write_response in 3s build + 13s test
+MISSED   src/control.rs:134:5: replace parse_content_length -> Result<Option<usize>, String> with Ok(None) in 3s build + 13s test
+MISSED   src/control.rs:134:5: replace parse_content_length -> Result<Option<usize>, String> with Ok(Some(0)) in 3s build + 13s test
+MISSED   src/control.rs:134:5: replace parse_content_length -> Result<Option<usize>, String> with Ok(Some(1)) in 3s build + 13s test
+MISSED   src/control.rs:168:9: replace ControlPlane::poll_tick -> Result<(), String> with Ok(()) in 3s build + 13s test
+MISSED   src/control.rs:179:23: replace match guard e.kind() == std::io::ErrorKind::WouldBlock with true in ControlPlane::poll_tick in 3s build + 13s test
+MISSED   src/control.rs:179:23: replace match guard e.kind() == std::io::ErrorKind::WouldBlock with false in ControlPlane::poll_tick in 3s build + 13s test
+MISSED   src/control.rs:170:39: replace >= with < in ControlPlane::poll_tick in 3s build + 13s test
+MISSED   src/control.rs:179:32: replace == with != in ControlPlane::poll_tick in 3s build + 13s test
+MISSED   src/control.rs:188:35: replace == with != in ControlPlane::poll_tick in 3s build + 13s test
+MISSED   src/ca.rs:17:49: replace * with + in 3s build + 14s test
+MISSED   src/ca.rs:17:44: replace * with + in 3s build + 14s test
+MISSED   src/ca.rs:17:44: replace * with / in 3s build + 13s test
+MISSED   src/ca.rs:35:5: replace serial_of -> [u8; 32] with [1; 32] in 3s build + 14s test
+MISSED   src/ca.rs:51:28: replace > with >= in ca_init in 3s build + 16s test
+MISSED   src/ca.rs:104:39: replace == with != in ca_issue in 3s build + 15s test
+MISSED   src/ca.rs:105:23: replace > with >= in ca_issue in 3s build + 16s test
+MISSED   src/ca.rs:117:30: replace && with || in ca_issue in 3s build + 16s test
+MISSED   src/ca.rs:120:43: replace && with || in ca_issue in 3s build + 17s test
+MISSED   src/ca.rs:130:22: replace < with > in ca_issue in 3s build + 16s test
+MISSED   src/ca.rs:139:28: replace + with - in ca_issue in 3s build + 16s test
+MISSED   src/ca.rs:139:28: replace + with * in ca_issue in 3s build + 16s test
+MISSED   src/codec.rs:24:40: replace - with + in 3s build + 18s test
+MISSED   src/codec.rs:24:40: replace - with / in 3s build + 18s test
+MISSED   src/codec.rs:27:33: replace * with + in 3s build + 17s test
+MISSED   src/codec.rs:28:36: replace * with + in 4s build + 18s test
+MISSED   src/codec.rs:111:31: replace + with * in Cursor<'a>::u32be in 4s build + 17s test
+MISSED   src/codec.rs:134:16: replace > with == in Cursor<'a>::field16 in 4s build + 19s test
+MISSED   src/codec.rs:134:16: replace > with >= in Cursor<'a>::field16 in 4s build + 19s test
+TIMEOUT  src/codec.rs:142:16: replace > with == in Cursor<'a>::field32 in 4s build + 20s test
+MISSED   src/codec.rs:142:16: replace > with >= in Cursor<'a>::field32 in 4s build + 19s test
+MISSED   src/codec.rs:244:21: replace > with == in parse_envelope in 4s build + 19s test
+TIMEOUT  src/codec.rs:244:21: replace > with >= in parse_envelope in 4s build + 20s test
+TIMEOUT  src/codec.rs:247:48: replace * with + in parse_envelope in 4s build + 20s test
+TIMEOUT  src/codec.rs:247:48: replace * with / in parse_envelope in 4s build + 20s test
+TIMEOUT  src/codec.rs:251:17: replace > with == in parse_envelope in 4s build + 20s test
+TIMEOUT  src/codec.rs:251:17: replace > with >= in parse_envelope in 4s build + 20s test
+TIMEOUT  src/codec.rs:312:8: delete ! in parse_grant in 4s build + 20s test
+TIMEOUT  src/codec.rs:338:8: delete ! in parse_refusal in 4s build + 20s test
+TIMEOUT  src/codec.rs:367:8: delete ! in parse_span in 4s build + 20s test
+TIMEOUT  src/codec.rs:401:20: replace > with == in parse_cert in 4s build + 20s test
+TIMEOUT  src/codec.rs:401:20: replace > with < in parse_cert in 4s build + 20s test
+TIMEOUT  src/codec.rs:401:20: replace > with >= in parse_cert in 5s build + 20s test
+TIMEOUT  src/codec.rs:404:49: replace * with + in parse_cert in 4s build + 20s test
+TIMEOUT  src/codec.rs:404:49: replace * with / in parse_cert in 5s build + 20s test
+TIMEOUT  src/codec.rs:407:21: replace == with != in parse_cert in 4s build + 20s test
+TIMEOUT  src/codec.rs:410:21: replace > with == in parse_cert in 5s build + 20s test
+TIMEOUT  src/codec.rs:410:21: replace > with < in parse_cert in 5s build + 20s test
+TIMEOUT  src/codec.rs:410:21: replace > with >= in parse_cert in 5s build + 20s test
+TIMEOUT  src/codec.rs:417:18: replace && with || in parse_cert in 4s build + 20s test
+TIMEOUT  src/codec.rs:417:14: replace > with == in parse_cert in 5s build + 20s test
+TIMEOUT  src/codec.rs:417:14: replace > with < in parse_cert in 4s build + 20s test
+TIMEOUT  src/codec.rs:417:14: replace > with >= in parse_cert in 5s build + 20s test
+TIMEOUT  src/codec.rs:417:28: replace <= with > in parse_cert in 5s build + 20s test
+TIMEOUT  src/codec.rs:424:8: delete ! in parse_cert in 5s build + 20s test
+TIMEOUT  src/codec.rs:453:5: replace verify_signed -> bool with true in 5s build + 20s test
+TIMEOUT  src/codec.rs:453:5: replace verify_signed -> bool with false in 5s build + 20s test
+TIMEOUT  src/codec.rs:471:5: replace push_field16 with () in 5s build + 20s test
+TIMEOUT  src/codec.rs:476:5: replace push_field32 with () in 4s build + 20s test
+TIMEOUT  src/codec.rs:481:5: replace encode_envelope -> Vec<u8> with vec![] in 5s build + 20s test
+TIMEOUT  src/codec.rs:481:5: replace encode_envelope -> Vec<u8> with vec![0] in 5s build + 20s test
+TIMEOUT  src/codec.rs:481:5: replace encode_envelope -> Vec<u8> with vec![1] in 5s build + 20s test
+TIMEOUT  src/codec.rs:497:5: replace encode_intent -> Vec<u8> with vec![] in 5s build + 20s test
+TIMEOUT  src/codec.rs:497:5: replace encode_intent -> Vec<u8> with vec![0] in 5s build + 20s test
+TIMEOUT  src/codec.rs:497:5: replace encode_intent -> Vec<u8> with vec![1] in 5s build + 20s test
+TIMEOUT  src/codec.rs:506:5: replace encode_grant -> Vec<u8> with vec![] in 5s build + 20s test
+TIMEOUT  src/codec.rs:506:5: replace encode_grant -> Vec<u8> with vec![0] in 5s build + 20s test
+TIMEOUT  src/codec.rs:506:5: replace encode_grant -> Vec<u8> with vec![1] in 4s build + 20s test
+TIMEOUT  src/codec.rs:521:5: replace encode_refusal -> Vec<u8> with vec![] in 5s build + 20s test
+TIMEOUT  src/codec.rs:521:5: replace encode_refusal -> Vec<u8> with vec![0] in 5s build + 20s test
+TIMEOUT  src/codec.rs:521:5: replace encode_refusal -> Vec<u8> with vec![1] in 5s build + 20s test
+TIMEOUT  src/codec.rs:529:5: replace encode_span -> Vec<u8> with vec![] in 5s build + 20s test
+TIMEOUT  src/codec.rs:529:5: replace encode_span -> Vec<u8> with vec![0] in 5s build + 20s test
+TIMEOUT  src/codec.rs:529:5: replace encode_span -> Vec<u8> with vec![1] in 5s build + 20s test
+TIMEOUT  src/codec.rs:545:5: replace encode_cert -> Vec<u8> with vec![] in 5s build + 20s test
+TIMEOUT  src/codec.rs:545:5: replace encode_cert -> Vec<u8> with vec![0] in 5s build + 20s test
+TIMEOUT  src/codec.rs:545:5: replace encode_cert -> Vec<u8> with vec![1] in 5s build + 20s test
+TIMEOUT  src/daemon.rs:61:9: replace Daemon::attach_ledger -> Result<(), String> with Ok(()) in 5s build + 20s test
+TIMEOUT  src/daemon.rs:66:9: replace Daemon::attach_control -> Result<(), String> with Ok(()) in 5s build + 20s test
+TIMEOUT  src/daemon.rs:72:9: replace Daemon::run_loop -> Result<(), String> with Ok(()) in 5s build + 20s test
+TIMEOUT  src/daemon.rs:86:27: replace match guard e.kind() == std::io::ErrorKind::WouldBlock with true in Daemon::run_loop in 5s build + 20s test
+TIMEOUT  src/daemon.rs:86:27: replace match guard e.kind() == std::io::ErrorKind::WouldBlock with false in Daemon::run_loop in 5s build + 20s test
+TIMEOUT  src/daemon.rs:86:36: replace == with != in Daemon::run_loop in 5s build + 20s test
+TIMEOUT  src/daemon.rs:111:9: replace Daemon::handle_datagram with () in 5s build + 20s test
+TIMEOUT  src/daemon.rs:117:13: delete match arm 1 in Daemon::handle_datagram in 5s build + 20s test
+TIMEOUT  src/daemon.rs:118:13: delete match arm 4 in Daemon::handle_datagram in 5s build + 20s test
+TIMEOUT  src/daemon.rs:119:13: delete match arm 5 | 6 in Daemon::handle_datagram in 5s build + 20s test
+TIMEOUT  src/daemon.rs:132:9: replace Daemon::handle_handshake with () in 5s build + 20s test
+TIMEOUT  src/daemon.rs:132:22: replace < with == in Daemon::handle_handshake in 6s build + 20s test
+TIMEOUT  src/daemon.rs:132:22: replace < with > in Daemon::handle_handshake in 5s build + 20s test
+TIMEOUT  src/daemon.rs:132:22: replace < with <= in Daemon::handle_handshake in 5s build + 20s test
+TIMEOUT  src/daemon.rs:137:12: delete ! in Daemon::handle_handshake in 5s build + 20s test
+TIMEOUT  src/daemon.rs:157:9: replace Daemon::handle_transport with () in 5s build + 20s test
+TIMEOUT  src/daemon.rs:157:22: replace < with == in Daemon::handle_transport in 5s build + 20s test
+TIMEOUT  src/daemon.rs:157:22: replace < with > in Daemon::handle_transport in 5s build + 20s test
+TIMEOUT  src/daemon.rs:157:22: replace < with <= in Daemon::handle_transport in 5s build + 20s test
+TIMEOUT  src/daemon.rs:167:20: delete ! in Daemon::handle_transport in 5s build + 20s test
+TIMEOUT  src/daemon.rs:187:5: replace install_shutdown_handler with () in 5s build + 20s test
+TIMEOUT  src/daemon.rs:221:9: replace SessionTable::lookup -> Option<&Session> with None in 6s build + 20s test
+TIMEOUT  src/control.rs:58:9: replace Connection::poll_readable -> Result<(), String> with Ok(()) in 5s build + 20s test
+TIMEOUT  src/control.rs:58:27: replace > with == in Connection::poll_readable in 5s build + 20s test
+TIMEOUT  src/control.rs:58:27: replace > with < in Connection::poll_readable in 5s build + 20s test
+TIMEOUT  src/control.rs:58:27: replace > with >= in Connection::poll_readable in 6s build + 20s test
+TIMEOUT  src/control.rs:73:21: replace && with || in Connection::poll_readable in 6s build + 20s test
+TIMEOUT  src/control.rs:72:21: replace && with || in Connection::poll_readable in 6s build + 20s test
+TIMEOUT  src/control.rs:71:31: replace == with != in Connection::poll_readable in 5s build + 20s test
+TIMEOUT  src/control.rs:72:39: replace >= with < in Connection::poll_readable in 5s build + 20s test
+TIMEOUT  src/control.rs:73:24: delete ! in Connection::poll_readable in 5s build + 20s test
+TIMEOUT  src/control.rs:73:55: replace == with != in Connection::poll_readable in 5s build + 20s test
+TIMEOUT  src/control.rs:79:31: replace == with != in Connection::poll_readable in 5s build + 20s test
+TIMEOUT  src/control.rs:80:75: replace == with != in Connection::poll_readable in 5s build + 20s test
+TIMEOUT  src/control.rs:81:47: replace + with - in Connection::poll_readable in 5s build + 20s test
+TIMEOUT  src/control.rs:81:47: replace + with * in Connection::poll_readable in 6s build + 20s test
+TIMEOUT  src/control.rs:90:47: replace < with == in Connection::poll_readable in 6s build + 20s test
+TIMEOUT  src/control.rs:90:47: replace < with > in Connection::poll_readable in 6s build + 20s test
+TIMEOUT  src/control.rs:90:47: replace < with <= in Connection::poll_readable in 6s build + 20s test
+TIMEOUT  src/control.rs:90:61: replace + with - in Connection::poll_readable in 5s build + 20s test
+TIMEOUT  src/control.rs:90:61: replace + with * in Connection::poll_readable in 5s build + 20s test
+TIMEOUT  src/control.rs:109:9: replace Connection::write_response -> Result<(), String> with Ok(()) in 5s build + 20s test
+TIMEOUT  src/control.rs:110:13: delete match arm 200 in Connection::write_response in 6s build + 20s test
+TIMEOUT  src/control.rs:111:13: delete match arm 400 in Connection::write_response in 5s build + 20s test
+TIMEOUT  src/control.rs:112:13: delete match arm 403 in Connection::write_response in 6s build + 20s test
+TIMEOUT  src/control.rs:113:13: delete match arm 404 in Connection::write_response in 6s build + 20s test
+TIMEOUT  src/control.rs:114:13: delete match arm 500 in Connection::write_response in 6s build + 20s test
+TIMEOUT  src/control.rs:115:13: delete match arm 501 in Connection::write_response in 6s build + 20s test
+TIMEOUT  src/control.rs:116:13: delete match arm 503 in Connection::write_response in 5s build + 20s test
+TIMEOUT  src/control.rs:134:5: replace parse_content_length -> Result<Option<usize>, String> with Ok(None) in 6s build + 20s test
+TIMEOUT  src/control.rs:134:5: replace parse_content_length -> Result<Option<usize>, String> with Ok(Some(0)) in 6s build + 20s test
+TIMEOUT  src/control.rs:134:5: replace parse_content_length -> Result<Option<usize>, String> with Ok(Some(1)) in 5s build + 20s test
+TIMEOUT  src/control.rs:168:9: replace ControlPlane::poll_tick -> Result<(), String> with Ok(()) in 6s build + 20s test
+TIMEOUT  src/control.rs:179:23: replace match guard e.kind() == std::io::ErrorKind::WouldBlock with true in ControlPlane::poll_tick in 6s build + 20s test
+TIMEOUT  src/control.rs:179:23: replace match guard e.kind() == std::io::ErrorKind::WouldBlock with false in ControlPlane::poll_tick in 6s build + 20s test
+TIMEOUT  src/control.rs:170:39: replace >= with < in ControlPlane::poll_tick in 6s build + 20s test
+TIMEOUT  src/control.rs:179:32: replace == with != in ControlPlane::poll_tick in 6s build + 20s test
+TIMEOUT  src/control.rs:188:35: replace == with != in ControlPlane::poll_tick in 6s build + 20s test
+TIMEOUT  src/state/ffi.rs:18:5: replace flock_exclusive_nb -> bool with true in 6s build + 20s test
+TIMEOUT  src/state/ffi.rs:18:5: replace flock_exclusive_nb -> bool with false in 5s build + 20s test
+TIMEOUT  src/state/ffi.rs:18:54: replace == with != in flock_exclusive_nb in 6s build + 20s test
+TIMEOUT  src/state/ffi.rs:18:43: replace | with & in flock_exclusive_nb in 6s build + 20s test
+TIMEOUT  src/state/ffi.rs:18:43: replace | with ^ in flock_exclusive_nb in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:61:9: replace Table::len -> usize with 0 in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:61:9: replace Table::len -> usize with 1 in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:65:9: replace Table::is_empty -> bool with true in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:65:9: replace Table::is_empty -> bool with false in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:77:9: replace Table::admit -> Result<(), IntentError> with Ok(()) in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:78:66: replace && with || in Table::admit in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:78:48: replace == with != in Table::admit in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:78:81: replace == with != in Table::admit in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:83:17: replace && with || in Table::admit in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:82:40: replace || with && in Table::admit in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:82:22: replace == with != in Table::admit in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:82:51: replace == with != in Table::admit in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:83:52: replace == with != in Table::admit in 7s build + 20s test
+TIMEOUT  src/state/intent.rs:87:31: replace >= with < in Table::admit in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:103:9: replace Table::match_for_grant -> Option<usize> with None in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:103:9: replace Table::match_for_grant -> Option<usize> with Some(0) in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:103:9: replace Table::match_for_grant -> Option<usize> with Some(1) in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:105:53: replace && with || in Table::match_for_grant in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:105:35: replace == with != in Table::match_for_grant in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:105:68: replace == with != in Table::match_for_grant in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:110:9: replace Table::begin_executing -> Result<(), IntentError> with Ok(()) in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:111:24: replace match guard e.state == State::Pending with true in Table::begin_executing in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:111:24: replace match guard e.state == State::Pending with false in Table::begin_executing in 7s build + 20s test
+TIMEOUT  src/state/intent.rs:111:32: replace == with != in Table::begin_executing in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:122:74: replace && with || in Table::apply_refusal in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:122:56: replace == with != in Table::apply_refusal in 7s build + 20s test
+TIMEOUT  src/state/intent.rs:122:89: replace == with != in Table::apply_refusal in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:136:9: replace Table::expire_timeouts -> usize with 0 in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:136:9: replace Table::expire_timeouts -> usize with 1 in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:138:42: replace && with || in Table::expire_timeouts in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:138:24: replace == with != in Table::expire_timeouts in 7s build + 20s test
+TIMEOUT  src/state/intent.rs:138:52: replace >= with < in Table::expire_timeouts in 7s build + 20s test
+TIMEOUT  src/state/intent.rs:138:69: replace + with - in Table::expire_timeouts in 7s build + 20s test
+TIMEOUT  src/state/intent.rs:138:69: replace + with * in Table::expire_timeouts in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:140:27: replace += with -= in Table::expire_timeouts in 7s build + 20s test
+TIMEOUT  src/state/intent.rs:140:27: replace += with *= in Table::expire_timeouts in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:143:22: replace > with == in Table::expire_timeouts in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:143:22: replace > with < in Table::expire_timeouts in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:143:22: replace > with >= in Table::expire_timeouts in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:152:9: replace Table::compact with () in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:152:59: replace || with && in Table::compact in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:152:41: replace == with != in Table::compact in 6s build + 20s test
+TIMEOUT  src/state/intent.rs:152:70: replace == with != in Table::compact in 6s build + 20s test
+TIMEOUT  src/state/ledger.rs:62:5: replace be64 -> u64 with 0 in 7s build + 20s test
+TIMEOUT  src/state/ledger.rs:62:5: replace be64 -> u64 with 1 in 7s build + 20s test
+TIMEOUT  src/state/ledger.rs:66:5: replace put_be64 with () in 7s build + 20s test
+TIMEOUT  src/state/ledger.rs:75:12: delete ! in GrantLedger::open in 6s build + 20s test
+TIMEOUT  src/state/ledger.rs:124:19: replace < with == in GrantLedger::recover in 6s build + 20s test
