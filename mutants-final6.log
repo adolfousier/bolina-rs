@@ -1,3 +1,5 @@
+Found 1419 mutants to test
+TIMEOUT  Unmutated baseline in 0s build + 30s test
 
 *** baseline
 
@@ -3478,3 +3480,5 @@ test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
      Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/lib-afc007878fdc6eba`
 
 *** result: Timeout
+
+ERROR cargo test failed in an unmutated tree, so no mutants were tested
