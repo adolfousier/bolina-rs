@@ -8,7 +8,7 @@
       "phase_results": [
         {
           "phase": "Build",
-          "duration": 3.52730475,
+          "duration": 6.247445791,
           "process_status": {
             "Failure": 101
           },
@@ -29,7 +29,7 @@
   "timeout": 0,
   "unviable": 0,
   "success": 0,
-  "start_time": "2026-08-30T16:55:46.797752Z",
-  "end_time": "2026-08-30T16:55:50.437841Z",
+  "start_time": "2026-08-30T16:57:50.810654Z",
+  "end_time": "2026-08-30T16:57:57.169475Z",
   "cargo_mutants_version": "27.1.0"
 }

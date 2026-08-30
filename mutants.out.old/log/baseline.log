@@ -1,156 +1,85 @@
 
 *** baseline
 
-*** cargo test --no-run --verbose --package=bolina@0.1.0
-    Blocking waiting for file lock on build directory
-    Blocking waiting for file lock on build directory
+*** /Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo test --no-run --verbose --package=bolina@0.1.0
        Fresh cfg-if v1.0.4
        Fresh version_check v0.9.5
-       Fresh typenum v1.20.1
        Fresh unicode-ident v1.0.24
+       Fresh typenum v1.20.1
        Fresh subtle v2.6.1
        Fresh semver v1.0.28
        Fresh bitflags v2.13.1
        Fresh libc v0.2.189
        Fresh rustc_version v0.4.1
-       Fresh rand_core v0.10.1
        Fresh objc2-encode v4.1.0
        Fresh cfg_aliases v0.2.2
-       Fresh option-ext v0.2.0
-       Fresh getrandom v0.2.17
+       Fresh rand_core v0.10.1
+       Fresh winnow v1.0.4
        Fresh proc-macro2 v1.0.107
+       Fresh getrandom v0.2.17
        Fresh objc2 v0.6.4
-       Fresh dirs-sys v0.5.0
-       Fresh cpufeatures v0.2.17
-       Fresh signature v2.2.0
-       Fresh opaque-debug v0.3.1
+       Fresh equivalent v1.0.2
+       Fresh hashbrown v0.17.1
+       Fresh option-ext v0.2.0
+       Fresh quote v1.0.47
        Fresh generic-array v0.14.7
        Fresh rand_core v0.6.4
-       Fresh quote v1.0.47
+       Fresh dirs-sys v0.5.0
        Fresh getrandom v0.4.3
        Fresh block2 v0.6.2
-       Fresh dirs v6.0.0
-       Fresh ed25519 v2.2.3
-       Fresh chacha20 v0.10.2
+       Fresh indexmap v2.14.1
+       Fresh cpufeatures v0.2.17
        Fresh crypto-common v0.1.7
        Fresh syn v2.0.119
        Fresh block-buffer v0.10.4
        Fresh inout v0.1.4
-       Fresh nix v0.31.3
+       Fresh toml_parser v1.1.3+spec-1.1.0
+       Fresh opaque-debug v0.3.1
+       Fresh toml_datetime v0.7.0
+       Fresh signature v2.2.0
+       Fresh winnow v0.7.15
        Fresh dispatch2 v0.3.1
-       Fresh rand v0.10.2
-       Fresh shellexpand v3.1.2
-       Fresh errno v0.3.14
+       Fresh nix v0.31.3
        Fresh zeroize_derive v1.5.0
        Fresh digest v0.10.7
        Fresh universal-hash v0.5.1
-       Fresh aead v0.5.2
-       Fresh ctrlc v3.5.2
-       Fresh serde_derive v1.0.219
-       Fresh rustix v1.1.4
-       Fresh once_cell v1.21.4
-       Fresh memchr v2.8.3
-       Fresh zeroize v1.9.0
-       Fresh poly1305 v0.8.0
-       Fresh sha2 v0.10.9
-       Fresh blake2 v0.10.6
-       Fresh serde v1.0.219
-       Fresh itoa v1.0.18
-       Fresh fastrand v2.5.0
-       Fresh ryu v1.0.23
-       Fresh hex v0.4.3
-       Fresh hex-literal v0.4.1
-       Fresh cipher v0.4.4
-       Fresh curve25519-dalek v4.1.3
-       Fresh serde_json v1.0.140
-       Fresh tempfile v3.27.0
-       Fresh chacha20 v0.9.1
-       Fresh ed25519-dalek v2.1.1
-       Fresh x25519-dalek v2.0.1
-       Fresh chacha20poly1305 v0.10.1
-       Fresh bolina v0.1.0 (/Users/adolfousierstudio/srv/rs/bolina-rs)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 13.72s
-  Executable `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/bolina-eea4cabecec9a34a`
-  Executable `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/bolina-c0f234f00935deb4`
-  Executable `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/ca-d2b1918f74f35ea0`
-  Executable `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/ca_bounds-46c27fc3b45c1170`
-  Executable `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/codec_bounds-ef7db5f79bac12ad`
-  Executable `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/control_bounds-fc558f26b8ac3978`
-  Executable `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/cross_kat-1367bb80322adb14`
-  Executable `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/daemon_bounds-d315952455385c84`
-  Executable `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/kat-538e745b65182b8a`
-  Executable `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/reassembly-23de858147eedda0`
-  Executable `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/relay-5e0a98881bd7f3db`
-  Executable `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/session-270223c5490655c5`
-  Executable `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/smoke-6fd4a9106fb3849e`
-  Executable `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/state-d869f2e717add239`
-  Executable `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/sync-ccdc18fa6f6eae86`
-  Executable `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/transport-a3f14a0f222f9700`
-  Executable `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/vectors-566e9a121511bd67`
-       Fresh cfg-if v1.0.4
-       Fresh version_check v0.9.5
-       Fresh typenum v1.20.1
-       Fresh unicode-ident v1.0.24
-       Fresh subtle v2.6.1
-       Fresh semver v1.0.28
-       Fresh bitflags v2.13.1
-       Fresh libc v0.2.189
-       Fresh rustc_version v0.4.1
-       Fresh cfg_aliases v0.2.2
-       Fresh rand_core v0.10.1
-       Fresh objc2-encode v4.1.0
-       Fresh option-ext v0.2.0
-       Fresh getrandom v0.2.17
-       Fresh proc-macro2 v1.0.107
-       Fresh objc2 v0.6.4
-       Fresh cpufeatures v0.2.17
-       Fresh dirs-sys v0.5.0
-       Fresh signature v2.2.0
-       Fresh opaque-debug v0.3.1
-       Fresh generic-array v0.14.7
-       Fresh rand_core v0.6.4
-       Fresh quote v1.0.47
-       Fresh block2 v0.6.2
-       Fresh getrandom v0.4.3
+       Fresh toml_edit v0.23.4
        Fresh ed25519 v2.2.3
+       Fresh aead v0.5.2
+       Fresh syn v1.0.109
        Fresh dirs v6.0.0
        Fresh chacha20 v0.10.2
-       Fresh crypto-common v0.1.7
-       Fresh syn v2.0.119
-       Fresh block-buffer v0.10.4
-       Fresh inout v0.1.4
-       Fresh nix v0.31.3
-       Fresh dispatch2 v0.3.1
+       Fresh zeroize v1.9.0
+       Fresh sha2 v0.10.9
+       Fresh poly1305 v0.8.0
+       Fresh blake2 v0.10.6
        Fresh rand v0.10.2
        Fresh shellexpand v3.1.2
-       Fresh errno v0.3.14
-       Fresh zeroize_derive v1.5.0
-       Fresh digest v0.10.7
-       Fresh universal-hash v0.5.1
-       Fresh aead v0.5.2
+       Fresh proc-macro-crate v3.4.0
        Fresh ctrlc v3.5.2
        Fresh serde_derive v1.0.219
-       Fresh rustix v1.1.4
+       Fresh cipher v0.4.4
+       Fresh curve25519-dalek v4.1.3
+       Fresh errno v0.3.14
+       Fresh serde v1.0.219
+       Fresh ntest_timeout v0.9.5
+       Fresh ntest_test_cases v0.9.5
+       Fresh fastrand v2.5.0
        Fresh once_cell v1.21.4
        Fresh itoa v1.0.18
-       Fresh zeroize v1.9.0
-       Fresh poly1305 v0.8.0
-       Fresh sha2 v0.10.9
-       Fresh blake2 v0.10.6
-       Fresh serde v1.0.219
        Fresh memchr v2.8.3
-       Fresh ryu v1.0.23
-       Fresh fastrand v2.5.0
-       Fresh hex v0.4.3
-       Fresh hex-literal v0.4.1
-       Fresh curve25519-dalek v4.1.3
-       Fresh cipher v0.4.4
-       Fresh tempfile v3.27.0
-       Fresh serde_json v1.0.140
        Fresh chacha20 v0.9.1
        Fresh x25519-dalek v2.0.1
        Fresh ed25519-dalek v2.1.1
+       Fresh rustix v1.1.4
+       Fresh ryu v1.0.23
+       Fresh ntest v0.9.5
+       Fresh hex v0.4.3
+       Fresh hex-literal v0.4.1
        Fresh chacha20poly1305 v0.10.1
+       Fresh serde_json v1.0.140
+       Fresh tempfile v3.27.0
+   Compiling bolina v0.1.0 (/Users/adolfousierstudio/srv/rs/bolina-rs)
 warning: unused imports: `MAC_BYTES`, `compute_mac1`, and `verify_mac1`
  --> src/transport/mod.rs:8:16
   |
@@ -422,9 +351,7 @@ warning: constant `DOMAIN_GRANT` is never used
    |           ^^^^^^^^^^^^
 
 warning: constant `DOMAIN_REFUSAL` is never used
-  --> 
-*** result: Success
-src/codec.rs:53:11
+  --> src/codec.rs:53:11
    |
 53 | pub const DOMAIN_REFUSAL: u8 = 0x06;
    |           ^^^^^^^^^^^^^^
@@ -432,9 +359,7 @@ src/codec.rs:53:11
 warning: constant `BODY_UTTERANCE` is never used
   --> src/codec.rs:56:11
    |
-*** 
-cargo test --verbose --package=bolina@0.1.056
- | pub const BODY_UTTERANCE: u8 = 1;
+56 | pub const BODY_UTTERANCE: u8 = 1;
    |           ^^^^^^^^^^^^^^
 
 warning: constant `BODY_INTENT` is never used
@@ -1629,26 +1554,6 @@ warning: multiple associated items are never used
 203 |     pub fn bytes(&self) -> usize { self.bytes }
     |            ^^^^^
 
-warning: unused import: `std::fs`
- --> tests/ca.rs:4:5
-  |
-4 | use std::fs;
-  |     ^^^^^^^
-  |
-  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
-
-warning: `bolina` (bin "bolina") generated 191 warnings (run `cargo fix --bin "bolina" -p bolina` to apply 2 suggestions)
-warning: `bolina` (bin "bolina" test) generated 191 warnings (191 duplicates)
-warning: `bolina` (test "ca") generated 1 warning (run `cargo fix --test "ca" -p bolina` to apply 1 suggestion)
-warning: unused variable: `i_sig`
-  --> tests/transport.rs:52:9
-   |
-52 |     let i_sig = sigpub(0xC1);
-   |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_i_sig`
-   |
-   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
-
-       Fresh bolina v0.1.0 (/Users/adolfousierstudio/srv/rs/bolina-rs)
 warning: field `sig_hex` is never read
   --> tests/vectors.rs:48:5
    |
@@ -1669,404 +1574,244 @@ warning: field `expect` is never read
 64 |     expect: String,
    |     ^^^^^^
 
-warning: `bolina` (test "transport") generated 1 warning (run `cargo fix --test "transport" -p bolina` to apply 1 suggestion)
+     Running `/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/rustc --crate-name main_limits --edition=2021 tests/main_limits.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 -C split-debuginfo=unpacked --test --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=14875d262d5f037b -C extra-filename=-36e438641f42983e --out-dir /Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps -C incremental=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/incremental -L dependency=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps --extern blake2=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libblake2-5ec05ea99efe1729.rlib --extern bolina=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libbolina-e306afd0537f097b.rlib --extern chacha20poly1305=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libchacha20poly1305-4858c044f422a705.rlib --extern ctrlc=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libctrlc-6713bae015e83882.rlib --extern ed25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libed25519_dalek-fc7a2eec7c6f38d7.rlib --extern hex=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex-d8b113cf0abdd414.rlib --extern hex_literal=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex_literal-6640231492c6cd06.rlib --extern ntest=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libntest-fb8deb70921782e7.rlib --extern rand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand-9427a764d31db7f2.rlib --extern rand_core=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand_core-dc6558177f49617a.rlib --extern serde=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde-aea278c8965ca5ea.rlib --extern serde_json=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde_json-f5983fd46414eda9.rlib --extern shellexpand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libshellexpand-1593339a951b64c2.rlib --extern subtle=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libsubtle-2904b9fb245ece33.rlib --extern tempfile=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libtempfile-67604e1238f1b1e4.rlib --extern x25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libx25519_dalek-b7f18135123f21af.rlib`
+     Running `/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/rustc --crate-name bolina --edition=2021 src/lib.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 -C split-debuginfo=unpacked --test --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=6ff8a5f34ad41386 -C extra-filename=-6b1bcac908454968 --out-dir /Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps -C incremental=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/incremental -L dependency=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps --extern blake2=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libblake2-5ec05ea99efe1729.rlib --extern chacha20poly1305=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libchacha20poly1305-4858c044f422a705.rlib --extern ctrlc=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libctrlc-6713bae015e83882.rlib --extern ed25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libed25519_dalek-fc7a2eec7c6f38d7.rlib --extern hex=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex-d8b113cf0abdd414.rlib --extern hex_literal=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex_literal-6640231492c6cd06.rlib --extern ntest=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libntest-fb8deb70921782e7.rlib --extern rand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand-9427a764d31db7f2.rlib --extern rand_core=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand_core-dc6558177f49617a.rlib --extern serde=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde-aea278c8965ca5ea.rlib --extern serde_json=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde_json-f5983fd46414eda9.rlib --extern shellexpand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libshellexpand-1593339a951b64c2.rlib --extern subtle=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libsubtle-2904b9fb245ece33.rlib --extern tempfile=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libtempfile-67604e1238f1b1e4.rlib --extern x25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libx25519_dalek-b7f18135123f21af.rlib`
+     Running `/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/rustc --crate-name ca --edition=2021 tests/ca.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 -C split-debuginfo=unpacked --test --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=c1b3ed517d480edb -C extra-filename=-9df14ab421316505 --out-dir /Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps -C incremental=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/incremental -L dependency=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps --extern blake2=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libblake2-5ec05ea99efe1729.rlib --extern bolina=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libbolina-e306afd0537f097b.rlib --extern chacha20poly1305=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libchacha20poly1305-4858c044f422a705.rlib --extern ctrlc=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libctrlc-6713bae015e83882.rlib --extern ed25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libed25519_dalek-fc7a2eec7c6f38d7.rlib --extern hex=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex-d8b113cf0abdd414.rlib --extern hex_literal=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex_literal-6640231492c6cd06.rlib --extern ntest=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libntest-fb8deb70921782e7.rlib --extern rand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand-9427a764d31db7f2.rlib --extern rand_core=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand_core-dc6558177f49617a.rlib --extern serde=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde-aea278c8965ca5ea.rlib --extern serde_json=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde_json-f5983fd46414eda9.rlib --extern shellexpand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libshellexpand-1593339a951b64c2.rlib --extern subtle=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libsubtle-2904b9fb245ece33.rlib --extern tempfile=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libtempfile-67604e1238f1b1e4.rlib --extern x25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libx25519_dalek-b7f18135123f21af.rlib`
+     Running `/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/rustc --crate-name state --edition=2021 tests/state.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 -C split-debuginfo=unpacked --test --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=e0c248ab05818828 -C extra-filename=-cbde52f7e35ba970 --out-dir /Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps -C incremental=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/incremental -L dependency=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps --extern blake2=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libblake2-5ec05ea99efe1729.rlib --extern bolina=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libbolina-e306afd0537f097b.rlib --extern chacha20poly1305=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libchacha20poly1305-4858c044f422a705.rlib --extern ctrlc=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libctrlc-6713bae015e83882.rlib --extern ed25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libed25519_dalek-fc7a2eec7c6f38d7.rlib --extern hex=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex-d8b113cf0abdd414.rlib --extern hex_literal=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex_literal-6640231492c6cd06.rlib --extern ntest=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libntest-fb8deb70921782e7.rlib --extern rand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand-9427a764d31db7f2.rlib --extern rand_core=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand_core-dc6558177f49617a.rlib --extern serde=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde-aea278c8965ca5ea.rlib --extern serde_json=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde_json-f5983fd46414eda9.rlib --extern shellexpand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libshellexpand-1593339a951b64c2.rlib --extern subtle=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libsubtle-2904b9fb245ece33.rlib --extern tempfile=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libtempfile-67604e1238f1b1e4.rlib --extern x25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libx25519_dalek-b7f18135123f21af.rlib`
+     Running `/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/rustc --crate-name daemon_bounds --edition=2021 tests/daemon_bounds.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 -C split-debuginfo=unpacked --test --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=5d7dc00826331927 -C extra-filename=-224934f24ad17a83 --out-dir /Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps -C incremental=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/incremental -L dependency=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps --extern blake2=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libblake2-5ec05ea99efe1729.rlib --extern bolina=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libbolina-e306afd0537f097b.rlib --extern chacha20poly1305=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libchacha20poly1305-4858c044f422a705.rlib --extern ctrlc=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libctrlc-6713bae015e83882.rlib --extern ed25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libed25519_dalek-fc7a2eec7c6f38d7.rlib --extern hex=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex-d8b113cf0abdd414.rlib --extern hex_literal=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex_literal-6640231492c6cd06.rlib --extern ntest=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libntest-fb8deb70921782e7.rlib --extern rand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand-9427a764d31db7f2.rlib --extern rand_core=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand_core-dc6558177f49617a.rlib --extern serde=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde-aea278c8965ca5ea.rlib --extern serde_json=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde_json-f5983fd46414eda9.rlib --extern shellexpand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libshellexpand-1593339a951b64c2.rlib --extern subtle=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libsubtle-2904b9fb245ece33.rlib --extern tempfile=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libtempfile-67604e1238f1b1e4.rlib --extern x25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libx25519_dalek-b7f18135123f21af.rlib`
+     Running `/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/rustc --crate-name bolina --edition=2021 src/main.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 -C split-debuginfo=unpacked --test --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=615ca33acbf68522 -C extra-filename=-073029ad63b04e1c --out-dir /Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps -C incremental=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/incremental -L dependency=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps --extern blake2=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libblake2-5ec05ea99efe1729.rlib --extern bolina=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libbolina-e306afd0537f097b.rlib --extern chacha20poly1305=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libchacha20poly1305-4858c044f422a705.rlib --extern ctrlc=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libctrlc-6713bae015e83882.rlib --extern ed25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libed25519_dalek-fc7a2eec7c6f38d7.rlib --extern hex=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex-d8b113cf0abdd414.rlib --extern hex_literal=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex_literal-6640231492c6cd06.rlib --extern ntest=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libntest-fb8deb70921782e7.rlib --extern rand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand-9427a764d31db7f2.rlib --extern rand_core=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand_core-dc6558177f49617a.rlib --extern serde=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde-aea278c8965ca5ea.rlib --extern serde_json=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde_json-f5983fd46414eda9.rlib --extern shellexpand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libshellexpand-1593339a951b64c2.rlib --extern subtle=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libsubtle-2904b9fb245ece33.rlib --extern tempfile=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libtempfile-67604e1238f1b1e4.rlib --extern x25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libx25519_dalek-b7f18135123f21af.rlib`
+     Running `/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/rustc --crate-name interop --edition=2021 examples/interop.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type bin --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 -C split-debuginfo=unpacked --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=0ef4270f05214e0a -C extra-filename=-cd1d09139310294a --out-dir /Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/examples -C incremental=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/incremental -L dependency=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps --extern blake2=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libblake2-5ec05ea99efe1729.rlib --extern bolina=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libbolina-e306afd0537f097b.rlib --extern chacha20poly1305=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libchacha20poly1305-4858c044f422a705.rlib --extern ctrlc=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libctrlc-6713bae015e83882.rlib --extern ed25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libed25519_dalek-fc7a2eec7c6f38d7.rlib --extern hex=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex-d8b113cf0abdd414.rlib --extern hex_literal=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex_literal-6640231492c6cd06.rlib --extern ntest=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libntest-fb8deb70921782e7.rlib --extern rand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand-9427a764d31db7f2.rlib --extern rand_core=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand_core-dc6558177f49617a.rlib --extern serde=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde-aea278c8965ca5ea.rlib --extern serde_json=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde_json-f5983fd46414eda9.rlib --extern shellexpand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libshellexpand-1593339a951b64c2.rlib --extern subtle=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libsubtle-2904b9fb245ece33.rlib --extern tempfile=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libtempfile-67604e1238f1b1e4.rlib --extern x25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libx25519_dalek-b7f18135123f21af.rlib`
+warning: `bolina` (bin "bolina") generated 191 warnings (run `cargo fix --bin "bolina" -p bolina` to apply 2 suggestions)
 warning: `bolina` (test "vectors") generated 2 warnings
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.27s
-     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/bolina-bf0a589270085e02`
-    Blocking waiting for file lock on package cache
-    Blocking waiting for file lock on package cache
-       Fresh cfg-if v1.0.4
-       Fresh version_check v0.9.5
-       Fresh typenum v1.20.1
-       Fresh unicode-ident v1.0.24
-       Fresh subtle v2.6.1
-       Fresh semver v1.0.28
-       Fresh bitflags v2.13.1
-       Fresh libc v0.2.189
-       Fresh rustc_version v0.4.1
-       Fresh objc2-encode v4.1.0
-       Fresh cfg_aliases v0.2.2
-    Blocking waiting for file lock on build directory
-       Fresh rand_core v0.10.1
-       Fresh option-ext v0.2.0
-       Fresh getrandom v0.2.17
-       Fresh proc-macro2 v1.0.107
-       Fresh objc2 v0.6.4
-       Fresh cpufeatures v0.2.17
-       Fresh dirs-sys v0.5.0
-       Fresh opaque-debug v0.3.1
-       Fresh signature v2.2.0
-       Fresh generic-array v0.14.7
-       Fresh rand_core v0.6.4
-       Fresh quote v1.0.47
-       Fresh getrandom v0.4.3
-       Fresh block2 v0.6.2
-       Fresh ed25519 v2.2.3
-       Fresh dirs v6.0.0
-       Fresh chacha20 v0.10.2
-       Fresh crypto-common v0.1.7
-       Fresh syn v2.0.119
-       Fresh block-buffer v0.10.4
-       Fresh inout v0.1.4
-       Fresh dispatch2 v0.3.1
-       Fresh nix v0.31.3
-       Fresh shellexpand v3.1.2
-       Fresh rand v0.10.2
-       Fresh errno v0.3.14
-       Fresh zeroize_derive v1.5.0
-       Fresh digest v0.10.7
-       Fresh universal-hash v0.5.1
-       Fresh aead v0.5.2
-       Fresh serde_derive v1.0.219
-       Fresh ctrlc v3.5.2
-       Fresh rustix v1.1.4
-       Fresh itoa v1.0.18
-       Fresh memchr v2.8.3
-       Fresh zeroize v1.9.0
-       Fresh sha2 v0.10.9
-       Fresh poly1305 v0.8.0
-       Fresh blake2 v0.10.6
-       Fresh serde v1.0.219
-       Fresh ryu v1.0.23
-       Fresh once_cell v1.21.4
-       Fresh fastrand v2.5.0
-       Fresh hex-literal v0.4.1
-       Fresh hex v0.4.3
-       Fresh cipher v0.4.4
-       Fresh curve25519-dalek v4.1.3
-       Fresh serde_json v1.0.140
-       Fresh tempfile v3.27.0
-       Fresh chacha20 v0.9.1
-       Fresh ed25519-dalek v2.1.1
-       Fresh x25519-dalek v2.0.1
-       Fresh chacha20poly1305 v0.10.1
-       Fresh bolina v0.1.0 (/Users/adolfousierstudio/srv/rs/bolina-rs)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
-     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/bolina-eea4cabecec9a34a`
-       Fresh cfg-if v1.0.4
-       Fresh version_check v0.9.5
-       Fresh typenum v1.20.1
-       Fresh unicode-ident v1.0.24
-       Fresh subtle v2.6.1
-       Fresh semver v1.0.28
-       Fresh bitflags v2.13.1
-       Fresh libc v0.2.189
-       Fresh rustc_version v0.4.1
-       Fresh rand_core v0.10.1
-       Fresh cfg_aliases v0.2.2
-       Fresh objc2-encode v4.1.0
-       Fresh option-ext v0.2.0
-       Fresh getrandom v0.2.17
-       Fresh proc-macro2 v1.0.107
-       Fresh objc2 v0.6.4
-       Fresh dirs-sys v0.5.0
-       Fresh cpufeatures v0.2.17
-       Fresh signature v2.2.0
-       Fresh opaque-debug v0.3.1
-       Fresh generic-array v0.14.7
-       Fresh rand_core v0.6.4
-       Fresh quote v1.0.47
-       Fresh getrandom v0.4.3
-       Fresh block2 v0.6.2
-       Fresh dirs v6.0.0
-       Fresh ed25519 v2.2.3
-       Fresh chacha20 v0.10.2
-       Fresh crypto-common v0.1.7
-       Fresh syn v2.0.119
-       Fresh block-buffer v0.10.4
-       Fresh inout v0.1.4
-       Fresh nix v0.31.3
-       Fresh dispatch2 v0.3.1
-       Fresh rand v0.10.2
-       Fresh shellexpand v3.1.2
-       Fresh errno v0.3.14
-       Fresh zeroize_derive v1.5.0
-       Fresh digest v0.10.7
-       Fresh universal-hash v0.5.1
-       Fresh aead v0.5.2
-       Fresh ctrlc v3.5.2
-       Fresh serde_derive v1.0.219
-       Fresh fastrand v2.5.0
-       Fresh memchr v2.8.3
-       Fresh ryu v1.0.23
-       Fresh zeroize v1.9.0
-       Fresh sha2 v0.10.9
-       Fresh poly1305 v0.8.0
-       Fresh blake2 v0.10.6
-       Fresh rustix v1.1.4
-       Fresh serde v1.0.219
-       Fresh once_cell v1.21.4
-       Fresh itoa v1.0.18
-       Fresh hex v0.4.3
-       Fresh hex-literal v0.4.1
-       Fresh cipher v0.4.4
-       Fresh curve25519-dalek v4.1.3
-       Fresh tempfile v3.27.0
-       Fresh serde_json v1.0.140
-       Fresh chacha20 v0.9.1
-       Fresh ed25519-dalek v2.1.1
-       Fresh x25519-dalek v2.0.1
-       Fresh chacha20poly1305 v0.10.1
-       Fresh bolina v0.1.0 (/Users/adolfousierstudio/srv/rs/bolina-rs)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.06s
-     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/bolina-eea4cabecec9a34a`
-
-running 0 tests
-
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-
-     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/bolina-efee3b5655b1e03a`
-
-running 0 tests
-
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-
-     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/bolina-c0f234f00935deb4`
-
-running 0 tests
-
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-
-     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/bolina-c0f234f00935deb4`
-
-running 0 tests
-
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-
-     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/ca-099ae350a4b9374d`
-
-running 0 tests
-
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-
-
-running 0 tests
-
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-
-     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/ca-d2b1918f74f35ea0`
-     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/ca-d2b1918f74f35ea0`
-
-running 8 tests
-test ca_init_bad_count ... ok
-test ca_issue_bad_role ... ok
-test ca_init_creates_roots ... ok
-test ca_issue_privileged_ttl_over_cap ... ok
-test ca_revoke_builds_envelope ... ok
-test ca_list_returns_serials ... ok
-test ca_show_reads_cert ... ok
-test ca_issue_emits_v3_always ... ok
-
-test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
-
-     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/ca_bounds-aeae61b8e69429e9`
-
-running 8 tests
-
-running 8 tests
-test ca_init_bad_count ... ok
-test ca_init_bad_count ... ok
-test ca_issue_bad_role ... ok
-test ca_issue_privileged_ttl_over_cap ... ok
-test ca_init_creates_roots ... ok
-test ca_init_creates_roots ... ok
-test ca_list_returns_serials ... ok
-test ca_issue_privileged_ttl_over_cap ... ok
-test ca_list_returns_serials ... ok
-test ca_show_reads_cert ... oktest ca_show_reads_cert ... 
-ok
-test ca_issue_bad_role ... ok
-test ca_revoke_builds_envelope ... ok
-test ca_issue_emits_v3_always ... ok
-
-test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
-
-test ca_revoke_builds_envelope ... ok
-test ca_issue_emits_v3_always ... ok
-
-test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
-
-     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/ca_bounds-46c27fc3b45c1170`
-     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/ca_bounds-46c27fc3b45c1170`
-
-running 10 tests
-test ca_init_count_must_be_positive ... ok
-test ca_init_creates_structure ... ok
-test ca_issue_role_exact_match ... ok
-test ca_issue_ttl_positive ... ok
-test ca_issue_requires_valid_role ... ok
-test ca_init_idempotent ... ok
-test ca_revoke_idempotent ... ok
-test ca_issue_succeeds ... ok
-test ca_revoke_requires_valid_serial ... ok
-test ca_init_count_max_boundary ... ok
-
-test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
-
-     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/codec_bounds-d1a5d06d3adefc77`
-
-running 10 tests
-
-running 10 tests
-test ca_init_count_must_be_positive ... ok
-test ca_init_count_must_be_positive ... ok
-test ca_issue_role_exact_match ... ok
-test ca_issue_role_exact_match ... ok
-test ca_issue_requires_valid_role ... ok
-test ca_issue_ttl_positive ... ok
-test ca_issue_succeeds ... ok
-test ca_revoke_idempotent ... ok
-test ca_issue_ttl_positive ... ok
-test ca_init_creates_structure ... ok
-test ca_init_idempotent ... ok
-test ca_init_creates_structure ... ok
-test ca_revoke_requires_valid_serial ... ok
-test ca_issue_requires_valid_role ... ok
-test ca_revoke_idempotent ... ok
-test ca_init_idempotent ... ok
-test ca_revoke_requires_valid_serial ... ok
-test ca_issue_succeeds ... ok
-test ca_init_count_max_boundary ... ok
-
-test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
-
-test ca_init_count_max_boundary ... ok
-
-test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
-
-     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/codec_bounds-ef7db5f79bac12ad`
-     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/codec_bounds-ef7db5f79bac12ad`
-
-running 12 tests
-test cert_scope_count_boundary ... ok
-test cert_ca_keys_ascending_must_succeed ... ok
-test cert_ca_keys_descending_fails ... ok
-test cursor_u32be_sequential_reads_independent ... ok
-test envelope_parent_count_boundary ... ok
-test cert_ca_keys_equal_fails ... ok
-test envelope_body_len_oversized ... ok
-test cert_ca_sig_count_boundary ... ok
-test cert_name_at_max_name_boundary ... ok
-test limit_constants_are_correct ... ok
-test intent_action_at_max_action_boundary ... ok
-test envelope_body_at_max_body_boundary ... ok
-
-test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-
-     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/control_bounds-a4ad0ed0bc7df4a1`
-
-running 12 tests
-
-running 12 tests
-test cert_ca_keys_ascending_must_succeed ... ok
-test cert_ca_keys_descending_fails ... test cert_ca_keys_descending_fails ... okok
-
-test cert_ca_sig_count_boundary ... test cert_ca_keys_equal_fails ... okok
-
-test cert_ca_sig_count_boundary ... test cert_ca_keys_equal_fails ... okok
-
-test cursor_u32be_sequential_reads_independent ... test cert_ca_keys_ascending_must_succeed ... okok
-
-test cert_name_at_max_name_boundary ... oktest cert_scope_count_boundary ... 
-oktest envelope_body_len_oversized ... 
-ok
-test cert_name_at_max_name_boundary ... test cert_scope_count_boundary ... okok
-
-test cursor_u32be_sequential_reads_independent ... test envelope_parent_count_boundary ... okok
-
-test envelope_body_len_oversized ... test limit_constants_are_correct ... okok
-
-test envelope_parent_count_boundary ... test intent_action_at_max_action_boundary ... okok
-
-test limit_constants_are_correct ... oktest envelope_body_at_max_body_boundary ... 
-ok
-test intent_action_at_max_action_boundary ... 
-oktest result: 
-ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered outtest envelope_body_at_max_body_boundary ... ; finished in 0.00sok
-
-
-
-test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-
-     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/control_bounds-fc558f26b8ac3978`
-     Running `/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/control_bounds-fc558f26b8ac3978`
-
-running 8 tests
-test deadline_exceeded_causes_cleanup ... ok
-test content_length_parsed ... ok
-test no_content_length_goes_to_writing ... ok
-test write_response_sets_closing ... ok
-test table_full_returns_503 ... ok
-test slowloris_guard ... FAILED
-
-running 8 tests
-
-running 8 tests
-test deadline_exceeded_causes_cleanup ... ok
-test deadline_exceeded_causes_cleanup ... ok
-test content_length_parsed ... ok
-test no_content_length_goes_to_writing ... ok
-test no_content_length_goes_to_writing ... ok
-test content_length_parsed ... ok
-test write_response_sets_closing ... ok
-test write_response_sets_closing ... ok
-test table_full_returns_503 ... ok
-test table_full_returns_503 ... ok
-test slowloris_guard ... FAILED
-test slowloris_guard ... FAILED
-test healthz_roundtrip ... ok
-test healthz_roundtrip ... ok
-test healthz_roundtrip ... ok
-test all_status_codes_format_correctly ... ok
-
-failures:
-
----- slowloris_guard stdout ----
-
-thread 'slowloris_guard' (76260135) panicked at tests/control_bounds.rs:166:5:
-slowloris should reject >=1024 bytes without newline
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-
-
-failures:
-    slowloris_guard
-
-test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 24.61s
-
-error: test failed, to rerun pass `-p bolina --test control_bounds`
-test all_status_codes_format_correctly ... ok
-
-failures:
-
----- slowloris_guard stdout ----
-
-thread 'slowloris_guard' (76260160) panicked at tests/control_bounds.rs:166:5:
-slowloris should reject >=1024 bytes without newline
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-
-
-failures:
-    slowloris_guard
-
-test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 24.58s
-
-error: test failed, to rerun pass `-p bolina --test control_bounds`
-test all_status_codes_format_correctly ... ok
-
-failures:
-
----- slowloris_guard stdout ----
-
-thread 'slowloris_guard' (76260164) panicked at tests/control_bounds.rs:166:5:
-slowloris should reject >=1024 bytes without newline
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-
-
-failures:
-    slowloris_guard
-
-test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 24.60s
-
-error: test failed, to rerun pass `-p bolina --test control_bounds`
+warning: unused import: `ntest::timeout`
+ --> tests/control_bounds.rs:8:5
+  |
+8 | use ntest::timeout;
+  |     ^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `bolina` (test "control_bounds") generated 1 warning (run `cargo fix --test "control_bounds" -p bolina` to apply 1 suggestion)
+     Running `/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/rustc --crate-name daemon_limits --edition=2021 tests/daemon_limits.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 -C split-debuginfo=unpacked --test --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=6a08926cfc135ccf -C extra-filename=-9eda88e66224417a --out-dir /Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps -C incremental=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/incremental -L dependency=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps --extern blake2=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libblake2-5ec05ea99efe1729.rlib --extern bolina=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libbolina-e306afd0537f097b.rlib --extern chacha20poly1305=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libchacha20poly1305-4858c044f422a705.rlib --extern ctrlc=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libctrlc-6713bae015e83882.rlib --extern ed25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libed25519_dalek-fc7a2eec7c6f38d7.rlib --extern hex=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex-d8b113cf0abdd414.rlib --extern hex_literal=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex_literal-6640231492c6cd06.rlib --extern ntest=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libntest-fb8deb70921782e7.rlib --extern rand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand-9427a764d31db7f2.rlib --extern rand_core=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand_core-dc6558177f49617a.rlib --extern serde=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde-aea278c8965ca5ea.rlib --extern serde_json=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde_json-f5983fd46414eda9.rlib --extern shellexpand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libshellexpand-1593339a951b64c2.rlib --extern subtle=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libsubtle-2904b9fb245ece33.rlib --extern tempfile=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libtempfile-67604e1238f1b1e4.rlib --extern x25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libx25519_dalek-b7f18135123f21af.rlib`
+     Running `/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/rustc --crate-name lib --edition=2021 tests/lib.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 -C split-debuginfo=unpacked --test --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=e323d82d0de79e84 -C extra-filename=-afc007878fdc6eba --out-dir /Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps -C incremental=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/incremental -L dependency=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps --extern blake2=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libblake2-5ec05ea99efe1729.rlib --extern bolina=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libbolina-e306afd0537f097b.rlib --extern chacha20poly1305=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libchacha20poly1305-4858c044f422a705.rlib --extern ctrlc=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libctrlc-6713bae015e83882.rlib --extern ed25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libed25519_dalek-fc7a2eec7c6f38d7.rlib --extern hex=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex-d8b113cf0abdd414.rlib --extern hex_literal=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex_literal-6640231492c6cd06.rlib --extern ntest=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libntest-fb8deb70921782e7.rlib --extern rand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand-9427a764d31db7f2.rlib --extern rand_core=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand_core-dc6558177f49617a.rlib --extern serde=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde-aea278c8965ca5ea.rlib --extern serde_json=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde_json-f5983fd46414eda9.rlib --extern shellexpand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libshellexpand-1593339a951b64c2.rlib --extern subtle=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libsubtle-2904b9fb245ece33.rlib --extern tempfile=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libtempfile-67604e1238f1b1e4.rlib --extern x25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libx25519_dalek-b7f18135123f21af.rlib`
+     Running `/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/rustc --crate-name smoke --edition=2021 tests/smoke.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 -C split-debuginfo=unpacked --test --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=d489a26850e18cce -C extra-filename=-d0f4cc6aa77caef6 --out-dir /Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps -C incremental=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/incremental -L dependency=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps --extern blake2=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libblake2-5ec05ea99efe1729.rlib --extern bolina=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libbolina-e306afd0537f097b.rlib --extern chacha20poly1305=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libchacha20poly1305-4858c044f422a705.rlib --extern ctrlc=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libctrlc-6713bae015e83882.rlib --extern ed25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libed25519_dalek-fc7a2eec7c6f38d7.rlib --extern hex=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex-d8b113cf0abdd414.rlib --extern hex_literal=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex_literal-6640231492c6cd06.rlib --extern ntest=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libntest-fb8deb70921782e7.rlib --extern rand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand-9427a764d31db7f2.rlib --extern rand_core=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand_core-dc6558177f49617a.rlib --extern serde=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde-aea278c8965ca5ea.rlib --extern serde_json=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde_json-f5983fd46414eda9.rlib --extern shellexpand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libshellexpand-1593339a951b64c2.rlib --extern subtle=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libsubtle-2904b9fb245ece33.rlib --extern tempfile=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libtempfile-67604e1238f1b1e4.rlib --extern x25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libx25519_dalek-b7f18135123f21af.rlib`
+     Running `/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/rustc --crate-name kat --edition=2021 tests/kat.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 -C split-debuginfo=unpacked --test --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=7c9b31277c108038 -C extra-filename=-b2b35e3d52ca9928 --out-dir /Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps -C incremental=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/incremental -L dependency=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps --extern blake2=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libblake2-5ec05ea99efe1729.rlib --extern bolina=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libbolina-e306afd0537f097b.rlib --extern chacha20poly1305=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libchacha20poly1305-4858c044f422a705.rlib --extern ctrlc=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libctrlc-6713bae015e83882.rlib --extern ed25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libed25519_dalek-fc7a2eec7c6f38d7.rlib --extern hex=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex-d8b113cf0abdd414.rlib --extern hex_literal=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex_literal-6640231492c6cd06.rlib --extern ntest=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libntest-fb8deb70921782e7.rlib --extern rand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand-9427a764d31db7f2.rlib --extern rand_core=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand_core-dc6558177f49617a.rlib --extern serde=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde-aea278c8965ca5ea.rlib --extern serde_json=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde_json-f5983fd46414eda9.rlib --extern shellexpand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libshellexpand-1593339a951b64c2.rlib --extern subtle=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libsubtle-2904b9fb245ece33.rlib --extern tempfile=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libtempfile-67604e1238f1b1e4.rlib --extern x25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libx25519_dalek-b7f18135123f21af.rlib`
+warning: unused import: `std::fs`
+ --> tests/ca.rs:4:5
+  |
+4 | use std::fs;
+  |     ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0433]: cannot find `main` in `bolina`
+ --> tests/main_limits.rs:5:24
+  |
+5 |     let addr = bolina::main::parse_bind("127.0.0.1:8080");
+  |                        ^^^^ could not find `main` in `bolina`
+
+error[E0433]: cannot find `main` in `bolina`
+  --> tests/main_limits.rs:11:24
+   |
+11 |     let addr = bolina::main::parse_bind("not-an-address");
+   |                        ^^^^ could not find `main` in `bolina`
+
+error[E0433]: cannot find `main` in `bolina`
+  --> tests/main_limits.rs:17:24
+   |
+17 |     let addr = bolina::main::parse_bind("");
+   |                        ^^^^ could not find `main` in `bolina`
+
+For more information about this error, try `rustc --explain E0433`.
+warning: unused import: `std::net::UdpSocket`
+ --> tests/daemon_limits.rs:4:5
+  |
+4 | use std::net::UdpSocket;
+  |     ^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `ntest::timeout`
+ --> tests/daemon_limits.rs:6:5
+  |
+6 | use ntest::timeout;
+  |     ^^^^^^^^^^^^^^
+
+error: could not compile `bolina` (test "main_limits") due to 3 previous errors
+
+Caused by:
+  process didn't exit successfully: `/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/rustc --crate-name main_limits --edition=2021 tests/main_limits.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 -C split-debuginfo=unpacked --test --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=14875d262d5f037b -C extra-filename=-36e438641f42983e --out-dir /Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps -C incremental=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/incremental -L dependency=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps --extern blake2=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libblake2-5ec05ea99efe1729.rlib --extern bolina=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libbolina-e306afd0537f097b.rlib --extern chacha20poly1305=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libchacha20poly1305-4858c044f422a705.rlib --extern ctrlc=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libctrlc-6713bae015e83882.rlib --extern ed25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libed25519_dalek-fc7a2eec7c6f38d7.rlib --extern hex=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex-d8b113cf0abdd414.rlib --extern hex_literal=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex_literal-6640231492c6cd06.rlib --extern ntest=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libntest-fb8deb70921782e7.rlib --extern rand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand-9427a764d31db7f2.rlib --extern rand_core=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand_core-dc6558177f49617a.rlib --extern serde=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde-aea278c8965ca5ea.rlib --extern serde_json=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde_json-f5983fd46414eda9.rlib --extern shellexpand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libshellexpand-1593339a951b64c2.rlib --extern subtle=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libsubtle-2904b9fb245ece33.rlib --extern tempfile=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libtempfile-67604e1238f1b1e4.rlib --extern x25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libx25519_dalek-b7f18135123f21af.rlib` (exit status: 1)
+warning: build failed, waiting for other jobs to finish...
+error[E0308]: arguments to this function are incorrect
+  --> tests/daemon_limits.rs:11:17
+   |
+11 |     let mut d = Daemon::new("127.0.0.1:0", dir.path()).unwrap();
+   |                 ^^^^^^^^^^^ -------------  ---------- expected `Keys`, found `&Path`
+   |                             |
+   |                             expected `SocketAddr`, found `&str`
+   |
+note: associated function defined here
+  --> src/daemon.rs:47:12
+   |
+47 |     pub fn new(bind: SocketAddr, keys: Keys) -> Self {
+   |            ^^^
+
+error[E0599]: no method named `unwrap` found for struct `Daemon` in the current scope
+  --> tests/daemon_limits.rs:11:56
+   |
+11 |     let mut d = Daemon::new("127.0.0.1:0", dir.path()).unwrap();
+   |                                                        ^^^^^^ method not found in `Daemon`
+   |
+help: some of the expressions' fields have a method of the same name
+   |
+11 |     let mut d = Daemon::new("127.0.0.1:0", dir.path()).control.unwrap();
+   |                                                        ++++++++
+11 |     let mut d = Daemon::new("127.0.0.1:0", dir.path()).ledger.unwrap();
+   |                                                        +++++++
+
+error[E0308]: arguments to this function are incorrect
+  --> tests/daemon_limits.rs:18:17
+   |
+18 |     let mut d = Daemon::new("127.0.0.1:0", dir.path()).unwrap();
+   |                 ^^^^^^^^^^^ -------------  ---------- expected `Keys`, found `&Path`
+   |                             |
+   |                             expected `SocketAddr`, found `&str`
+   |
+note: associated function defined here
+  --> src/daemon.rs:47:12
+   |
+47 |     pub fn new(bind: SocketAddr, keys: Keys) -> Self {
+   |            ^^^
+
+error[E0599]: no method named `unwrap` found for struct `Daemon` in the current scope
+  --> tests/daemon_limits.rs:18:56
+   |
+18 |     let mut d = Daemon::new("127.0.0.1:0", dir.path()).unwrap();
+   |                                                        ^^^^^^ method not found in `Daemon`
+   |
+help: some of the expressions' fields have a method of the same name
+   |
+18 |     let mut d = Daemon::new("127.0.0.1:0", dir.path()).control.unwrap();
+   |                                                        ++++++++
+18 |     let mut d = Daemon::new("127.0.0.1:0", dir.path()).ledger.unwrap();
+   |                                                        +++++++
+
+error[E0308]: arguments to this function are incorrect
+  --> tests/daemon_limits.rs:25:17
+   |
+25 |     let mut d = Daemon::new("127.0.0.1:0", dir.path()).unwrap();
+   |                 ^^^^^^^^^^^ -------------  ---------- expected `Keys`, found `&Path`
+   |                             |
+   |                             expected `SocketAddr`, found `&str`
+   |
+note: associated function defined here
+  --> src/daemon.rs:47:12
+   |
+47 |     pub fn new(bind: SocketAddr, keys: Keys) -> Self {
+   |            ^^^
+
+error[E0599]: no method named `unwrap` found for struct `Daemon` in the current scope
+  --> tests/daemon_limits.rs:25:56
+   |
+25 |     let mut d = Daemon::new("127.0.0.1:0", dir.path()).unwrap();
+   |                                                        ^^^^^^ method not found in `Daemon`
+   |
+help: some of the expressions' fields have a method of the same name
+   |
+25 |     let mut d = Daemon::new("127.0.0.1:0", dir.path()).control.unwrap();
+   |                                                        ++++++++
+25 |     let mut d = Daemon::new("127.0.0.1:0", dir.path()).ledger.unwrap();
+   |                                                        +++++++
+
+error[E0308]: arguments to this function are incorrect
+  --> tests/daemon_limits.rs:32:17
+   |
+32 |     let mut d = Daemon::new("127.0.0.1:0", dir.path()).unwrap();
+   |                 ^^^^^^^^^^^ -------------  ---------- expected `Keys`, found `&Path`
+   |                             |
+   |                             expected `SocketAddr`, found `&str`
+   |
+note: associated function defined here
+  --> src/daemon.rs:47:12
+   |
+47 |     pub fn new(bind: SocketAddr, keys: Keys) -> Self {
+   |            ^^^
+
+error[E0599]: no method named `unwrap` found for struct `Daemon` in the current scope
+  --> tests/daemon_limits.rs:32:56
+   |
+32 |     let mut d = Daemon::new("127.0.0.1:0", dir.path()).unwrap();
+   |                                                        ^^^^^^ method not found in `Daemon`
+   |
+help: some of the expressions' fields have a method of the same name
+   |
+32 |     let mut d = Daemon::new("127.0.0.1:0", dir.path()).control.unwrap();
+   |                                                        ++++++++
+32 |     let mut d = Daemon::new("127.0.0.1:0", dir.path()).ledger.unwrap();
+   |                                                        +++++++
+
+error[E0308]: arguments to this function are incorrect
+  --> tests/daemon_limits.rs:39:13
+   |
+39 |     let d = Daemon::new("127.0.0.1:0", dir.path()).unwrap();
+   |             ^^^^^^^^^^^ -------------  ---------- expected `Keys`, found `&Path`
+   |                         |
+   |                         expected `SocketAddr`, found `&str`
+   |
+note: associated function defined here
+  --> src/daemon.rs:47:12
+   |
+47 |     pub fn new(bind: SocketAddr, keys: Keys) -> Self {
+   |            ^^^
+
+error[E0599]: no method named `unwrap` found for struct `Daemon` in the current scope
+  --> tests/daemon_limits.rs:39:52
+   |
+39 |     let d = Daemon::new("127.0.0.1:0", dir.path()).unwrap();
+   |                                                    ^^^^^^ method not found in `Daemon`
+   |
+help: some of the expressions' fields have a method of the same name
+   |
+39 |     let d = Daemon::new("127.0.0.1:0", dir.path()).control.unwrap();
+   |                                                    ++++++++
+39 |     let d = Daemon::new("127.0.0.1:0", dir.path()).ledger.unwrap();
+   |                                                    +++++++
+
+error[E0308]: arguments to this function are incorrect
+  --> tests/daemon_limits.rs:46:13
+   |
+46 |     let d = Daemon::new("127.0.0.1:0", dir.path()).unwrap();
+   |             ^^^^^^^^^^^ -------------  ---------- expected `Keys`, found `&Path`
+   |                         |
+   |                         expected `SocketAddr`, found `&str`
+   |
+note: associated function defined here
+  --> src/daemon.rs:47:12
+   |
+47 |     pub fn new(bind: SocketAddr, keys: Keys) -> Self {
+   |            ^^^
+
+error[E0599]: no method named `unwrap` found for struct `Daemon` in the current scope
+  --> tests/daemon_limits.rs:46:52
+   |
+46 |     let d = Daemon::new("127.0.0.1:0", dir.path()).unwrap();
+   |                                                    ^^^^^^ method not found in `Daemon`
+   |
+help: some of the expressions' fields have a method of the same name
+   |
+46 |     let d = Daemon::new("127.0.0.1:0", dir.path()).control.unwrap();
+   |                                                    ++++++++
+46 |     let d = Daemon::new("127.0.0.1:0", dir.path()).ledger.unwrap();
+   |                                                    +++++++
+
+Some errors have detailed explanations: E0308, E0599.
+For more information about an error, try `rustc --explain E0308`.
+warning: `bolina` (test "daemon_limits") generated 2 warnings
+error: could not compile `bolina` (test "daemon_limits") due to 12 previous errors; 2 warnings emitted
+
+Caused by:
+  process didn't exit successfully: `/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/rustc --crate-name daemon_limits --edition=2021 tests/daemon_limits.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 -C split-debuginfo=unpacked --test --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=6a08926cfc135ccf -C extra-filename=-9eda88e66224417a --out-dir /Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps -C incremental=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/incremental -L dependency=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps --extern blake2=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libblake2-5ec05ea99efe1729.rlib --extern bolina=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libbolina-e306afd0537f097b.rlib --extern chacha20poly1305=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libchacha20poly1305-4858c044f422a705.rlib --extern ctrlc=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libctrlc-6713bae015e83882.rlib --extern ed25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libed25519_dalek-fc7a2eec7c6f38d7.rlib --extern hex=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex-d8b113cf0abdd414.rlib --extern hex_literal=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libhex_literal-6640231492c6cd06.rlib --extern ntest=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libntest-fb8deb70921782e7.rlib --extern rand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand-9427a764d31db7f2.rlib --extern rand_core=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/librand_core-dc6558177f49617a.rlib --extern serde=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde-aea278c8965ca5ea.rlib --extern serde_json=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libserde_json-f5983fd46414eda9.rlib --extern shellexpand=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libshellexpand-1593339a951b64c2.rlib --extern subtle=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libsubtle-2904b9fb245ece33.rlib --extern tempfile=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libtempfile-67604e1238f1b1e4.rlib --extern x25519_dalek=/Users/adolfousierstudio/srv/rs/bolina-rs/target/debug/deps/libx25519_dalek-b7f18135123f21af.rlib` (exit status: 1)
+warning: `bolina` (test "ca") generated 1 warning (run `cargo fix --test "ca" -p bolina` to apply 1 suggestion)
+warning: `bolina` (bin "bolina" test) generated 191 warnings (191 duplicates)
 
 *** result: Failure(101)
