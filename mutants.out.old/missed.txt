@@ -1,4 +1,0 @@
-src/main.rs:27:5: replace env_or -> String with String::new()
-src/main.rs:27:5: replace env_or -> String with "xyzzy".into()
-src/main.rs:36:5: replace parse_bind -> Option<SocketAddr> with None
-src/main.rs:41:5: replace main with ()

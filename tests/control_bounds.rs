@@ -62,6 +62,7 @@ fn write_response_sets_closing() {
 }
 
 #[test]
+#[timeout(10000)]
 fn all_status_codes_format_correctly() {
     for status in [200u16, 400, 403, 404, 500, 501, 503, 418] {
         let mut cp = ControlPlane::new(bind_any()).unwrap();
