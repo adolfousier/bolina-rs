@@ -4453,7 +4453,7 @@
     }
   },
   {
-    "diff": "--- src/daemon.rs\n+++ replace SessionTable::lookup -> Option<&Session> with None\n@@ -213,17 +213,17 @@\n }\n \n impl SessionTable {\n     pub fn new() -> Self {\n         Self { sessions: Vec::new() }\n     }\n \n     pub fn lookup(&self, idx: u32) -> Option<&Session> {\n-        self.sessions.get(idx as usize)\n+        None /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n pub struct Session {\n     pub bound: bool,\n     pub peer_kex: [u8; 32],\n     pub c1: [u8; 32],\n     pub c2: [u8; 32],\n",
+    "diff": "--- src/daemon.rs\n+++ replace SessionTable::lookup -> Option<&Session> with None\n@@ -213,17 +213,17 @@\n }\n \n impl SessionTable {\n     pub fn new() -> Self {\n         Self { sessions: Vec::new() }\n     }\n \n     pub fn lookup(&self, idx: u32) -> Option<&Session> {\n-        self.sessions.get(idx as usize)\n+        None /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub fn sessions(&self) -> usize {\n         self.sessions.len()\n     }\n }\n \n pub struct Session {\n",
     "file": "src/daemon.rs",
     "function": {
       "function_name": "SessionTable::lookup",
@@ -4485,7 +4485,7 @@
     }
   },
   {
-    "diff": "--- src/daemon.rs\n+++ replace SessionTable::lookup -> Option<&Session> with Some(Box::leak(Box::new(Default::default())))\n@@ -213,17 +213,17 @@\n }\n \n impl SessionTable {\n     pub fn new() -> Self {\n         Self { sessions: Vec::new() }\n     }\n \n     pub fn lookup(&self, idx: u32) -> Option<&Session> {\n-        self.sessions.get(idx as usize)\n+        Some(Box::leak(Box::new(Default::default()))) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n pub struct Session {\n     pub bound: bool,\n     pub peer_kex: [u8; 32],\n     pub c1: [u8; 32],\n     pub c2: [u8; 32],\n",
+    "diff": "--- src/daemon.rs\n+++ replace SessionTable::lookup -> Option<&Session> with Some(Box::leak(Box::new(Default::default())))\n@@ -213,17 +213,17 @@\n }\n \n impl SessionTable {\n     pub fn new() -> Self {\n         Self { sessions: Vec::new() }\n     }\n \n     pub fn lookup(&self, idx: u32) -> Option<&Session> {\n-        self.sessions.get(idx as usize)\n+        Some(Box::leak(Box::new(Default::default()))) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub fn sessions(&self) -> usize {\n         self.sessions.len()\n     }\n }\n \n pub struct Session {\n",
     "file": "src/daemon.rs",
     "function": {
       "function_name": "SessionTable::lookup",
@@ -4517,7 +4517,71 @@
     }
   },
   {
-    "diff": "--- src/daemon.rs\n+++ replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![]))\n@@ -243,17 +243,17 @@\n \n     pub fn process_initiation(\n         &self,\n         _msg1: &[u8],\n         _keys: &Keys,\n     ) -> Result<(Session, Vec<u8>), String> {\n         // Noise_IK responder flow\n         // TODO: implement via transport/noise.md contract\n-        Err(\"not implemented\".into())\n+        Ok((Default::default(), vec![])) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Optional control plane (TCP HTTP)\n #[allow(dead_code)]\n pub struct ControlPlane {\n     addr: SocketAddr,\n }\n",
+    "diff": "--- src/daemon.rs\n+++ replace SessionTable::sessions -> usize with 0\n@@ -217,17 +217,17 @@\n         Self { sessions: Vec::new() }\n     }\n \n     pub fn lookup(&self, idx: u32) -> Option<&Session> {\n         self.sessions.get(idx as usize)\n     }\n \n     pub fn sessions(&self) -> usize {\n-        self.sessions.len()\n+        0 /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n pub struct Session {\n     pub bound: bool,\n     pub peer_kex: [u8; 32],\n     pub c1: [u8; 32],\n     pub c2: [u8; 32],\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "SessionTable::sessions",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 226
+        },
+        "start": {
+          "column": 5,
+          "line": 224
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:225:9: replace SessionTable::sessions -> usize with 0",
+    "package": "bolina",
+    "replacement": "0",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 225
+      },
+      "start": {
+        "column": 9,
+        "line": 225
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace SessionTable::sessions -> usize with 1\n@@ -217,17 +217,17 @@\n         Self { sessions: Vec::new() }\n     }\n \n     pub fn lookup(&self, idx: u32) -> Option<&Session> {\n         self.sessions.get(idx as usize)\n     }\n \n     pub fn sessions(&self) -> usize {\n-        self.sessions.len()\n+        1 /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n pub struct Session {\n     pub bound: bool,\n     pub peer_kex: [u8; 32],\n     pub c1: [u8; 32],\n     pub c2: [u8; 32],\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "SessionTable::sessions",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 226
+        },
+        "start": {
+          "column": 5,
+          "line": 224
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:225:9: replace SessionTable::sessions -> usize with 1",
+    "package": "bolina",
+    "replacement": "1",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 225
+      },
+      "start": {
+        "column": 9,
+        "line": 225
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![]))\n@@ -247,17 +247,17 @@\n \n     pub fn process_initiation(\n         &self,\n         _msg1: &[u8],\n         _keys: &Keys,\n     ) -> Result<(Session, Vec<u8>), String> {\n         // Noise_IK responder flow\n         // TODO: implement via transport/noise.md contract\n-        Err(\"not implemented\".into())\n+        Ok((Default::default(), vec![])) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Optional control plane (TCP HTTP)\n #[allow(dead_code)]\n pub struct ControlPlane {\n     addr: SocketAddr,\n }\n",
     "file": "src/daemon.rs",
     "function": {
       "function_name": "HandshakeServer::process_initiation",
@@ -4525,31 +4589,31 @@
       "span": {
         "end": {
           "column": 6,
-          "line": 252
+          "line": 256
         },
         "start": {
           "column": 5,
-          "line": 244
+          "line": 248
         }
       }
     },
     "genre": "FnValue",
-    "name": "src/daemon.rs:251:9: replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![]))",
+    "name": "src/daemon.rs:255:9: replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![]))",
     "package": "bolina",
     "replacement": "Ok((Default::default(), vec![]))",
     "span": {
       "end": {
         "column": 38,
-        "line": 251
+        "line": 255
       },
       "start": {
         "column": 9,
-        "line": 251
+        "line": 255
       }
     }
   },
   {
-    "diff": "--- src/daemon.rs\n+++ replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![0]))\n@@ -243,17 +243,17 @@\n \n     pub fn process_initiation(\n         &self,\n         _msg1: &[u8],\n         _keys: &Keys,\n     ) -> Result<(Session, Vec<u8>), String> {\n         // Noise_IK responder flow\n         // TODO: implement via transport/noise.md contract\n-        Err(\"not implemented\".into())\n+        Ok((Default::default(), vec![0])) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Optional control plane (TCP HTTP)\n #[allow(dead_code)]\n pub struct ControlPlane {\n     addr: SocketAddr,\n }\n",
+    "diff": "--- src/daemon.rs\n+++ replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![0]))\n@@ -247,17 +247,17 @@\n \n     pub fn process_initiation(\n         &self,\n         _msg1: &[u8],\n         _keys: &Keys,\n     ) -> Result<(Session, Vec<u8>), String> {\n         // Noise_IK responder flow\n         // TODO: implement via transport/noise.md contract\n-        Err(\"not implemented\".into())\n+        Ok((Default::default(), vec![0])) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Optional control plane (TCP HTTP)\n #[allow(dead_code)]\n pub struct ControlPlane {\n     addr: SocketAddr,\n }\n",
     "file": "src/daemon.rs",
     "function": {
       "function_name": "HandshakeServer::process_initiation",
@@ -4557,31 +4621,31 @@
       "span": {
         "end": {
           "column": 6,
-          "line": 252
+          "line": 256
         },
         "start": {
           "column": 5,
-          "line": 244
+          "line": 248
         }
       }
     },
     "genre": "FnValue",
-    "name": "src/daemon.rs:251:9: replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![0]))",
+    "name": "src/daemon.rs:255:9: replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![0]))",
     "package": "bolina",
     "replacement": "Ok((Default::default(), vec![0]))",
     "span": {
       "end": {
         "column": 38,
-        "line": 251
+        "line": 255
       },
       "start": {
         "column": 9,
-        "line": 251
+        "line": 255
       }
     }
   },
   {
-    "diff": "--- src/daemon.rs\n+++ replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![1]))\n@@ -243,17 +243,17 @@\n \n     pub fn process_initiation(\n         &self,\n         _msg1: &[u8],\n         _keys: &Keys,\n     ) -> Result<(Session, Vec<u8>), String> {\n         // Noise_IK responder flow\n         // TODO: implement via transport/noise.md contract\n-        Err(\"not implemented\".into())\n+        Ok((Default::default(), vec![1])) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Optional control plane (TCP HTTP)\n #[allow(dead_code)]\n pub struct ControlPlane {\n     addr: SocketAddr,\n }\n",
+    "diff": "--- src/daemon.rs\n+++ replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![1]))\n@@ -247,17 +247,17 @@\n \n     pub fn process_initiation(\n         &self,\n         _msg1: &[u8],\n         _keys: &Keys,\n     ) -> Result<(Session, Vec<u8>), String> {\n         // Noise_IK responder flow\n         // TODO: implement via transport/noise.md contract\n-        Err(\"not implemented\".into())\n+        Ok((Default::default(), vec![1])) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Optional control plane (TCP HTTP)\n #[allow(dead_code)]\n pub struct ControlPlane {\n     addr: SocketAddr,\n }\n",
     "file": "src/daemon.rs",
     "function": {
       "function_name": "HandshakeServer::process_initiation",
@@ -4589,26 +4653,26 @@
       "span": {
         "end": {
           "column": 6,
-          "line": 252
+          "line": 256
         },
         "start": {
           "column": 5,
-          "line": 244
+          "line": 248
         }
       }
     },
     "genre": "FnValue",
-    "name": "src/daemon.rs:251:9: replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![1]))",
+    "name": "src/daemon.rs:255:9: replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![1]))",
     "package": "bolina",
     "replacement": "Ok((Default::default(), vec![1]))",
     "span": {
       "end": {
         "column": 38,
-        "line": 251
+        "line": 255
       },
       "start": {
         "column": 9,
-        "line": 251
+        "line": 255
       }
     }
   },
@@ -13390,7 +13454,7 @@
     }
   },
   {
-    "diff": "--- src/daemon.rs\n+++ replace SessionTable::lookup -> Option<&Session> with None\n@@ -213,17 +213,17 @@\n }\n \n impl SessionTable {\n     pub fn new() -> Self {\n         Self { sessions: Vec::new() }\n     }\n \n     pub fn lookup(&self, idx: u32) -> Option<&Session> {\n-        self.sessions.get(idx as usize)\n+        None /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n pub struct Session {\n     pub bound: bool,\n     pub peer_kex: [u8; 32],\n     pub c1: [u8; 32],\n     pub c2: [u8; 32],\n",
+    "diff": "--- src/daemon.rs\n+++ replace SessionTable::lookup -> Option<&Session> with None\n@@ -213,17 +213,17 @@\n }\n \n impl SessionTable {\n     pub fn new() -> Self {\n         Self { sessions: Vec::new() }\n     }\n \n     pub fn lookup(&self, idx: u32) -> Option<&Session> {\n-        self.sessions.get(idx as usize)\n+        None /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub fn sessions(&self) -> usize {\n         self.sessions.len()\n     }\n }\n \n pub struct Session {\n",
     "file": "src/daemon.rs",
     "function": {
       "function_name": "SessionTable::lookup",
@@ -13422,7 +13486,7 @@
     }
   },
   {
-    "diff": "--- src/daemon.rs\n+++ replace SessionTable::lookup -> Option<&Session> with Some(Box::leak(Box::new(Default::default())))\n@@ -213,17 +213,17 @@\n }\n \n impl SessionTable {\n     pub fn new() -> Self {\n         Self { sessions: Vec::new() }\n     }\n \n     pub fn lookup(&self, idx: u32) -> Option<&Session> {\n-        self.sessions.get(idx as usize)\n+        Some(Box::leak(Box::new(Default::default()))) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n pub struct Session {\n     pub bound: bool,\n     pub peer_kex: [u8; 32],\n     pub c1: [u8; 32],\n     pub c2: [u8; 32],\n",
+    "diff": "--- src/daemon.rs\n+++ replace SessionTable::lookup -> Option<&Session> with Some(Box::leak(Box::new(Default::default())))\n@@ -213,17 +213,17 @@\n }\n \n impl SessionTable {\n     pub fn new() -> Self {\n         Self { sessions: Vec::new() }\n     }\n \n     pub fn lookup(&self, idx: u32) -> Option<&Session> {\n-        self.sessions.get(idx as usize)\n+        Some(Box::leak(Box::new(Default::default()))) /* ~ changed by cargo-mutants ~ */\n     }\n \n     pub fn sessions(&self) -> usize {\n         self.sessions.len()\n     }\n }\n \n pub struct Session {\n",
     "file": "src/daemon.rs",
     "function": {
       "function_name": "SessionTable::lookup",
@@ -13454,7 +13518,71 @@
     }
   },
   {
-    "diff": "--- src/daemon.rs\n+++ replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![]))\n@@ -243,17 +243,17 @@\n \n     pub fn process_initiation(\n         &self,\n         _msg1: &[u8],\n         _keys: &Keys,\n     ) -> Result<(Session, Vec<u8>), String> {\n         // Noise_IK responder flow\n         // TODO: implement via transport/noise.md contract\n-        Err(\"not implemented\".into())\n+        Ok((Default::default(), vec![])) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Optional control plane (TCP HTTP)\n #[allow(dead_code)]\n pub struct ControlPlane {\n     addr: SocketAddr,\n }\n",
+    "diff": "--- src/daemon.rs\n+++ replace SessionTable::sessions -> usize with 0\n@@ -217,17 +217,17 @@\n         Self { sessions: Vec::new() }\n     }\n \n     pub fn lookup(&self, idx: u32) -> Option<&Session> {\n         self.sessions.get(idx as usize)\n     }\n \n     pub fn sessions(&self) -> usize {\n-        self.sessions.len()\n+        0 /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n pub struct Session {\n     pub bound: bool,\n     pub peer_kex: [u8; 32],\n     pub c1: [u8; 32],\n     pub c2: [u8; 32],\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "SessionTable::sessions",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 226
+        },
+        "start": {
+          "column": 5,
+          "line": 224
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:225:9: replace SessionTable::sessions -> usize with 0",
+    "package": "bolina",
+    "replacement": "0",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 225
+      },
+      "start": {
+        "column": 9,
+        "line": 225
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace SessionTable::sessions -> usize with 1\n@@ -217,17 +217,17 @@\n         Self { sessions: Vec::new() }\n     }\n \n     pub fn lookup(&self, idx: u32) -> Option<&Session> {\n         self.sessions.get(idx as usize)\n     }\n \n     pub fn sessions(&self) -> usize {\n-        self.sessions.len()\n+        1 /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n pub struct Session {\n     pub bound: bool,\n     pub peer_kex: [u8; 32],\n     pub c1: [u8; 32],\n     pub c2: [u8; 32],\n",
+    "file": "src/daemon.rs",
+    "function": {
+      "function_name": "SessionTable::sessions",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 226
+        },
+        "start": {
+          "column": 5,
+          "line": 224
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/daemon.rs:225:9: replace SessionTable::sessions -> usize with 1",
+    "package": "bolina",
+    "replacement": "1",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 225
+      },
+      "start": {
+        "column": 9,
+        "line": 225
+      }
+    }
+  },
+  {
+    "diff": "--- src/daemon.rs\n+++ replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![]))\n@@ -247,17 +247,17 @@\n \n     pub fn process_initiation(\n         &self,\n         _msg1: &[u8],\n         _keys: &Keys,\n     ) -> Result<(Session, Vec<u8>), String> {\n         // Noise_IK responder flow\n         // TODO: implement via transport/noise.md contract\n-        Err(\"not implemented\".into())\n+        Ok((Default::default(), vec![])) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Optional control plane (TCP HTTP)\n #[allow(dead_code)]\n pub struct ControlPlane {\n     addr: SocketAddr,\n }\n",
     "file": "src/daemon.rs",
     "function": {
       "function_name": "HandshakeServer::process_initiation",
@@ -13462,31 +13590,31 @@
       "span": {
         "end": {
           "column": 6,
-          "line": 252
+          "line": 256
         },
         "start": {
           "column": 5,
-          "line": 244
+          "line": 248
         }
       }
     },
     "genre": "FnValue",
-    "name": "src/daemon.rs:251:9: replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![]))",
+    "name": "src/daemon.rs:255:9: replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![]))",
     "package": "bolina",
     "replacement": "Ok((Default::default(), vec![]))",
     "span": {
       "end": {
         "column": 38,
-        "line": 251
+        "line": 255
       },
       "start": {
         "column": 9,
-        "line": 251
+        "line": 255
       }
     }
   },
   {
-    "diff": "--- src/daemon.rs\n+++ replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![0]))\n@@ -243,17 +243,17 @@\n \n     pub fn process_initiation(\n         &self,\n         _msg1: &[u8],\n         _keys: &Keys,\n     ) -> Result<(Session, Vec<u8>), String> {\n         // Noise_IK responder flow\n         // TODO: implement via transport/noise.md contract\n-        Err(\"not implemented\".into())\n+        Ok((Default::default(), vec![0])) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Optional control plane (TCP HTTP)\n #[allow(dead_code)]\n pub struct ControlPlane {\n     addr: SocketAddr,\n }\n",
+    "diff": "--- src/daemon.rs\n+++ replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![0]))\n@@ -247,17 +247,17 @@\n \n     pub fn process_initiation(\n         &self,\n         _msg1: &[u8],\n         _keys: &Keys,\n     ) -> Result<(Session, Vec<u8>), String> {\n         // Noise_IK responder flow\n         // TODO: implement via transport/noise.md contract\n-        Err(\"not implemented\".into())\n+        Ok((Default::default(), vec![0])) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Optional control plane (TCP HTTP)\n #[allow(dead_code)]\n pub struct ControlPlane {\n     addr: SocketAddr,\n }\n",
     "file": "src/daemon.rs",
     "function": {
       "function_name": "HandshakeServer::process_initiation",
@@ -13494,31 +13622,31 @@
       "span": {
         "end": {
           "column": 6,
-          "line": 252
+          "line": 256
         },
         "start": {
           "column": 5,
-          "line": 244
+          "line": 248
         }
       }
     },
     "genre": "FnValue",
-    "name": "src/daemon.rs:251:9: replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![0]))",
+    "name": "src/daemon.rs:255:9: replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![0]))",
     "package": "bolina",
     "replacement": "Ok((Default::default(), vec![0]))",
     "span": {
       "end": {
         "column": 38,
-        "line": 251
+        "line": 255
       },
       "start": {
         "column": 9,
-        "line": 251
+        "line": 255
       }
     }
   },
   {
-    "diff": "--- src/daemon.rs\n+++ replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![1]))\n@@ -243,17 +243,17 @@\n \n     pub fn process_initiation(\n         &self,\n         _msg1: &[u8],\n         _keys: &Keys,\n     ) -> Result<(Session, Vec<u8>), String> {\n         // Noise_IK responder flow\n         // TODO: implement via transport/noise.md contract\n-        Err(\"not implemented\".into())\n+        Ok((Default::default(), vec![1])) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Optional control plane (TCP HTTP)\n #[allow(dead_code)]\n pub struct ControlPlane {\n     addr: SocketAddr,\n }\n",
+    "diff": "--- src/daemon.rs\n+++ replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![1]))\n@@ -247,17 +247,17 @@\n \n     pub fn process_initiation(\n         &self,\n         _msg1: &[u8],\n         _keys: &Keys,\n     ) -> Result<(Session, Vec<u8>), String> {\n         // Noise_IK responder flow\n         // TODO: implement via transport/noise.md contract\n-        Err(\"not implemented\".into())\n+        Ok((Default::default(), vec![1])) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// Optional control plane (TCP HTTP)\n #[allow(dead_code)]\n pub struct ControlPlane {\n     addr: SocketAddr,\n }\n",
     "file": "src/daemon.rs",
     "function": {
       "function_name": "HandshakeServer::process_initiation",
@@ -13526,26 +13654,26 @@
       "span": {
         "end": {
           "column": 6,
-          "line": 252
+          "line": 256
         },
         "start": {
           "column": 5,
-          "line": 244
+          "line": 248
         }
       }
     },
     "genre": "FnValue",
-    "name": "src/daemon.rs:251:9: replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![1]))",
+    "name": "src/daemon.rs:255:9: replace HandshakeServer::process_initiation -> Result<(Session, Vec<u8>), String> with Ok((Default::default(), vec![1]))",
     "package": "bolina",
     "replacement": "Ok((Default::default(), vec![1]))",
     "span": {
       "end": {
         "column": 38,
-        "line": 251
+        "line": 255
       },
       "start": {
         "column": 9,
-        "line": 251
+        "line": 255
       }
     }
   },
