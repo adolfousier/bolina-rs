@@ -13,6 +13,7 @@ use blake2::Blake2s256;
 use blake2::Digest;
 use bolina::codec;
 use serde::Deserialize;
+use ntest::timeout;
 
 fn unhex(s: &str) -> Vec<u8> {
     (0..s.len())

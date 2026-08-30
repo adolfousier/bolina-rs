@@ -8,7 +8,7 @@
       "phase_results": [
         {
           "phase": "Build",
-          "duration": 0.117431167,
+          "duration": 0.118258583,
           "process_status": "Success",
           "argv": [
             "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
@@ -20,7 +20,7 @@
         },
         {
           "phase": "Test",
-          "duration": 30.037302458,
+          "duration": 30.03124925,
           "process_status": "Timeout",
           "argv": [
             "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
@@ -38,7 +38,7 @@
   "timeout": 0,
   "unviable": 0,
   "success": 0,
-  "start_time": "2026-08-30T17:07:06.679721Z",
-  "end_time": "2026-08-30T17:07:36.942086Z",
+  "start_time": "2026-08-30T17:08:27.175132Z",
+  "end_time": "2026-08-30T17:08:57.434399Z",
   "cargo_mutants_version": "27.1.0"
 }
