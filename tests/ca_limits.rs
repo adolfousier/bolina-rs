@@ -56,5 +56,8 @@ fn ca_issue_with_positive_ttl_passes() {
         ttl_ms: 3600000,
     };
     let result = ca_issue(dir.path(), &req);
+    if result.is_err() {
+        eprintln!("ca_issue failed: {:?}", result);
+    }
     assert!(result.is_ok());
 }
