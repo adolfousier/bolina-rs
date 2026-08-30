@@ -8,14 +8,25 @@
       "phase_results": [
         {
           "phase": "Build",
-          "duration": 3.52730475,
+          "duration": 13.876295042,
+          "process_status": "Success",
+          "argv": [
+            "cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=bolina@0.1.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 43.956210292,
           "process_status": {
             "Failure": 101
           },
           "argv": [
-            "/Users/adolfousierstudio/.rustup/toolchains/1.98.0-aarch64-apple-darwin/bin/cargo",
+            "cargo",
             "test",
-            "--no-run",
             "--verbose",
             "--package=bolina@0.1.0"
           ]
@@ -29,7 +40,7 @@
   "timeout": 0,
   "unviable": 0,
   "success": 0,
-  "start_time": "2026-08-30T16:55:46.797752Z",
-  "end_time": "2026-08-30T16:55:50.437841Z",
+  "start_time": "2026-08-30T00:04:48.651299Z",
+  "end_time": "2026-08-30T00:05:46.48795Z",
   "cargo_mutants_version": "27.1.0"
 }

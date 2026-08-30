@@ -1,3 +1,5 @@
+Found 1415 mutants to test
+FAILED   Unmutated baseline in 3s build
 
 *** baseline
 
@@ -1815,3 +1817,5 @@ warning: `bolina` (test "ca") generated 1 warning (run `cargo fix --test "ca" -p
 warning: `bolina` (bin "bolina" test) generated 191 warnings (191 duplicates)
 
 *** result: Failure(101)
+
+ERROR cargo build failed in an unmutated tree, so no mutants were tested
