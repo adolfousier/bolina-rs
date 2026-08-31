@@ -225,7 +225,7 @@ cmd_burnin() {
   log "burn-in: ${hours}h (${secs}s) with thermal monitoring"
 
   local thermal_pid
-  thermal_pid=$(start_thermal_logger "$LOG_DIR/thermal-burnin.csv")
+  start_thermal_logger "$LOG_DIR/thermal-burnin.csv" >/dev/null 2>&1 &; thermal_pid=$!
 
   cd "$REPO_ROOT"
   local end_time=$(($(date +%s) + secs))
@@ -258,7 +258,7 @@ cmd_soak() {
 
   # Thermal logging during soak too (bug #4: was burn-in only)
   local thermal_pid
-  thermal_pid=$(start_thermal_logger "$LOG_DIR/thermal-soak.csv")
+  start_thermal_logger "$LOG_DIR/thermal-soak.csv" >/dev/null 2>&1 &; thermal_pid=$!
 
   cd "$REPO_ROOT"
   local end_time=$(($(date +%s) + secs))
