@@ -72,7 +72,7 @@ impl<const MAX_CONTEXTS: usize, const MAX_FRAGMENTS: u16> PeerReassembler<MAX_CO
     /// Breach returns MessageDropped and tears down the context; session unaffected.
     pub fn ingest(&mut self, now_ms: u64, msg_id: u64, index: u16, total: u16, frag_bytes: usize) -> PeerEvent {
         // Malformed: total==0 | index>=total | total>ceiling
-        if total == 0 || index >= total || total >= MAX_FRAGMENTS {
+        if total == 0 || index >= total || total > MAX_FRAGMENTS {
             return PeerEvent::MessageDropped;
         }
 
