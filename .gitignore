@@ -1,3 +1,4 @@
 /target
 /logs
 *.receipt.bak
+target/
