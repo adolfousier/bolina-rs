@@ -61,3 +61,4 @@ Documented as such; no test can kill it.
 
 | 2026-08-31 | fix | intent.rs: `len() > MAX_PENDING` -> `>=` — REAL PORT BUG found by survived mutant: Zig refuses at len == MAX_PENDING (holds exactly 256), Rust would have admitted a 257th. Also fixed my own test: u8-wrap on overflow id (256 as u8 = 0 collided with entry 0, so both variants errored and the mutant survived). Mutation testing earned its keep. |
 | 2026-08-31 | MUTATION | 21/21 KILLED (100%), 0 survived, 0 anchor errors — final clean run post-fixes | motor limpo + bug real do intent corrigido + 4 boundary tests |
+| 2026-08-31 | TAG | v0.7.0-candidate refeita sobre a60f235 (inclui fix do intent + bateria 21/21) | tag anterior apontava para código com o bug real do intent |
