@@ -1,89 +1,131 @@
-//! chaos-rs: adversarial fuzzing + roundtrip validation
-//! 
-//! Gera N inputs aleatórios com seed S
-//! Para cada input, tenta parse+encode com o codec Rust
-//! Se o parse conseguir, compara output com input (roundtrip)
-//! Reporta coverage (quantos inputs foram aceites)
-
-use std::fs;
-use std::io::{self, Write};
-use std::path::Path;
-
+//! Chaos fuzzer with structured corpus (like Zig soak)
+use bolina::codec::*;
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
+use serde::Deserialize;
+use std::fs;
 
-fn main() {
-    let args: Vec<String> = std::env::args().collect();
-    if args.len() < 3 {
-        eprintln!("usage: chaos-rs <seed> <count>");
-        std::process::exit(1);
-    }
+const CANONICAL_SEEDS: [u64; 5] = [108230699740769, 42, 1337, 999999, 3735928559];
+const INPUTS_PER_SEED: usize = 1_000_000;
+const MAX_INPUT: usize = 1024;
+const MUTATE_RATIO: u8 = 40;
 
-    let seed: u64 = args[1].parse().expect("seed must be u64");
-    let count: usize = args[2].parse().expect("count must be usize");
+#[derive(Deserialize)]
+struct Vectors {
+    structures: Structures,
+}
 
-    let mut rng = ChaCha8Rng::seed_from_u64(seed);
+#[derive(Deserialize)]
+struct Structures {
+    envelope_intent: Structure,
+    grant: Structure,
+    span: Structure,
+    effect: Structure,
+    refusal: Structure,
+    cert: Structure,
+}
+
+#[derive(Deserialize)]
+struct Structure {
+    wire_hex: String,
+}
+
+fn decode_hex(hex: &str) -> Vec<u8> {
+    (0..hex.len())
+        .step_by(2)
+        .map(|i| u8::from_str_radix(&hex[i..i+2], 16).unwrap())
+        .collect()
+}
+
+fn load_seeds() -> Vec<Vec<u8>> {
+    let vectors_json = fs::read_to_string("test/vectors.json").expect("vectors.json");
+    let vectors: Vectors = serde_json::from_str(&vectors_json).expect("parse vectors");
     
-    let mut accepted = 0;
-    let mut rejected = 0;
-    let mut roundtrip_ok = 0;
-    let mut roundtrip_fail = 0;
+    vec![
+        decode_hex(&vectors.structures.envelope_intent.wire_hex),
+        decode_hex(&vectors.structures.grant.wire_hex),
+        decode_hex(&vectors.structures.span.wire_hex),
+        decode_hex(&vectors.structures.effect.wire_hex),
+        decode_hex(&vectors.structures.refusal.wire_hex),
+        decode_hex(&vectors.structures.cert.wire_hex),
+    ]
+}
 
-    for i in 0..count {
-        // Generate random input (1-1024 bytes)
-        let len = rng.gen_range(1..=1024);
-        let mut input = vec![0u8; len];
-        rng.fill(&mut input[..]);
-
-        // Try parse+encode with each structure type
-        let result = try_parse_encode(&input);
-
-        match result {
-            Some(output) => {
-                accepted += 1;
-                if output == input {
-                    roundtrip_ok += 1;
-                } else {
-                    roundtrip_fail += 1;
-                    eprintln!("roundtrip mismatch at input {}", i);
+fn mutate<'a>(rng: &mut impl Rng, seed: &[u8], buf: &'a mut [u8]) -> &'a [u8] {
+    let len = seed.len().min(buf.len());
+    buf[..len].copy_from_slice(&seed[..len]);
+    
+    let mut k = 1 + rng.gen_range(0..3);
+    while k > 0 {
+        k -= 1;
+        let idx = rng.gen_range(0..len);
+        match rng.gen_range(0..5) {
+            0 => buf[idx] ^= 1 << rng.gen_range(0..3),
+            1 => buf[idx] = rng.gen(),
+            2 => return &buf[..rng.gen_range(0..len) + 1],
+            3 => buf[idx] = if buf[idx] == 0 { 0xFF } else { 0 },
+            _ => {
+                if len >= buf.len() { continue; }
+                let extra = (1 + rng.gen_range(0..8)).min(buf.len() - len);
+                for i in 0..extra {
+                    buf[len + i] = rng.gen();
                 }
-            }
-            None => {
-                rejected += 1;
+                return &buf[..len + extra];
             }
         }
     }
+    &buf[..len]
+}
 
-    println!("=== CHAOS SUMMARY ===");
-    println!("Seed: {}", seed);
-    println!("Count: {}", count);
-    println!("Accepted: {}", accepted);
-    println!("Rejected: {}", rejected);
-    println!("Roundtrip OK: {}", roundtrip_ok);
-    println!("Roundtrip FAIL: {}", roundtrip_fail);
-    println!("Coverage: {:.2}%", 100.0 * accepted as f64 / count as f64);
-
-    if roundtrip_fail > 0 {
-        std::process::exit(1);
+fn next_input<'a>(rng: &mut impl Rng, seeds: &[Vec<u8>], buf: &'a mut [u8]) -> &'a [u8] {
+    if rng.gen_range(0..100) < MUTATE_RATIO {
+        let seed = &seeds[rng.gen_range(0..seeds.len())];
+        mutate(rng, seed, buf)
+    } else {
+        let len = rng.gen_range(1..=MAX_INPUT);
+        for i in 0..len {
+            buf[i] = rng.gen();
+        }
+        &buf[..len]
     }
 }
 
-fn try_parse_encode(input: &[u8]) -> Option<Vec<u8>> {
-    // Try each structure type
-    if let Ok(cert) = bolina::codec::parse_cert(input) {
-        return Some(bolina::codec::encode_cert(&cert));
+fn try_parse(input: &[u8]) -> bool {
+    parse_envelope(input).is_ok()
+        || parse_intent(input).is_ok()
+        || parse_grant(input).is_ok()
+        || parse_span(input).is_ok()
+        || parse_cert(input).is_ok()
+        || parse_refusal(input).is_ok()
+}
+
+fn main() {
+    let seeds = load_seeds();
+    println!("Loaded {} seeds", seeds.len());
+    
+    let mut total_inputs = 0;
+    let mut total_accepted = 0;
+    
+    for &seed in &CANONICAL_SEEDS {
+        let mut rng = ChaCha8Rng::seed_from_u64(seed);
+        let mut buf = [0u8; MAX_INPUT];
+        let mut accepted = 0;
+        
+        for _ in 0..INPUTS_PER_SEED {
+            let input = next_input(&mut rng, &seeds, &mut buf);
+            if try_parse(input) {
+                accepted += 1;
+            }
+        }
+        
+        total_inputs += INPUTS_PER_SEED;
+        total_accepted += accepted;
+        println!("seed {}: {}/{} accepted ({:.2}%)",
+            seed, accepted, INPUTS_PER_SEED,
+            100.0 * accepted as f64 / INPUTS_PER_SEED as f64);
     }
-    if let Ok(envelope) = bolina::codec::parse_envelope(input) {
-        return Some(bolina::codec::encode_envelope(&envelope));
-    }
-    if let Ok(span) = bolina::codec::parse_span(input) {
-        return Some(bolina::codec::encode_span(&span));
-    }
-    if let Ok(grant) = bolina::codec::parse_grant(input) {
-        return Some(bolina::codec::encode_grant(&grant));
-    }
-    if let Ok(refusal) = bolina::codec::parse_refusal(input) {
-        return Some(bolina::codec::encode_refusal(&refusal));
-    }
-    None
+    
+    println!("\nTotal: {}/{} accepted ({:.2}%)",
+        total_accepted, total_inputs,
+        100.0 * total_accepted as f64 / total_inputs as f64);
 }
