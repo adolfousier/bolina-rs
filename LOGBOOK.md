@@ -63,3 +63,5 @@ Documented as such; no test can kill it.
 | 2026-08-31 | MUTATION | 21/21 KILLED (100%), 0 survived, 0 anchor errors — final clean run post-fixes | motor limpo + bug real do intent corrigido + 4 boundary tests |
 | 2026-08-31 | TAG | v0.7.0-candidate refeita sobre a60f235 (inclui fix do intent + bateria 21/21) | tag anterior apontava para código com o bug real do intent |
 | 2026-08-28 | g3-soak-rs v3 | `5446936` | fix 6 bugs from Daniel's 2nd review: (1) soak failures logged not fatal, (2) tee to soak.log + failures.log, (3) cross-diff in deps, (4) thermal CSV \$3 + soak thermal, (5) chaos round argv + seed^round, (6) pause --auto. Tag refrozen. |
+
+| 2026-08-31 | kit: fix P1 incorporated | tools/g3-soak-rs.sh | `$(start_thermal_logger ...)` blocks on infinite while loop — fix: launch bg directly, capture `$!`. Identified by Daniel during soak trial. Retag v0.7.0-candidate (4th) on `afbecc1`. |
