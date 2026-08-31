@@ -60,3 +60,73 @@ file = "src/control.rs"
 anchor = "&& self.buf.len() >= SLOWLORIS_SIZE"
 replacement = "&& self.buf.len() > SLOWLORIS_SIZE"
 description = "slowloris guard at exact size not triggered (> to >=)"
+
+[[mutants]]
+domain = "codec"
+file = "src/codec.rs"
+anchor = "if i > 0 && ca_key <= prev_key {"
+replacement = "if i > 0 && ca_key < prev_key {"
+description = "codec: ca_key ascending check weakened (allows duplicate keys)"
+
+[[mutants]]
+domain = "state"
+file = "src/state/intent.rs"
+anchor = "if self.entries.len() > MAX_PENDING {"
+replacement = "if self.entries.len() >= MAX_PENDING {"
+description = "state: intent MAX_PENDING boundary weakened (accepts MAX_PENDING+1)"
+
+[[mutants]]
+domain = "state"
+file = "src/state/intent.rs"
+anchor = "if e.state == State::Pending && now_ms > e.admitted_ms + T_PENDING_MS {"
+replacement = "if e.state == State::Pending && now_ms >= e.admitted_ms + T_PENDING_MS {"
+description = "state: intent timeout boundary weakened (expires at exact threshold)"
+
+[[mutants]]
+domain = "state"
+file = "src/state/intent.rs"
+anchor = "if collapsed > 0 {"
+replacement = "if collapsed >= 0 {"
+description = "state: intent compact trigger weakened (compacts even when collapsed == 0)"
+
+[[mutants]]
+domain = "state"
+file = "src/state/ledger.rs"
+anchor = "if self.consumed.len() >= MAX_LIVE {"
+replacement = "if self.consumed.len() > MAX_LIVE {"
+description = "state: ledger consumed MAX_LIVE boundary weakened (accepts MAX_LIVE+1)"
+
+[[mutants]]
+domain = "state"
+file = "src/state/ledger.rs"
+anchor = "if self.revoked.len() >= MAX_LIVE {"
+replacement = "if self.revoked.len() > MAX_LIVE {"
+description = "state: ledger revoked MAX_LIVE boundary weakened (accepts MAX_LIVE+1)"
+
+[[mutants]]
+domain = "transport"
+file = "src/transport/noise.rs"
+anchor = "if key.len() > 64 {"
+replacement = "if key.len() >= 64 {"
+description = "transport: noise key length check weakened (accepts invalid 64-byte key)"
+
+[[mutants]]
+domain = "daemon"
+file = "src/daemon.rs"
+anchor = "Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {"
+replacement = "Err(e) if e.kind() != std::io::ErrorKind::WouldBlock => {"
+description = "daemon: WouldBlock handling inverted (treats WouldBlock as fatal error)"
+
+[[mutants]]
+domain = "ca"
+file = "src/ca.rs"
+anchor = "if count == 0 || count > 8 {"
+replacement = "if count == 0 || count >= 8 {"
+description = "ca: CA count upper bound weakened (rejects 8 valid CAs)"
+
+[[mutants]]
+domain = "ca"
+file = "src/ca.rs"
+anchor = "if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {"
+replacement = "if req.ttl_ms >= MAX_PRIVILEGED_LIFETIME_MS {"
+description = "ca: privileged TTL boundary weakened (rejects exact threshold)"

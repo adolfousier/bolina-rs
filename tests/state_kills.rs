@@ -57,3 +57,11 @@ fn exact_timeout_boundary_must_not_expire() {
     let expired = t.expire_timeouts(now + T_PENDING_MS + 1);
     assert_eq!(expired, 1, "intent must expire at T_PENDING_MS + 1");
 }
+
+#[test]
+fn ledger_consumed_max_live_boundary() {
+    // Muta self.consumed.len() >= MAX_LIVE para > MAX_LIVE (aceita MAX_LIVE+1)
+    // Teste: tentar adicionar MAX_LIVE+1 grants deve falhar no limite exacto
+    use bolina::state::ledger::{GrantLedger, MAX_LIVE};
+    use std::fs;
+    use tempfile::TempDir;

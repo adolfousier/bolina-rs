@@ -166,3 +166,5 @@ fn intent_roundtrip_preserves_fields() {
     assert_eq!(parsed.action, b"action");
     assert_eq!(parsed.rationale, b"rationale");
 }
+
+#[test]
