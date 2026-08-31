@@ -1,0 +1,9 @@
+[package]
+name = "cross-diff"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bolina = { path = "../.." }
+serde_json = "1.0"
+hex = "0.4"

@@ -130,3 +130,52 @@ file = "src/ca.rs"
 anchor = "if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {"
 replacement = "if req.ttl_ms >= MAX_PRIVILEGED_LIFETIME_MS {"
 description = "ca: privileged TTL boundary weakened (rejects exact threshold)"
+
+[[mutants]]
+domain = "transport"
+file = "src/transport/reassembly.rs"
+anchor = "if total == 0 || index >= total || total > MAX_FRAGMENTS {"
+replacement = "if total == 0 || index >= total || total >= MAX_FRAGMENTS {"
+description = "reassembly: MAX_FRAGMENTS boundary weakened (accepts MAX_FRAGMENTS+1)"
+
+[[mutants]]
+domain = "transport"
+file = "src/transport/reassembly.rs"
+anchor = "if c.bytes + frag_bytes > MAX_MESSAGE || self.bytes_used + frag_bytes > MEMORY_PER_PEER {"
+replacement = "if c.bytes + frag_bytes >= MAX_MESSAGE || self.bytes_used + frag_bytes > MEMORY_PER_PEER {"
+description = "reassembly: MAX_MESSAGE boundary weakened (accepts MAX_MESSAGE+1)"
+
+[[mutants]]
+domain = "transport"
+file = "src/transport/reassembly.rs"
+anchor = "if self.sessions >= SESSIONS_PER_NODE { return NodeEvent::Refused; }"
+replacement = "if self.sessions > SESSIONS_PER_NODE { return NodeEvent::Refused; }"
+description = "reassembly: SESSIONS_PER_NODE boundary weakened (accepts SESSIONS_PER_NODE+1)"
+
+[[mutants]]
+domain = "transport"
+file = "src/transport/relay.rs"
+anchor = "if expiry > MAX_EXPIRY { return Err(RelayError::ExpiryTooLong); }"
+replacement = "if expiry >= MAX_EXPIRY { return Err(RelayError::ExpiryTooLong); }"
+description = "relay: MAX_EXPIRY boundary weakened (rejects exact threshold)"
+
+[[mutants]]
+domain = "transport"
+file = "src/transport/relay.rs"
+anchor = "if self.entries.len() >= MAX_RELAY_TABLE { return false; }"
+replacement = "if self.entries.len() > MAX_RELAY_TABLE { return false; }"
+description = "relay: MAX_RELAY_TABLE boundary weakened (accepts MAX_RELAY_TABLE+1)"
+
+[[mutants]]
+domain = "transport"
+file = "src/transport/sync.rs"
+anchor = "if inside >= self.budget { return false; }"
+replacement = "if inside > self.budget { return false; }"
+description = "sync: budget boundary weakened (accepts budget+1)"
+
+[[mutants]]
+domain = "transport"
+file = "src/transport/sync.rs"
+anchor = "if self.used >= MAX_TRACKED_PEERS { return false; }"
+replacement = "if self.used > MAX_TRACKED_PEERS { return false; }"
+description = "sync: MAX_TRACKED_PEERS boundary weakened (accepts MAX_TRACKED_PEERS+1)"
