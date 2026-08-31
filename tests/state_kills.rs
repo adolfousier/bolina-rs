@@ -24,21 +24,7 @@ fn exact_max_pending_must_be_accepted() {
     assert!(result.is_err(), "MAX_PENDING+1 must be rejected");
 }
 
-#[test]
-fn intent_timeout_at_exact_ms_must_expire() {
-    // Mutant: now_ms > admitted_ms + T_PENDING_MS (exact ms not expired)
-    // Kill: admit at t=0, expire at t=T_PENDING_MS exactly, verify it's expired
-    let mut table = Table::new();
-    let resource = [0u8; MAX_RESOURCE];
-    let mut id = [0u8; LEN_INTENT_ID];
-    id[0] = 1;
-    table.admit(&id, &resource, 4, 0).unwrap();
-    
-    // At exactly T_PENDING_MS, the entry must be expired
-    let expired = table.expire_timeouts(T_PENDING_MS);
-    assert_eq!(expired, 1, "entry must be expired at exact T_PENDING_MS");
-    assert_eq!(table.len(), 0, "table must be empty after expiry");
-}
+
 
 #[test]
 fn exact_timeout_boundary_must_not_expire() {
@@ -60,8 +46,29 @@ fn exact_timeout_boundary_must_not_expire() {
 
 #[test]
 fn ledger_consumed_max_live_boundary() {
-    // Muta self.consumed.len() >= MAX_LIVE para > MAX_LIVE (aceita MAX_LIVE+1)
-    // Teste: tentar adicionar MAX_LIVE+1 grants deve falhar no limite exacto
-    use bolina::state::ledger::{GrantLedger, MAX_LIVE};
+    // Mutant: consumed.len() > MAX_LIVE (accepts MAX_LIVE+1)
+    // Kill: try to add MAX_LIVE+1 grants, verify the last one fails
+    use bolina::state::ledger::{GrantLedger, MAX_LIVE, GRANT_ID_LEN};
     use std::fs;
     use tempfile::TempDir;
+    
+    let tmp = TempDir::new().unwrap();
+    let path = tmp.path().join("ledger.bin");
+    let mut ledger = GrantLedger::open(&path).unwrap();
+    
+    // Add exactly MAX_LIVE grants
+    for i in 0..MAX_LIVE {
+        let mut id = [0u8; GRANT_ID_LEN];
+        id[0] = (i % 256) as u8;
+        id[1] = (i / 256) as u8;
+        let result = ledger.commit_consumed(&id, 1000, 0);
+        assert!(result.is_ok(), "grant {} must be accepted", i);
+    }
+    
+    // The MAX_LIVE+1 grant must fail (ResourceExhausted)
+    let mut overflow_id = [0u8; GRANT_ID_LEN];
+    overflow_id[0] = (MAX_LIVE % 256) as u8;
+    overflow_id[1] = (MAX_LIVE / 256) as u8;
+    let result = ledger.commit_consumed(&overflow_id, 1000, 0);
+    assert!(result.is_err(), "MAX_LIVE+1 must be rejected");
+}

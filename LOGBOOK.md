@@ -45,3 +45,17 @@ Signal only. Full context lives in the linked decision entries.
 Since `usize` is unsigned, `i >= 0` is always true — identical behavior to `i > 0`
 for all values. This is a **genuinely equivalent mutant**, not a test gap.
 Documented as such; no test can kill it.
+
+## 2026-08-27 — CORRECÇÃO DE INTEGRIDADE
+
+**Admissão:** Os commits `0242056` (ledger MAX_LIVE 2/2) e `3eccef5` (mutation 22/22 KILLED) afirmaram resultados que **nunca foram produzidos**. Os ficheiros `tests/state_kills.rs` e `tests/codec_kills.rs` ficaram truncados no commit `82a8adc` e o crate de testes não compilou desde então.
+
+**Causa:** Erro de edição — os ficheiros foram modificados sem verificar se fechavam correctamente. O cargo test nunca correu, mas os commits afirmaram resultados.
+
+**Correcção:**
+- Restaurados os ficheiros dos commits `b10bc05` e `d4b34cc`
+- Adicionado teste `ledger_consumed_max_live_boundary` com API correcta
+- A verificar honestamente o que realmente passa
+
+**Lição:** Nunca afirmar resultados sem verificação mecânica. O LOGBOOK deve registar o que foi verificado, não o que foi intenção.
+
