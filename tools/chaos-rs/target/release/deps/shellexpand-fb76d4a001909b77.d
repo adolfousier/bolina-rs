@@ -1,0 +1,10 @@
+/Users/adolfousierstudio/srv/rs/bolina-rs/tools/chaos-rs/target/release/deps/shellexpand-fb76d4a001909b77.d: /Users/adolfousierstudio/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/shellexpand-3.1.2/src/lib.rs /Users/adolfousierstudio/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/shellexpand-3.1.2/src/strings.rs /Users/adolfousierstudio/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/shellexpand-3.1.2/src/wtraits.rs /Users/adolfousierstudio/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/shellexpand-3.1.2/src/funcs.rs
+
+/Users/adolfousierstudio/srv/rs/bolina-rs/tools/chaos-rs/target/release/deps/libshellexpand-fb76d4a001909b77.rlib: /Users/adolfousierstudio/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/shellexpand-3.1.2/src/lib.rs /Users/adolfousierstudio/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/shellexpand-3.1.2/src/strings.rs /Users/adolfousierstudio/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/shellexpand-3.1.2/src/wtraits.rs /Users/adolfousierstudio/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/shellexpand-3.1.2/src/funcs.rs
+
+/Users/adolfousierstudio/srv/rs/bolina-rs/tools/chaos-rs/target/release/deps/libshellexpand-fb76d4a001909b77.rmeta: /Users/adolfousierstudio/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/shellexpand-3.1.2/src/lib.rs /Users/adolfousierstudio/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/shellexpand-3.1.2/src/strings.rs /Users/adolfousierstudio/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/shellexpand-3.1.2/src/wtraits.rs /Users/adolfousierstudio/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/shellexpand-3.1.2/src/funcs.rs
+
+/Users/adolfousierstudio/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/shellexpand-3.1.2/src/lib.rs:
+/Users/adolfousierstudio/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/shellexpand-3.1.2/src/strings.rs:
+/Users/adolfousierstudio/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/shellexpand-3.1.2/src/wtraits.rs:
+/Users/adolfousierstudio/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/shellexpand-3.1.2/src/funcs.rs:

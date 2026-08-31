@@ -1,0 +1,10 @@
+[package]
+name = "chaos-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bolina = { path = "../.." }
+rand = "0.8"
+rand_chacha = "0.3"
+hex = "0.4"
