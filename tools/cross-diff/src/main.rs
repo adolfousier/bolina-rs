@@ -9,7 +9,7 @@ fn main() {
     println!("cross-diff: validating Rust vs Zig byte-a-byte");
     
     // Load test vectors from Zig
-    let vectors_path = Path::new("../../test/vectors.json");
+    let vectors_path = Path::new("test/vectors.json");
     if !vectors_path.exists() {
         eprintln!("ERROR: vectors.json not found at {:?}", vectors_path);
         std::process::exit(1);

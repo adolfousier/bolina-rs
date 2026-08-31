@@ -247,7 +247,7 @@ cmd_soak() {
     
     # differential (cross-diff Zig vs Rust)
     log "running cross-diff..."
-    ./tools/cross-diff/target/release/cross-diff 2>&1 | tail -5 || log "cross-diff not built yet"
+    cd "$REPO_ROOT" && ./tools/cross-diff/target/release/cross-diff 2>&1 | tail -5 || log "cross-diff not built yet"
     
     # Heartbeat
     if [ $((round % 10)) -eq 0 ]; then

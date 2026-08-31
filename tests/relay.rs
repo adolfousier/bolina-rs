@@ -186,3 +186,21 @@ fn be_mesh_02_forward_packet_unknown_recipient() {
     let packet = [1, 2, 3];
     assert_eq!(forward_packet(&t, &route, &packet, 500), Err(RelayError::UnknownRecipient));
 }
+
+#[test]
+fn exact_max_expiry_must_parse() {
+    // Code: expiry > MAX_EXPIRY (86400) is refused; expiry == MAX_EXPIRY is legal.
+    // Mutant >= would refuse the boundary registration.
+    use bolina::transport::relay::{RelayRegistration, MAX_EXPIRY, LEN_RELAY_REGISTRATION};
+    let mut buf = [0u8; LEN_RELAY_REGISTRATION];
+    buf[0] = 6; // MSG_RELAY_REGISTRATION
+    buf[4..8].copy_from_slice(&1u32.to_be_bytes());
+    buf[8..12].copy_from_slice(&2u32.to_be_bytes());
+    buf[36..44].copy_from_slice(&MAX_EXPIRY.to_be_bytes());
+    let reg = RelayRegistration::parse(&buf);
+    assert!(reg.is_ok(), "expiry == MAX_EXPIRY must parse, got {:?}", reg.err());
+    assert_eq!(reg.unwrap().expiry, MAX_EXPIRY);
+    // MAX_EXPIRY+1 must fail in both variants
+    buf[36..44].copy_from_slice(&(MAX_EXPIRY + 1).to_be_bytes());
+    assert!(RelayRegistration::parse(&buf).is_err(), "expiry == MAX_EXPIRY+1 must fail");
+}

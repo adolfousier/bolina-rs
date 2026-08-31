@@ -174,3 +174,27 @@ fn mac1_matches_zig_construction_with_label() {
     m2[0] ^= 1;
     assert_ne!(compute_mac1(&p1, &m2), a, "covers the message bytes");
 }
+
+#[test]
+fn hmac_key_exactly_64_bytes_uses_direct_path() {
+    // RFC 2104: keys LONGER than the block size (64) are hashed first; a key of
+    // EXACTLY 64 bytes is used as-is. Mutant `>= 64` hashes the boundary key.
+    // Kill: hmac(k64, msg) must NOT equal hmac(blake2s(k64), msg) — if the mutant
+    // hashed the key, they would be equal.
+    use bolina::transport::noise::hmac_blake2s;
+    use blake2::{Blake2s256, Digest};
+    let mut k64 = [0u8; 64];
+    for (i, b) in k64.iter_mut().enumerate() { *b = i as u8; }
+    let msg = b"boundary key test";
+    let direct = hmac_blake2s(&k64, msg);
+    let hashed_key: [u8; 32] = Blake2s256::digest(&k64).into();
+    let via_hashed = hmac_blake2s(&hashed_key, msg);
+    assert_ne!(direct, via_hashed,
+        "64-byte key must take the direct path (mutant >=64 hashes it)");
+    // A 65-byte key MUST be hashed (both variants agree)
+    let mut k65 = [0u8; 65];
+    k65[..64].copy_from_slice(&k64);
+    k65[64] = 0xFF;
+    let h65 = hmac_blake2s(&k65, msg);
+    assert_ne!(h65, direct, "65-byte key must differ from 64-byte direct");
+}

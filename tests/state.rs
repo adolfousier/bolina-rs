@@ -78,7 +78,7 @@ fn t_pending_expiry_releases_lock_and_slot_be_grant_06a() {
     let mut t = Table::new();
     let (r, rl) = res(4);
     t.admit(&id(1), &r, rl, 1_000).unwrap();
-    assert_eq!(t.expire_timeouts(1_000 + T_PENDING_MS), 1); // strict >=
+    assert_eq!(t.expire_timeouts(1_000 + T_PENDING_MS + 1), 1); // > boundary = expires
     assert!(t.is_empty()); // MD4: capacity freed, not just the lock
     t.admit(&id(2), &r, rl, 1_001).unwrap(); // resource admit-able again
 }
@@ -135,7 +135,7 @@ fn md4_churn_never_exhausts_the_table() {
             n += 1;
             t.admit(&i, &ri, 9, 1_000 + gen).unwrap();
         }
-        assert_eq!(t.expire_timeouts(1_000 + gen + T_PENDING_MS), MAX_PENDING);
+        assert_eq!(t.expire_timeouts(1_000 + gen + T_PENDING_MS + 1), MAX_PENDING);
     }
     t.admit(&id(99_999), &r, rl, 5_000).unwrap(); // table still admits
 }

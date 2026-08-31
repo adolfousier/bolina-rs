@@ -1,181 +1,160 @@
+# Mutation anchors for bolina-rs
+# Anchors MUST match the exact line including leading whitespace
+
+# --- CODEC ---
 [[mutants]]
 domain = "codec"
 file = "src/codec.rs"
 anchor = "if body_len > MAX_BODY {"
 replacement = "if body_len >= MAX_BODY {"
-description = "body_len >= instead of > (rejects body at exactly MAX_BODY)"
+description = "codec: body_len MAX_BODY boundary weakened"
 
 [[mutants]]
 domain = "codec"
 file = "src/codec.rs"
 anchor = "if parent_count > MAX_PARENTS {"
 replacement = "if parent_count >= MAX_PARENTS {"
-description = "parent_count >= instead of > (rejects at exactly MAX_PARENTS)"
+description = "codec: parent_count MAX_PARENTS boundary weakened"
 
 [[mutants]]
 domain = "codec"
 file = "src/codec.rs"
-anchor = "if scope_count > MAX_SCOPE {"
-replacement = "if scope_count >= MAX_SCOPE {"
-description = "scope_count >= instead of > (rejects at exactly MAX_SCOPE)"
+anchor = "    if scope_count > MAX_SCOPE {"
+replacement = "    if scope_count >= MAX_SCOPE {"
+description = "codec: scope_count MAX_SCOPE boundary weakened"
 
 [[mutants]]
 domain = "codec"
 file = "src/codec.rs"
-anchor = "if ca_sig_count > MAX_CA_SIGS {"
-replacement = "if ca_sig_count >= MAX_CA_SIGS {"
-description = "ca_sig_count >= instead of > (rejects at exactly MAX_CA_SIGS)"
+anchor = "    if ca_sig_count > MAX_CA_SIGS {"
+replacement = "    if ca_sig_count >= MAX_CA_SIGS {"
+description = "codec: ca_sig_count MAX_CA_SIGS boundary weakened"
 
+[[mutants]]
+domain = "codec"
+file = "src/codec.rs"
+anchor = "        if i > 0 && ca_key <= prev_key {"
+replacement = "        if i > 0 && ca_key < prev_key {"
+description = "codec: ca_key ascending check weakened (allows duplicate keys)"
+
+# --- STATE/INTENT ---
 [[mutants]]
 domain = "state"
 file = "src/state/intent.rs"
-anchor = "if self.entries.len() > MAX_PENDING {"
-replacement = "if self.entries.len() >= MAX_PENDING {"
-description = "intent MAX_PENDING + 1 accepted (>= to >)"
+anchor = "        if self.entries.len() >= MAX_PENDING {"
+replacement = "        if self.entries.len() > MAX_PENDING {"
+description = "state: intent MAX_PENDING boundary weakened (admits 257th)"
 
 [[mutants]]
 domain = "state"
 file = "src/state/intent.rs"
 anchor = "if e.state == State::Pending && now_ms > e.admitted_ms + T_PENDING_MS {"
 replacement = "if e.state == State::Pending && now_ms >= e.admitted_ms + T_PENDING_MS {"
-description = "intent timeout at exact T_PENDING_MS not expired (>= to >)"
+description = "state: intent timeout boundary weakened"
 
+[[mutants]]
+domain = "state"
+file = "src/state/intent.rs"
+anchor = "        if collapsed > 0 {"
+replacement = "        if collapsed >= 0 {"
+description = "state: intent compact trigger weakened"
+
+# --- STATE/LEDGER ---
+[[mutants]]
+domain = "state"
+file = "src/state/ledger.rs"
+anchor = "        if self.consumed.len() >= MAX_LIVE {"
+replacement = "        if self.consumed.len() > MAX_LIVE {"
+description = "state: ledger consumed MAX_LIVE boundary weakened"
+
+# --- TRANSPORT/SESSION ---
 [[mutants]]
 domain = "transport"
 file = "src/transport/session.rs"
 anchor = "if self.counter >= REKEY_AFTER_MESSAGES { return Err(TransportError::RekeyRequired); }"
 replacement = "if self.counter > REKEY_AFTER_MESSAGES { return Err(TransportError::RekeyRequired); }"
-description = "session rekey at exact threshold not triggered (> to >=)"
+description = "transport: session rekey threshold weakened"
 
 [[mutants]]
 domain = "transport"
 file = "src/transport/session.rs"
 anchor = "if (local_index as usize) >= MAX_SESSIONS { return None; }"
 replacement = "if (local_index as usize) > MAX_SESSIONS { return None; }"
-description = "session index MAX_SESSIONS accepted (> to >=)"
+description = "transport: session MAX_SESSIONS boundary weakened"
 
+# --- TRANSPORT/NOISE ---
+[[mutants]]
+domain = "transport"
+file = "src/transport/noise.rs"
+anchor = "    if key.len() > 64 {"
+replacement = "    if key.len() >= 64 {"
+description = "transport: noise key length check weakened"
+
+# --- CONTROL ---
 [[mutants]]
 domain = "control"
 file = "src/control.rs"
 anchor = "&& self.buf.len() >= SLOWLORIS_SIZE"
 replacement = "&& self.buf.len() > SLOWLORIS_SIZE"
-description = "slowloris guard at exact size not triggered (> to >=)"
+description = "control: slowloris guard weakened"
 
-[[mutants]]
-domain = "codec"
-file = "src/codec.rs"
-anchor = "if i > 0 && ca_key <= prev_key {"
-replacement = "if i > 0 && ca_key < prev_key {"
-description = "codec: ca_key ascending check weakened (allows duplicate keys)"
-
-[[mutants]]
-domain = "state"
-file = "src/state/intent.rs"
-anchor = "if self.entries.len() > MAX_PENDING {"
-replacement = "if self.entries.len() >= MAX_PENDING {"
-description = "state: intent MAX_PENDING boundary weakened (accepts MAX_PENDING+1)"
-
-[[mutants]]
-domain = "state"
-file = "src/state/intent.rs"
-anchor = "if e.state == State::Pending && now_ms > e.admitted_ms + T_PENDING_MS {"
-replacement = "if e.state == State::Pending && now_ms >= e.admitted_ms + T_PENDING_MS {"
-description = "state: intent timeout boundary weakened (expires at exact threshold)"
-
-[[mutants]]
-domain = "state"
-file = "src/state/intent.rs"
-anchor = "if collapsed > 0 {"
-replacement = "if collapsed >= 0 {"
-description = "state: intent compact trigger weakened (compacts even when collapsed == 0)"
-
-[[mutants]]
-domain = "state"
-file = "src/state/ledger.rs"
-anchor = "if self.consumed.len() >= MAX_LIVE {"
-replacement = "if self.consumed.len() > MAX_LIVE {"
-description = "state: ledger consumed MAX_LIVE boundary weakened (accepts MAX_LIVE+1)"
-
-[[mutants]]
-domain = "state"
-file = "src/state/ledger.rs"
-anchor = "if self.revoked.len() >= MAX_LIVE {"
-replacement = "if self.revoked.len() > MAX_LIVE {"
-description = "state: ledger revoked MAX_LIVE boundary weakened (accepts MAX_LIVE+1)"
-
-[[mutants]]
-domain = "transport"
-file = "src/transport/noise.rs"
-anchor = "if key.len() > 64 {"
-replacement = "if key.len() >= 64 {"
-description = "transport: noise key length check weakened (accepts invalid 64-byte key)"
-
+# --- DAEMON ---
 [[mutants]]
 domain = "daemon"
 file = "src/daemon.rs"
-anchor = "Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {"
-replacement = "Err(e) if e.kind() != std::io::ErrorKind::WouldBlock => {"
-description = "daemon: WouldBlock handling inverted (treats WouldBlock as fatal error)"
+anchor = "                Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {"
+replacement = "Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => { return Err(format!(\"read: {}\", e)); }"
+description = "daemon: WouldBlock handling inverted"
+
+# --- CA ---
+[[mutants]]
+domain = "ca"
+file = "src/ca.rs"
+anchor = "    if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {"
+replacement = "    if req.ttl_ms >= MAX_PRIVILEGED_LIFETIME_MS {"
+description = "ca: privileged TTL boundary weakened"
 
 [[mutants]]
 domain = "ca"
 file = "src/ca.rs"
-anchor = "if count == 0 || count > 8 {"
-replacement = "if count == 0 || count >= 8 {"
-description = "ca: CA count upper bound weakened (rejects 8 valid CAs)"
+anchor = "    if count == 0 || count > 8 {"
+replacement = "    if count == 0 || count >= 8 {"
+description = "ca: CA count upper bound weakened"
 
+# --- TRANSPORT/REASSEMBLY ---
 [[mutants]]
-domain = "ca"
-file = "src/ca.rs"
-anchor = "if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {"
-replacement = "if req.ttl_ms >= MAX_PRIVILEGED_LIFETIME_MS {"
-description = "ca: privileged TTL boundary weakened (rejects exact threshold)"
+domain = "transport"
+file = "src/transport/reassembly.rs"
+anchor = "        if total == 0 || index >= total || total > MAX_FRAGMENTS {"
+replacement = "        if total == 0 || index >= total || total >= MAX_FRAGMENTS {"
+description = "transport: reassembly MAX_FRAGMENTS boundary weakened"
 
 [[mutants]]
 domain = "transport"
 file = "src/transport/reassembly.rs"
-anchor = "if total == 0 || index >= total || total > MAX_FRAGMENTS {"
-replacement = "if total == 0 || index >= total || total >= MAX_FRAGMENTS {"
-description = "reassembly: MAX_FRAGMENTS boundary weakened (accepts MAX_FRAGMENTS+1)"
+anchor = "        if self.sessions >= SESSIONS_PER_NODE { return NodeEvent::Refused; }"
+replacement = "        if self.sessions > SESSIONS_PER_NODE { return NodeEvent::Refused; }"
+description = "transport: reassembly SESSIONS_PER_NODE boundary weakened"
 
+# --- TRANSPORT/RELAY ---
 [[mutants]]
 domain = "transport"
-file = "src/transport/reassembly.rs"
-anchor = "if c.bytes + frag_bytes > MAX_MESSAGE || self.bytes_used + frag_bytes > MEMORY_PER_PEER {"
-replacement = "if c.bytes + frag_bytes >= MAX_MESSAGE || self.bytes_used + frag_bytes > MEMORY_PER_PEER {"
-description = "reassembly: MAX_MESSAGE boundary weakened (accepts MAX_MESSAGE+1)"
-
-[[mutants]]
-domain = "transport"
-file = "src/transport/reassembly.rs"
-anchor = "if self.sessions >= SESSIONS_PER_NODE { return NodeEvent::Refused; }"
-replacement = "if self.sessions > SESSIONS_PER_NODE { return NodeEvent::Refused; }"
-description = "reassembly: SESSIONS_PER_NODE boundary weakened (accepts SESSIONS_PER_NODE+1)"
+file = "src/transport/relay.rs"
+anchor = "        if self.entries.len() >= MAX_RELAY_TABLE { return false; }"
+replacement = "        if self.entries.len() > MAX_RELAY_TABLE { return false; }"
+description = "transport: relay MAX_RELAY_TABLE boundary weakened"
 
 [[mutants]]
 domain = "transport"
 file = "src/transport/relay.rs"
-anchor = "if expiry > MAX_EXPIRY { return Err(RelayError::ExpiryTooLong); }"
-replacement = "if expiry >= MAX_EXPIRY { return Err(RelayError::ExpiryTooLong); }"
-description = "relay: MAX_EXPIRY boundary weakened (rejects exact threshold)"
+anchor = "        if expiry > MAX_EXPIRY { return Err(RelayError::ExpiryTooLong); }"
+replacement = "        if expiry >= MAX_EXPIRY { return Err(RelayError::ExpiryTooLong); }"
+description = "transport: relay MAX_EXPIRY boundary weakened"
 
-[[mutants]]
-domain = "transport"
-file = "src/transport/relay.rs"
-anchor = "if self.entries.len() >= MAX_RELAY_TABLE { return false; }"
-replacement = "if self.entries.len() > MAX_RELAY_TABLE { return false; }"
-description = "relay: MAX_RELAY_TABLE boundary weakened (accepts MAX_RELAY_TABLE+1)"
-
+# --- TRANSPORT/SYNC ---
 [[mutants]]
 domain = "transport"
 file = "src/transport/sync.rs"
-anchor = "if inside >= self.budget { return false; }"
-replacement = "if inside > self.budget { return false; }"
-description = "sync: budget boundary weakened (accepts budget+1)"
-
-[[mutants]]
-domain = "transport"
-file = "src/transport/sync.rs"
-anchor = "if self.used >= MAX_TRACKED_PEERS { return false; }"
-replacement = "if self.used > MAX_TRACKED_PEERS { return false; }"
-description = "sync: MAX_TRACKED_PEERS boundary weakened (accepts MAX_TRACKED_PEERS+1)"
+anchor = "        if self.used >= MAX_TRACKED_PEERS { return false; }"
+replacement = "        if self.used > MAX_TRACKED_PEERS { return false; }"
+description = "transport: sync MAX_TRACKED_PEERS boundary weakened"

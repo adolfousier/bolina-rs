@@ -190,3 +190,28 @@ fn table_full_returns_503() {
     let resp = read_resp(&mut overflow);
     assert!(resp.contains("503") || resp.contains("table full"), "got: {}", resp);
 }
+
+#[test]
+fn slowloris_guard_at_exactly_1024_bytes() {
+    // Guard: buf.len() >= SLOWLORIS_SIZE (1024) without \r\n = reject.
+    // Mutant `>` lets exactly-1024 through. Kill: send EXACTLY 1024 bytes with
+    // no newline and assert the connection is dropped.
+    let mut cp = ControlPlane::new(bind_any()).unwrap();
+    let addr = cp.listener.local_addr().unwrap();
+    sleep(Duration::from_millis(50));
+    let mut client = connect_to(addr);
+    sleep(Duration::from_millis(50));
+    accept_one(&mut cp);
+    let payload = vec![b'A'; SLOWLORIS_SIZE]; // exactly 1024, no newline
+    client.write_all(&payload).unwrap();
+    let mut rejected = false;
+    for _ in 0..60 {
+        let _ = cp.poll_tick();
+        if cp.clients.is_empty() { rejected = true; break; }
+        if let Some(c) = cp.clients.first() {
+            if c.state == ConnState::Closing || c.state == ConnState::Writing { rejected = true; break; }
+        }
+        sleep(Duration::from_millis(50));
+    }
+    assert!(rejected, "exactly 1024 bytes without newline must be rejected (guard is >=)");
+}

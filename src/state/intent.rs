@@ -84,7 +84,7 @@ impl Table {
         }) {
             return Err(IntentError::ResourceHeld);
         }
-        if self.entries.len() > MAX_PENDING {
+        if self.entries.len() >= MAX_PENDING {
             return Err(IntentError::TableFull);
         }
         self.entries.push(Entry {

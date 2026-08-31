@@ -59,7 +59,7 @@ pub struct HandshakeResult {
 /// HMAC-BLAKE2s-256, spelled out: the hmac crate needs an Eager hash and
 /// Blake2s is Lazy, so RFC 2104 is implemented directly over the 64-byte
 /// BLAKE2s block. Byte-identical to std.crypto.auth.hmac.Blake2s256.
-fn hmac_blake2s(key: &[u8], data: &[u8]) -> [u8; 32] {
+pub fn hmac_blake2s(key: &[u8], data: &[u8]) -> [u8; 32] {
     let mut k = [0u8; 64];
     if key.len() > 64 {
         let mut h = Blake2s256::new();

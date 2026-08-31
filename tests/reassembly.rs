@@ -86,3 +86,18 @@ fn node_capacity_memory_gate() {
     nc.release_bytes(MEMORY_PER_NODE);
     assert!(nc.within_memory(MEMORY_PER_NODE));
 }
+
+#[test]
+fn exact_max_fragments_total_must_be_accepted() {
+    // Code: total > MAX_FRAGMENTS is malformed; total == MAX_FRAGMENTS is legal.
+    // Mutant >= would drop the boundary message.
+    use bolina::transport::reassembly::{PeerReassembler, PeerEvent};
+    let mut r: PeerReassembler<8, 64> = PeerReassembler::new();
+    let ev = r.ingest(0, 1, 0, 64, 100);
+    assert!(!matches!(ev, PeerEvent::MessageDropped),
+        "total == MAX_FRAGMENTS (64) must be accepted, got {:?}", ev);
+    // total == MAX_FRAGMENTS+1 must be dropped in both variants
+    let ev = r.ingest(0, 2, 0, 65, 100);
+    assert!(matches!(ev, PeerEvent::MessageDropped),
+        "total == MAX_FRAGMENTS+1 must be dropped");
+}
