@@ -208,8 +208,11 @@ start_thermal_logger() {
   (
     while true; do
       if command -v sensors >/dev/null 2>&1; then
-        sensors 2>/dev/null | grep -E "Core|Package" | head -4 | \
-          awk -v ts="$(date -u +%FT%TZ)" '{gsub(/[°+]/, "", $3); print ts","$1","$3}' >> "$csv_file"
+        sensors 2>/dev/null | grep -E "Core|Package" | head -9 | \
+          awk -v ts="$(date -u +%FT%TZ)" '{
+            if ($1 == "Package") { gsub(/[°+]/, "", $4); print ts","$1","$4 }
+            else { gsub(/[°+]/, "", $3); print ts","$1","$3 }
+          }' >> "$csv_file"
       fi
       sleep 30
     done
@@ -249,7 +252,7 @@ cmd_soak() {
   ensure_logdir
   local hours="${1:-24}"
   local secs=$(echo "$hours * 3600" | bc | cut -d. -f1)
-  log "soak: ${hours}h (${secs}s) with chaos + differential"
+  log "soak: ${hours}h (${secs}s) with chaos + conformance"
 
   local SOAK_LOG="$LOG_DIR/soak.log"
   local FAIL_LOG="$LOG_DIR/failures.log"
@@ -288,7 +291,7 @@ cmd_soak() {
       log "FAIL: chaos-rs round $round (logged to failures.log)" | tee -a "$SOAK_LOG"
     fi
 
-    # cross-diff (bug #3 fix: now compiled in deps)
+    # conformance: cross-diff validates frozen vectors (bug #3 fix)
     log "running cross-diff..." | tee -a "$SOAK_LOG"
     if [ -x "$REPO_ROOT/tools/cross-diff/target/release/cross-diff" ]; then
       if ./tools/cross-diff/target/release/cross-diff 2>&1 | tail -5 | tee -a "$SOAK_LOG"; then
@@ -305,7 +308,7 @@ cmd_soak() {
     if [ $((round % 10)) -eq 0 ]; then
       if [ -f "$LOG_DIR/thermal-soak.csv" ]; then
         max_temp=$(awk -F, 'NR>1 && $3+0 > max {max=$3+0} END {printf "%.1f", max}' "$LOG_DIR/thermal-soak.csv" 2>/dev/null || echo "?")
-        throttle_samples=$(wc -l < "$LOG_DIR/thermal-soak.csv" 2>/dev/null || echo 0)
+        thermal_samples=$(wc -l < "$LOG_DIR/thermal-soak.csv" 2>/dev/null || echo 0)
       fi
       log "HEARTBEAT: round $round | max_temp=${max_temp}°C | thermal_samples=$throttle_samples | failures=$(wc -l < "$FAIL_LOG")" | tee -a "$SOAK_LOG"
     fi
@@ -319,8 +322,15 @@ cmd_soak() {
   log "total failures: $(wc -l < "$FAIL_LOG")" | tee -a "$SOAK_LOG"
 
   # Hash the evidence (bug #2 fix: soak.log now exists because of tee)
-  sha256sum "$SOAK_LOG" > "$LOG_DIR/soak.sha256"
-  log "evidence hash: $(cat "$LOG_DIR/soak.sha256")"
+  # Hash ALL evidence files
+  {
+    sha256sum "$SOAK_LOG"
+    [ -f "$FAIL_LOG" ] && sha256sum "$FAIL_LOG"
+    [ -f "$LOG_DIR/thermal-soak.csv" ] && sha256sum "$LOG_DIR/thermal-soak.csv"
+    [ -f "$LOG_DIR/co-tenancy.log" ] && sha256sum "$LOG_DIR/co-tenancy.log"
+    [ -f "$LOG_DIR/toolchain.txt" ] && sha256sum "$LOG_DIR/toolchain.txt"
+  } > "$LOG_DIR/soak.sha256"
+  log "evidence hashes: $(wc -l < "$LOG_DIR/soak.sha256") files"
 }
 
 cmd_restore() {

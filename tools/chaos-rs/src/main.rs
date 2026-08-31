@@ -116,14 +116,15 @@ fn main() {
         "Loaded {} corpus seeds, round={} (effective seeds: seed ^ {})",
         corpus.len(),
         round,
-        round
+        "base + round * golden_ratio"
     );
 
     let mut total_inputs = 0u64;
     let mut total_accepted = 0u64;
 
     for &base_seed in &CANONICAL_SEEDS {
-        let effective_seed = base_seed ^ round;
+        // Multiplicador ímpar (golden ratio) para evitar colisões entre seeds
+        let effective_seed = base_seed.wrapping_add(round.wrapping_mul(0x9E3779B97F4A7C15));
         let mut rng = ChaCha8Rng::seed_from_u64(effective_seed);
         let mut buf = [0u8; MAX_INPUT];
         let mut accepted = 0u64;
