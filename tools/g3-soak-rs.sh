@@ -216,7 +216,7 @@ start_thermal_logger() {
       fi
       sleep 30
     done
-  ) &
+  ) >/dev/null 2>&1 &
   echo $!
 }
 
@@ -228,7 +228,8 @@ cmd_burnin() {
   log "burn-in: ${hours}h (${secs}s) with thermal monitoring"
 
   local thermal_pid
-  start_thermal_logger "$LOG_DIR/thermal-burnin.csv" >/dev/null 2>&1 &; thermal_pid=$!
+  start_thermal_logger "$LOG_DIR/thermal-burnin.csv" > /dev/null 2>&1 &
+  thermal_pid=$!
 
   cd "$REPO_ROOT"
   local end_time=$(($(date +%s) + secs))
@@ -261,7 +262,8 @@ cmd_soak() {
 
   # Thermal logging during soak too (bug #4: was burn-in only)
   local thermal_pid
-  start_thermal_logger "$LOG_DIR/thermal-soak.csv" >/dev/null 2>&1 &; thermal_pid=$!
+  start_thermal_logger "$LOG_DIR/thermal-soak.csv" > /dev/null 2>&1 &
+  thermal_pid=$!
 
   cd "$REPO_ROOT"
   local end_time=$(($(date +%s) + secs))
@@ -310,7 +312,7 @@ cmd_soak() {
         max_temp=$(awk -F, 'NR>1 && $3+0 > max {max=$3+0} END {printf "%.1f", max}' "$LOG_DIR/thermal-soak.csv" 2>/dev/null || echo "?")
         thermal_samples=$(wc -l < "$LOG_DIR/thermal-soak.csv" 2>/dev/null || echo 0)
       fi
-      log "HEARTBEAT: round $round | max_temp=${max_temp}°C | thermal_samples=$throttle_samples | failures=$(wc -l < "$FAIL_LOG")" | tee -a "$SOAK_LOG"
+      log "HEARTBEAT: round $round | max_temp=${max_temp}°C | thermal_samples=$thermal_samples | failures=$(wc -l < "$FAIL_LOG")" | tee -a "$SOAK_LOG"
     fi
 
     sleep 10
