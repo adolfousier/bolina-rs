@@ -83,13 +83,17 @@ cmd_pause() {
 
   # Snapshot services before pause (observe, don't pretend)
   log "snapshotting services..."
-  if [ "$(id -u)" = "0" ] && [ -n "${SUDO_USER:-}" ]; then
-    sudo -u "$SUDO_USER" XDG_RUNTIME_DIR="/run/user/$(id -u "$SUDO_USER")" \
-      systemctl --user list-units --type=service --state=running > "$LOG_DIR/services-before.txt" 2>&1 || true
-  else
-    systemctl --user list-units --type=service --state=running > "$LOG_DIR/services-before.txt" 2>&1 || true
-  fi
-  systemctl list-units --type=service --state=running >> "$LOG_DIR/services-before.txt" 2>&1 || true
+  user_list() {
+    if [ "$(id -u)" = "0" ] && [ -n "${SUDO_USER:-}" ]; then
+      sudo -u "$SUDO_USER" XDG_RUNTIME_DIR="/run/user/$(id -u "$SUDO_USER")" \
+        systemctl --user list-units --type=service --state=running 2>&1
+    else
+      systemctl --user list-units --type=service --state=running 2>&1
+    fi
+  }
+  user_list > "$LOG_DIR/services-before-user.txt" || true
+  systemctl list-units --type=service --state=running > "$LOG_DIR/services-before-system.txt" 2>&1 || true
+  cat "$LOG_DIR/services-before-user.txt" "$LOG_DIR/services-before-system.txt" > "$LOG_DIR/services-before.txt"
 
   # Pause user services (as the actual user, not root)
   log "pausing user services: ${services[*]}"
@@ -202,6 +206,26 @@ cmd_pause() {
 
 # Thermal CSV helper — $3 is the temperature field from sensors(1) (bug #4 fix).
 # Runs in background during both burnin and soak.
+start_cotenancy_sampler() {
+  local out="$1"
+  (
+    while true; do
+      ts=$(date -u +%FT%TZ)
+      load=$(uptime | sed 's/.*load average[s]*: //' | cut -d, -f1)
+      ch=$(pgrep -f chaos-rs 2>/dev/null | wc -l | tr -d ' ')
+      cg=$(pgrep -f "cargo test" 2>/dev/null | wc -l | tr -d ' ')
+      line="$ts load=$load chaos_procs=$ch cargo_procs=$cg"
+      for svc in orbit-discord-bot opencrabs gitlab-runner cron; do
+        st=$(systemctl is-active "$svc" 2>/dev/null || echo unknown)
+        line="$line $svc=$st"
+      done
+      echo "$line" >> "$out"
+      sleep 300
+    done
+  ) >/dev/null 2>&1 &
+  echo $!
+}
+
 start_thermal_logger() {
   local csv_file="$1"
   echo "timestamp,label,temp_c" > "$csv_file"
@@ -228,8 +252,7 @@ cmd_burnin() {
   log "burn-in: ${hours}h (${secs}s) with thermal monitoring"
 
   local thermal_pid
-  start_thermal_logger "$LOG_DIR/thermal-burnin.csv" > /dev/null 2>&1 &
-  thermal_pid=$!
+  thermal_pid=$(start_thermal_logger "$LOG_DIR/thermal-burnin.csv")
 
   cd "$REPO_ROOT"
   local end_time=$(($(date +%s) + secs))
@@ -262,8 +285,9 @@ cmd_soak() {
 
   # Thermal logging during soak too (bug #4: was burn-in only)
   local thermal_pid
-  start_thermal_logger "$LOG_DIR/thermal-soak.csv" > /dev/null 2>&1 &
-  thermal_pid=$!
+  thermal_pid=$(start_thermal_logger "$LOG_DIR/thermal-soak.csv")
+  local cotenancy_pid
+  cotenancy_pid=$(start_cotenancy_sampler "$LOG_DIR/cotenancy-samples.log")
 
   cd "$REPO_ROOT"
   local end_time=$(($(date +%s) + secs))
@@ -277,20 +301,32 @@ cmd_soak() {
 
     # cargo test — wrapped: failure is logged, not fatal (bug #1 fix)
     log "running cargo test..." | tee -a "$SOAK_LOG"
-    if cargo test --release 2>&1 | tail -5 | tee -a "$SOAK_LOG"; then
+    if cargo test --release > "$LOG_DIR/cargo-round-$round.log" 2>&1; then
+      grep -h "^test result:" "$LOG_DIR/cargo-round-$round.log" | tee -a "$SOAK_LOG"
       :
     else
       echo "$(date -u +%FT%TZ) round $round: cargo test FAILED" >> "$FAIL_LOG"
       log "FAIL: cargo test round $round (logged to failures.log)" | tee -a "$SOAK_LOG"
     fi
 
-    # chaos-rs — with round as seed modifier (bug #5 fix: distinct inputs per round)
-    log "running chaos-rs (round=$round)..." | tee -a "$SOAK_LOG"
-    if ./tools/chaos-rs/target/release/chaos-rs "$round" 2>&1 | tail -10 | tee -a "$SOAK_LOG"; then
-      :
-    else
-      echo "$(date -u +%FT%TZ) round $round: chaos-rs FAILED (panic?)" >> "$FAIL_LOG"
+    # chaos-rs — parallel workers (one per core), distinct (round, worker) streams.
+    # INPUTS_PER_SEED env-configurable (default 50M per seed per round).
+    export INPUTS_PER_SEED="${INPUTS_PER_SEED:-50000000}"
+    CH_WORKERS="${CH_WORKERS:-$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)}"
+    log "running chaos-rs (round=$round, workers=$CH_WORKERS, inputs_per_seed=$INPUTS_PER_SEED)..." | tee -a "$SOAK_LOG"
+    CH_FAIL_MARK="$LOG_DIR/.ch_fail.$$"
+    rm -f "$CH_FAIL_MARK"
+    w=0
+    while [ "$w" -lt "$CH_WORKERS" ]; do
+      ( ./tools/chaos-rs/target/release/chaos-rs "$round" "$w" "$CH_WORKERS" >> "$LOG_DIR/chaos.log" 2>&1 \
+          || echo "worker=$w" >> "$CH_FAIL_MARK" ) &
+      w=$((w + 1))
+    done
+    wait
+    if [ -f "$CH_FAIL_MARK" ]; then
+      echo "$(date -u +%FT%TZ) round $round: chaos-rs FAILED for: $(tr '\n' ' ' < "$CH_FAIL_MARK")" >> "$FAIL_LOG"
       log "FAIL: chaos-rs round $round (logged to failures.log)" | tee -a "$SOAK_LOG"
+      rm -f "$CH_FAIL_MARK"
     fi
 
     # conformance: cross-diff validates frozen vectors (bug #3 fix)
@@ -315,10 +351,10 @@ cmd_soak() {
       log "HEARTBEAT: round $round | max_temp=${max_temp}°C | thermal_samples=$thermal_samples | failures=$(wc -l < "$FAIL_LOG")" | tee -a "$SOAK_LOG"
     fi
 
-    sleep 10
   done
 
   kill $thermal_pid 2>/dev/null || true
+  kill $cotenancy_pid 2>/dev/null || true
 
   log "soak complete after $round rounds" | tee -a "$SOAK_LOG"
   log "total failures: $(wc -l < "$FAIL_LOG")" | tee -a "$SOAK_LOG"
@@ -329,6 +365,7 @@ cmd_soak() {
     sha256sum "$SOAK_LOG"
     [ -f "$FAIL_LOG" ] && sha256sum "$FAIL_LOG"
     [ -f "$LOG_DIR/thermal-soak.csv" ] && sha256sum "$LOG_DIR/thermal-soak.csv"
+    [ -f "$LOG_DIR/cotenancy-samples.log" ] && sha256sum "$LOG_DIR/cotenancy-samples.log"
     [ -f "$LOG_DIR/co-tenancy.log" ] && sha256sum "$LOG_DIR/co-tenancy.log"
     [ -f "$LOG_DIR/toolchain.txt" ] && sha256sum "$LOG_DIR/toolchain.txt"
   } > "$LOG_DIR/soak.sha256"
@@ -363,19 +400,33 @@ cmd_restore() {
     fi
   done
 
-  # Restore user services
-  if [ -s "$LOG_DIR/services-before.txt" ]; then
-    grep "running" "$LOG_DIR/services-before.txt" | awk '{print $1}' | while read -r svc; do
+  # Restore user services — ONLY units observed running in the USER listing,
+  # and report only what the command actually returned (observed, not intended)
+  if [ -s "$LOG_DIR/services-before-user.txt" ]; then
+    grep " running " "$LOG_DIR/services-before-user.txt" | awk '{print $1}' | while read -r svc; do
       if [ "$(id -u)" = "0" ] && [ -n "${SUDO_USER:-}" ]; then
-        sudo -u "$SUDO_USER" XDG_RUNTIME_DIR="/run/user/$(id -u "$SUDO_USER")" \
-          systemctl --user start "$svc" 2>/dev/null || true
-        log "restarted $svc (user $SUDO_USER)"
+        if sudo -u "$SUDO_USER" XDG_RUNTIME_DIR="/run/user/$(id -u "$SUDO_USER")" \
+             systemctl --user start "$svc" 2>/dev/null \
+             && sudo -u "$SUDO_USER" XDG_RUNTIME_DIR="/run/user/$(id -u "$SUDO_USER")" \
+                  systemctl --user is-active --quiet "$svc" 2>/dev/null; then
+          log "restarted $svc (user $SUDO_USER): verified active"
+        else
+          log "RESTART FAILED for $svc (user $SUDO_USER)"
+        fi
       else
-        systemctl --user start "$svc" 2>/dev/null || true
-        log "restarted $svc (user)"
+        if systemctl --user start "$svc" 2>/dev/null && systemctl --user is-active --quiet "$svc" 2>/dev/null; then
+          log "restarted $svc (user): verified active"
+        else
+          log "RESTART FAILED for $svc (user)"
+        fi
       fi
     done
   fi
+
+  # services-after.txt: observed post-restore state, both scopes (pairs with before)
+  user_list > "$LOG_DIR/services-after-user.txt" 2>&1 || true
+  systemctl list-units --type=service --state=running > "$LOG_DIR/services-after-system.txt" 2>&1 || true
+  cat "$LOG_DIR/services-after-user.txt" "$LOG_DIR/services-after-system.txt" > "$LOG_DIR/services-after.txt"
 
   # Unlock sleep/updates
   sudo systemctl unmask sleep.target suspend.target hibernate.target 2>/dev/null || true

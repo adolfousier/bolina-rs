@@ -11,7 +11,13 @@ use serde::Deserialize;
 use std::fs;
 
 const CANONICAL_SEEDS: [u64; 5] = [108230699740769, 42, 1337, 999999, 3735928559];
-const INPUTS_PER_SEED: usize = 1_000_000;
+const INPUTS_PER_SEED_DEFAULT: usize = 50_000_000;
+fn inputs_per_seed() -> usize {
+    std::env::var("INPUTS_PER_SEED")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(INPUTS_PER_SEED_DEFAULT)
+}
 const MAX_INPUT: usize = 1024;
 const MUTATE_RATIO: u8 = 40;
 
@@ -110,6 +116,15 @@ fn main() {
         .nth(1)
         .and_then(|s| s.parse().ok())
         .unwrap_or(0);
+    let worker_id: u64 = std::env::args()
+        .nth(2)
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(0);
+    let worker_count: u64 = std::env::args()
+        .nth(3)
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(1)
+        .max(1);
 
     let corpus = load_corpus();
     println!(
@@ -122,30 +137,46 @@ fn main() {
     let mut total_inputs = 0u64;
     let mut total_accepted = 0u64;
 
+    let ips = inputs_per_seed();
+    println!(
+        "worker {}/{}: inputs_per_seed={} (env INPUTS_PER_SEED overrides)",
+        worker_id, worker_count, ips
+    );
+
     for &base_seed in &CANONICAL_SEEDS {
-        // Multiplicador ímpar (golden ratio) para evitar colisões entre seeds
-        let effective_seed = base_seed.wrapping_add(round.wrapping_mul(0x9E3779B97F4A7C15));
+        // Golden ratio per round + distinct worker term: (round, worker) streams never repeat
+        let effective_seed = base_seed
+            .wrapping_add(round.wrapping_mul(0x9E3779B97F4A7C15))
+            .wrapping_add(worker_id.wrapping_mul(0x2545F4914F6CDD1D));
         let mut rng = ChaCha8Rng::seed_from_u64(effective_seed);
         let mut buf = [0u8; MAX_INPUT];
         let mut accepted = 0u64;
+        let mut seen = 0u64;
 
-        for _ in 0..INPUTS_PER_SEED {
+        // Slice: this worker takes every worker_count-th input
+        let mut i = worker_id;
+        let ips64 = ips as u64;
+        while i < ips64 {
             let input = next_input(&mut rng, &corpus, &mut buf);
             if try_parse(input) {
                 accepted += 1;
             }
+            seen += 1;
+            i += worker_count;
         }
+        let seen = seen;
 
-        total_inputs += INPUTS_PER_SEED as u64;
+        total_inputs += seen;
         total_accepted += accepted;
         println!(
-            "seed {} (^{} = {}): {}/{} accepted ({:.2}%)",
+            "seed {} (r{}w{} = {}): {}/{} accepted ({:.2}%)",
             base_seed,
             round,
+            worker_id,
             effective_seed,
             accepted,
-            INPUTS_PER_SEED,
-            100.0 * accepted as f64 / INPUTS_PER_SEED as f64
+            seen,
+            100.0 * accepted as f64 / seen.max(1) as f64
         );
     }
 
