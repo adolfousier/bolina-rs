@@ -216,7 +216,8 @@ start_cotenancy_sampler() {
       cg=$(pgrep -f "cargo test" 2>/dev/null | wc -l | tr -d ' ')
       line="$ts load=$load chaos_procs=$ch cargo_procs=$cg"
       for svc in orbit-discord-bot opencrabs gitlab-runner cron; do
-        st=$(systemctl is-active "$svc" 2>/dev/null || echo unknown)
+        st=$(systemctl is-active "$svc" 2>/dev/null)
+          [ -z "$st" ] && st=unknown
         line="$line $svc=$st"
       done
       echo "$line" >> "$out"

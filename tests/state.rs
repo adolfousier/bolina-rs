@@ -4,19 +4,16 @@
 use bolina::state::intent::*;
 use bolina::state::ledger::*;
 
-use std::path::PathBuf;
-use std::sync::atomic::{AtomicUsize, Ordering};
 
-fn tmpdir(tag: &str) -> PathBuf {
-    static N: AtomicUsize = AtomicUsize::new(0);
-    let d = std::env::temp_dir().join(format!(
-        "bolina_w3_{}_{}_{}",
-        tag,
-        std::process::id(),
-        N.fetch_add(1, Ordering::Relaxed)
-    ));
-    std::fs::create_dir_all(&d).unwrap();
-    d
+// G3 run-2 follow-up: TempDir auto-cleanup. The two soak runs left 82,612
+// dirs (~269 MB) in tmpfs; tests must not leak. TempDir wipes on drop, even
+// during panic unwind -- the T3 dump below embeds evidence in the panic
+// message BEFORE any drop runs.
+fn tmpdir(tag: &str) -> tempfile::TempDir {
+    tempfile::Builder::new()
+        .prefix(&format!("bolina_w3_{tag}_"))
+        .tempdir()
+        .unwrap()
 }
 
 fn id(n: u64) -> [u8; GRANT_ID_LEN] {
@@ -145,7 +142,7 @@ fn md4_churn_never_exhausts_the_table() {
 #[test]
 fn commit_visible_on_read_back_t1() {
     let dir = tmpdir("t1");
-    let p = dir.join("ledger.bin");
+    let p = dir.path().join("ledger.bin");
     {
         let mut l = GrantLedger::open(&p).unwrap();
         l.commit_consumed(&id(1), 9_999, 100).unwrap(); // returns after fsync
@@ -159,7 +156,7 @@ fn commit_visible_on_read_back_t1() {
 #[test]
 fn restart_replays_exact_state_t2() {
     let dir = tmpdir("t2");
-    let p = dir.join("ledger.bin");
+    let p = dir.path().join("ledger.bin");
     {
         let mut l = GrantLedger::open(&p).unwrap();
         l.commit_consumed(&id(1), 9_999, 100).unwrap();
@@ -176,7 +173,7 @@ fn restart_replays_exact_state_t2() {
 #[test]
 fn orphan_reemits_exactly_once_t3_be_grant_01a() {
     let dir = tmpdir("t3");
-    let p = dir.join("ledger.bin");
+    let p = dir.path().join("ledger.bin");
     {
         let mut l = GrantLedger::open(&p).unwrap();
         l.commit_consumed(&id(7), 9_999, 100).unwrap();
@@ -184,7 +181,22 @@ fn orphan_reemits_exactly_once_t3_be_grant_01a() {
     }
     let mut l = GrantLedger::open(&p).unwrap();
     let rec = l.recover().unwrap();
-    assert_eq!(rec.orphans.len(), 1);
+    if rec.orphans.len() != 1 || rec.orphans.first() != Some(&id(7)) {
+        // G3 anomaly (round 562, 2026-09-03): left 0 right 1, unreproduced in
+        // ~14,400 runs. Dump decides the fork: raw bytes show the consumed
+        // record but recover missed it => READ/recover bug; bytes missing =>
+        // WRITE did not persist. Never re-run this without the dump.
+        let meta = std::fs::metadata(&p);
+        let raw = std::fs::read(&p).unwrap_or_default();
+        panic!(
+            "T3 G3-ANOMALY DUMP: exists={} size={:?} orphans={:?} raw_len={} raw_hex={}",
+            meta.is_ok(),
+            meta.map(|m| m.len()),
+            rec.orphans,
+            raw.len(),
+            raw.iter().map(|b| format!("{b:02x}")).collect::<String>()
+        );
+    }
     assert_eq!(rec.orphans[0], id(7));
     l.mark_published(&id(7)).unwrap();
     let rec = l.recover().unwrap();
@@ -194,7 +206,7 @@ fn orphan_reemits_exactly_once_t3_be_grant_01a() {
 #[test]
 fn revocations_persist_never_pruned_t4_be_rev_02() {
     let dir = tmpdir("t4");
-    let p = dir.join("ledger.bin");
+    let p = dir.path().join("ledger.bin");
     {
         let mut l = GrantLedger::open(&p).unwrap();
         l.commit_revocation(&pk(5), 1_234).unwrap();
@@ -210,7 +222,7 @@ fn revocations_persist_never_pruned_t4_be_rev_02() {
 #[test]
 fn prune_drops_only_expired_t5() {
     let dir = tmpdir("t5");
-    let p = dir.join("ledger.bin");
+    let p = dir.path().join("ledger.bin");
     let mut l = GrantLedger::open(&p).unwrap();
     l.commit_consumed(&id(1), 500, 100).unwrap();
     l.commit_consumed(&id(2), 50_000, 100).unwrap();
@@ -221,7 +233,7 @@ fn prune_drops_only_expired_t5() {
 #[test]
 fn torn_trailing_record_discarded_cleanly_t6() {
     let dir = tmpdir("t6");
-    let p = dir.join("ledger.bin");
+    let p = dir.path().join("ledger.bin");
     {
         let mut l = GrantLedger::open(&p).unwrap();
         l.commit_consumed(&id(1), 9_999, 100).unwrap();
@@ -238,7 +250,7 @@ fn torn_trailing_record_discarded_cleanly_t6() {
 #[test]
 fn idempotent_commit_t7() {
     let dir = tmpdir("t7");
-    let p = dir.join("ledger.bin");
+    let p = dir.path().join("ledger.bin");
     let mut l = GrantLedger::open(&p).unwrap();
     l.commit_consumed(&id(1), 9_999, 100).unwrap();
     l.commit_consumed(&id(1), 1_111, 101).unwrap(); // re-commit = no-op
@@ -251,7 +263,7 @@ fn idempotent_commit_t7() {
 #[test]
 fn crash_during_prune_stale_temp_cleaned_t8() {
     let dir = tmpdir("t8");
-    let p = dir.join("ledger.bin");
+    let p = dir.path().join("ledger.bin");
     let mut l = GrantLedger::open(&p).unwrap();
     l.commit_consumed(&id(1), 500, 100).unwrap();
     std::fs::write(p.with_extension("bin.prune-tmp"), b"garbage").unwrap();
@@ -266,7 +278,7 @@ fn crash_during_prune_stale_temp_cleaned_t8() {
 #[test]
 fn flock_second_open_locked_close_releases_t9_md3() {
     let dir = tmpdir("t9");
-    let p = dir.join("ledger.bin");
+    let p = dir.path().join("ledger.bin");
     let mut l = GrantLedger::open(&p).unwrap();
     assert!(matches!(GrantLedger::open(&p), Err(LedgerError::Locked))); // MD3 holds
     l.close();
@@ -283,7 +295,7 @@ fn flock_second_open_locked_close_releases_t9_md3() {
 #[test]
 fn read_only_handle_refuses_mutators_md3() {
     let dir = tmpdir("ro");
-    let p = dir.join("ledger.bin");
+    let p = dir.path().join("ledger.bin");
     {
         let mut l = GrantLedger::open(&p).unwrap();
         l.commit_consumed(&id(1), 9_999, 100).unwrap();
@@ -299,7 +311,7 @@ fn read_only_handle_refuses_mutators_md3() {
 #[test]
 fn first_receipt_survives_restart_first_wins_t10_f4() {
     let dir = tmpdir("f4");
-    let p = dir.join("ledger.bin");
+    let p = dir.path().join("ledger.bin");
     {
         let mut l = GrantLedger::open(&p).unwrap();
         l.record_first_receipt(&id(1), 1_700_000_000).unwrap();
@@ -314,7 +326,7 @@ fn first_receipt_survives_restart_first_wins_t10_f4() {
 #[test]
 fn record_format_bytes_exact() {
     let dir = tmpdir("fmt");
-    let p = dir.join("ledger.bin");
+    let p = dir.path().join("ledger.bin");
     let mut l = GrantLedger::open(&p).unwrap();
     l.commit_consumed(&id(1), 0x0102030405060708, 100).unwrap();
     l.mark_published(&id(1)).unwrap();
