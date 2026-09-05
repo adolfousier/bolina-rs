@@ -210,9 +210,9 @@ description = "dag: MAX_PARENTS boundary weakened"
 [[mutants]]
 domain = "evidence"
 file = "src/transport/evidence.rs"
-anchor = "    if body.len() >= 8 {"
-replacement = "    if body.len() > 8 {"
-description = "evidence: minimum body length boundary weakened"
+anchor = "    stated_q8.min(strongest_ceiling_q8)"
+replacement = "    stated_q8.max(strongest_ceiling_q8)"
+description = "evidence: BE-EVID-02 receiver-decides min inverted (stated leaks past ceiling)"
 
 # --- SYNC/WALK (W10) ---
 [[mutants]]
