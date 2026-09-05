@@ -8,6 +8,10 @@ pub mod sync;
 pub mod verify;
 pub mod resolver;
 pub mod dispatch;
+pub mod dag;
+pub mod evidence;
+pub mod historical;
+pub mod grant_trace;
 pub use mac1::{compute_mac1, verify_mac1, MAC_BYTES};
 pub use noise::{
     transport_nonce, Error as NoiseError, HandshakeResult, Initiator, InitiationInfo, KeyPair,
