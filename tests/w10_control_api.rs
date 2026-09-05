@@ -189,8 +189,8 @@ fn ctrl_api_body_max_boundary_exact_ok_over_refused() {
     let out = post_intent(&padded, &mut r, &mut t, &mut m, &mut ring, 0);
     assert_eq!(out, Ok(IntentOutcome::Accepted));
 
-    // one byte over: 400
-    let over = body_padded(&hex64(0x55), &canonical, &hex64(0x66), &rationale_pad);
+    // one byte over: 400 (rationale one char longer than the exact body's)
+    let over = body_padded(&hex64(0x55), &canonical, &hex64(0x66), &format!("{} ", rationale_pad));
     assert_eq!(over.len(), BODY_MAX + 1);
     assert_eq!(
         post_intent(&over, &mut r, &mut t, &mut m, &mut ring, 0),
