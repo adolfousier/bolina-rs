@@ -1,4 +1,6 @@
 //! W5 sync tests — port of sync_test.zig (8 tests)
+//! BE-SYNC-01: admission requires ESTABLISHED session + member + not revoked;
+//! BE-SYNC-01..05: rate window, peer table, response framing anchors.
 
 use bolina::transport::sync::*;
 

@@ -6,6 +6,8 @@ fn zero_pubkey() -> [u8; 32] { [0u8; 32] }
 fn zero_sig() -> [u8; 64] { [0u8; 64] }
 
 /// Kill mutant: `Cursor::u32be` pos += 4 → pos *= 4
+/// BE-WIRE-02: bounds-checked ZERO-HEAP parsing via Cursor.need() — every read
+/// routes through it; no read past end, no heap allocation on hot path.
 #[test]
 fn cursor_u32be_sequential_reads_independent() {
     let e = Envelope {

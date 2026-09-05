@@ -37,6 +37,8 @@ fn ca_issue_emits_v3_always() {
     assert_eq!(cert_bytes[0], 3); // version = 3 ALWAYS (F15)
 }
 
+// BE-ID-03: approver issuance enforces quorum and span cap;
+// BE-REV-01: privileged TTL must not exceed 30-day cap.
 #[test]
 fn ca_issue_privileged_ttl_over_cap() {
     let dir = TempDir::new().unwrap();
@@ -95,6 +97,8 @@ fn ca_show_reads_cert() {
     assert!(cert_bytes.len() > 0);
 }
 
+// BE-CTRL-03: revocation envelope carries subject expiry (never admin's);
+// BE-REV-01: 30-day cap enforced at issuance, revocation is the counterpart.
 #[test]
 fn ca_revoke_builds_envelope() {
     let dir = TempDir::new().unwrap();

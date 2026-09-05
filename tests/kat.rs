@@ -88,6 +88,7 @@ fn rfc7693_blake2s_256_of_abc() {
 /// Fingerprint contract (keys.fingerprint on the Zig side): hash at FULL width, then
 /// slice — not a shorter BLAKE2 parameterisation. The first 8 bytes feed the hex fp.
 #[test]
+// BE-RES-06: fingerprint = BLAKE2s-256(pubkey)[0..8] hex16, SAME value resolver uses.
 fn blake2s_digest_truncation_first8_is_fingerprint_shape() {
     let want_full = hex!("508c5e8c327c14e2e1a72ba34eeb452f37458b209ed63a294d999b4c86675982");
     let mut h = blake2::Blake2s256::new();
