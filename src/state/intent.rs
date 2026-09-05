@@ -42,7 +42,7 @@ pub struct Entry {
 }
 
 pub struct Table {
-    entries: Vec<Entry>, // hard-capped at MAX_PENDING; overflow refuses
+    pub entries: Vec<Entry>, // hard-capped at MAX_PENDING; overflow refuses
 }
 
 impl Default for Table {

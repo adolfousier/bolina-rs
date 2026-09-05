@@ -56,6 +56,14 @@ pub const DOMAIN_REFUSAL: u8 = 0x06;
 pub const BODY_UTTERANCE: u8 = 1;
 pub const BODY_INTENT: u8 = 2;
 pub const BODY_GRANT: u8 = 3;
+pub const BODY_EFFECT: u8 = 4;
+pub const BODY_CONTROL: u8 = 5;
+pub const BODY_REFUSAL: u8 = 6;
+
+// Role bits (binding.zig:33-35)
+pub const ROLE_AGENT: u8 = 1 << 1;
+pub const ROLE_EXECUTOR: u8 = 1 << 2;
+pub const ROLE_APPROVER: u8 = 1 << 3;
 
 // --- errors (exact set, no extras; D-049 analog) ----------------------------
 
