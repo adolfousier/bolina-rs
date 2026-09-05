@@ -140,3 +140,30 @@ fn ca_revoke_idempotent() {
     ca_revoke(dir.path(), &serial, None).unwrap();
     fs::remove_dir_all(dir.path()).ok();
 }
+
+#[test]
+fn ca_ttl_boundary_exact_max_ok_one_over_refused() {
+    // Mutant kill: `ttl > MAX` weakened to `>=` would refuse the EXACT
+    // maximum. Exactly 30 days is legal; one ms more is refused.
+    let dir = temp_dir("ttl-boundary");
+    ca_init(dir.path(), 2).unwrap();
+    let max_ttl: u64 = 30 * 24 * 3600 * 1000; // MAX_PRIVILEGED_LIFETIME_MS
+
+    // the privileged-TTL cap applies to executor/approver roles only
+    let req = IssueReq {
+        role: "approver".into(),
+        subject: "approver-1".into(),
+        scopes: vec![scope("prod")],
+        ttl_ms: max_ttl,
+    };
+    assert!(ca_issue(dir.path(), &req).is_ok(), "exact max TTL must be accepted");
+
+    let over = IssueReq {
+        role: "approver".into(),
+        subject: "approver-2".into(),
+        scopes: vec![scope("prod")],
+        ttl_ms: max_ttl + 1,
+    };
+    assert!(ca_issue(dir.path(), &over).is_err(), "TTL above max must be refused");
+    fs::remove_dir_all(dir.path()).ok();
+}

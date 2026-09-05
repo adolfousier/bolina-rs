@@ -3,7 +3,7 @@
 
 use bolina::control_api::{
     get_intent_state, metrics_body, parse_since, post_intent, ApiError, EventRing, IntentOutcome,
-    Metrics, ID_HEX_LEN, SUBJ_HEX_LEN,
+    Metrics, BODY_MAX, ID_HEX_LEN, SUBJ_HEX_LEN,
 };
 use bolina::state::intent;
 use bolina::transport::resolver::{executor_fp, Resolver};
@@ -169,4 +169,38 @@ fn ctrl_api_ring_off_by_one_seq8() {
 fn ctrl_api_id_hex_len_const() {
     assert_eq!(ID_HEX_LEN, 64);
     assert_eq!(SUBJ_HEX_LEN, 64);
+}
+
+/// BODY_MAX boundary: a body of EXACTLY BODY_MAX passes the gate (routed to
+/// field validation), one byte over is 400 (mutant kill: `>` -> `>=`).
+#[test]
+fn ctrl_api_body_max_boundary_exact_ok_over_refused() {
+    let (mut r, mut t, mut m, mut ring) = setup();
+    let key = [5u8; 32];
+    let canonical = format!("bol:{}/ns/dev/x", std::str::from_utf8(&executor_fp(&key)).unwrap());
+
+    // exact-4096 body: pad the rationale so the total length is BODY_MAX
+    let id = hex64(0x33);
+    let base = body(&id, &canonical, &hex64(0x44));
+    // the base's 1-char rationale gets REPLACED by the pad, hence +1
+    let rationale_pad = " ".repeat(BODY_MAX - base.len() + 1);
+    let padded = body_padded(&id, &canonical, &hex64(0x44), &rationale_pad);
+    assert_eq!(padded.len(), BODY_MAX, "constructed body must be exactly BODY_MAX");
+    let out = post_intent(&padded, &mut r, &mut t, &mut m, &mut ring, 0);
+    assert_eq!(out, Ok(IntentOutcome::Accepted));
+
+    // one byte over: 400
+    let over = body_padded(&hex64(0x55), &canonical, &hex64(0x66), &rationale_pad);
+    assert_eq!(over.len(), BODY_MAX + 1);
+    assert_eq!(
+        post_intent(&over, &mut r, &mut t, &mut m, &mut ring, 0),
+        Err(ApiError::BadRequest)
+    );
+}
+
+fn body_padded(id: &str, resource: &str, subject: &str, rationale: &str) -> String {
+    format!(
+        "{{\"id\":\"{}\",\"resource\":\"{}\",\"action\":\"read\",\"rationale\":\"{}\",\"subject\":\"{}\"}}",
+        id, resource, rationale, subject
+    )
 }

@@ -398,3 +398,17 @@ fn grant_trace_seq_monotonic() {
     assert_eq!(snap[1].seq, 1);
     assert_eq!(snap[2].seq, 2);
 }
+
+#[test]
+fn dag_max_parents_boundary_eight_ok_nine_refused() {
+    // BE-DEP-02 granularity: exactly MAX_PARENTS distinct parents is legal;
+    // the 9th distinct parent refuses (mutant kill: `>=` weakened to `>`).
+    let mut d = Dag::new();
+    let child = [99u8; NODE_BYTES];
+    for i in 0..8u8 {
+        let p = [i; NODE_BYTES];
+        d.insert(&p, &child).expect("8 parents must be accepted");
+    }
+    let ninth = [9u8; NODE_BYTES];
+    assert_eq!(d.insert(&ninth, &child), Err(DagError::Overflow));
+}

@@ -272,3 +272,106 @@ fn w7_t_recv_s_default_is_five_minutes() {
 fn w7_sender_max_action_is_512() {
     assert_eq!(SENDER_MAX_ACTION, 512);
 }
+
+#[test]
+fn dispatch_action_boundary_exactly_max_accepted() {
+    // F5/F13 boundary: an action of EXACTLY SENDER_MAX_ACTION (512) bytes is
+    // admitted; the mutant (`>` weakened to `>=`) refuses it.
+    use bolina::codec::{self, Envelope, Intent};
+    use bolina::state::intent as intent_mod;
+    use bolina::transport::dispatch::{Dispatch, Hooks, Outcome};
+    use bolina::transport::verify::{EffectOutcome, SenderTable, SENDER_MAX_ACTION};
+    use ed25519_dalek::{Signer, SigningKey};
+
+    // resolver owns the executor identity; canonical resource added
+    let exec_key = [5u8; 32];
+    let mut resolver = Resolver::new(&exec_key);
+    let fp = std::str::from_utf8(&executor_fp(&exec_key)).unwrap().to_string();
+    let canonical = format!("bol:{}/ns/dev/x", fp);
+    resolver.add(canonical.as_bytes()).unwrap();
+
+    // agent signs the envelope
+    let agent = SigningKey::from_bytes(&[0x61u8; 32]);
+    let agent_pub = agent.verifying_key().to_bytes();
+
+    // intent body with action EXACTLY at the bound
+    let action = vec![b'a'; SENDER_MAX_ACTION];
+    let intent_id = [7u8; 16];
+    let intent = Intent {
+        intent_id: &intent_id,
+        resource_id: canonical.as_bytes(),
+        action: &action,
+        rationale: b"boundary",
+    };
+    let body = codec::encode_intent(&intent);
+
+    // envelope: tbs = header fields + body (wire minus trailing sig)
+    let channel = [0u8; 32];
+    let mut tbs = Vec::new();
+    tbs.push(2u8); // version
+    tbs.extend_from_slice(&channel);
+    tbs.extend_from_slice(&agent_pub);
+    tbs.extend_from_slice(&1u64.to_be_bytes()); // seq
+    tbs.push(0u8); // parent_count
+    tbs.extend_from_slice(&1700000010000u64.to_be_bytes()); // ts
+    tbs.push(codec::BODY_INTENT);
+    tbs.extend_from_slice(&(body.len() as u32).to_be_bytes());
+    tbs.extend_from_slice(&body);
+    let mut sig_input = Vec::with_capacity(1 + tbs.len());
+    sig_input.push(codec::DOMAIN_ENVELOPE);
+    sig_input.extend_from_slice(&tbs);
+    let sig = agent.sign(&sig_input).to_bytes();
+
+    let env = Envelope {
+        version: 2,
+        channel_id: &channel,
+        sender: &agent_pub,
+        seq: 1,
+        parent_count: 0,
+        parents: &[],
+        ts: 1700000010000,
+        body_type: codec::BODY_INTENT,
+        body: &body,
+        tbs: &tbs,
+        sig: &sig,
+    };
+    let wire = codec::encode_envelope(&env);
+
+    // dispatch wiring; cert unused on the intent path, hooks dummy
+    let (_, cert_wire) = {
+        // minimal parse of the frozen vector cert via parse_cert
+        let hex_bytes = include_str!("../test/vectors.json");
+        let v: serde_json::Value = serde_json::from_str(hex_bytes).unwrap();
+        let hex_str = v["structures"]["cert"]["wire_hex"].as_str().unwrap();
+        ((), hex_to_bytes(hex_str))
+    };
+    let cert = codec::parse_cert(&cert_wire).expect("vector cert parses");
+
+    let mut intents = intent_mod::Table::new();
+    let mut senders = SenderTable::new();
+    let noop_exec = |_: &codec::Grant<'_>| EffectOutcome::Fired;
+    let hooks = Hooks {
+        execute_effect: &noop_exec,
+        cert_for_sender: &|_| None,
+        on_rejected: &|_| {},
+        is_revoked: &|_| false,
+        already_consumed: &|_, _, _| false,
+    };
+    let own_pub = [0u8; 32];
+    let mut d = Dispatch {
+        resolver: &resolver,
+        intent_table: &mut intents,
+        sender_table: &mut senders,
+        own_pubkey: &own_pub,
+        own_cert: cert,
+        trusted_ca_keys: &[],
+    };
+    let out = d.dispatch(&wire, &hooks, 1700000010001);
+    assert_eq!(out, Ok(Outcome::IntentAdmitted), "action at exactly the bound must be admitted");
+}
+
+fn hex_to_bytes(s: &str) -> Vec<u8> {
+    (0..s.len() / 2)
+        .map(|i| u8::from_str_radix(&s[2 * i..2 * i + 2], 16).unwrap())
+        .collect()
+}

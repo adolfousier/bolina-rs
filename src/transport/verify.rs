@@ -534,3 +534,56 @@ pub fn revoke_prune_expiry(body: &[u8]) -> u64 {
     }
 }
 
+
+#[cfg(test)]
+mod boundary_tests {
+    use super::*;
+
+    /// BE-GRANT-05 (a): capability denied AT the instant of expiry
+    /// (non-strict >=). Mutant kill: `>=` weakened to `>` must fail this.
+    #[test]
+    fn be_grant_05_expiry_denied_at_instant_of_expiry() {
+        assert_eq!(
+            check_expiry(1000, 1000, 0, 3600, 3600),
+            Err(VerifyError::Expired)
+        );
+        // one millisecond earlier: still valid
+        assert_eq!(check_expiry(1000, 999, 0, 3600, 3600), Ok(()));
+    }
+
+    /// BE-GRANT-05 (c): receipt window denied AT the instant (t_recv).
+    #[test]
+    fn be_grant_05_receipt_window_denied_at_instant() {
+        // not_after far away so branch (a) never fires
+        let not_after = 1_000_000;
+        let first = 0;
+        let t_recv_s = 10;
+        assert_eq!(check_expiry(not_after, 10_000, first, 3600, t_recv_s), Ok(()));
+        assert_eq!(
+            check_expiry(not_after, 10_001, first, 3600, t_recv_s),
+            Err(VerifyError::Expired)
+        );
+    }
+
+    /// Wrong-length pubkey is a VerifyError, and a VALID signature over the
+    /// domain-separated input passes (mutant kill: length check inverted).
+    #[test]
+    fn verify_signed_pubkey_length_is_a_guard_not_a_flip() {
+        use ed25519_dalek::{Signer, SigningKey};
+        let sk = SigningKey::from_bytes(&[9u8; 32]);
+        let msg = b"dispatch me";
+        // codec::verify_signed checks over (domain_tag || tbs) - BE-SIG-01
+        let mut sig_input = vec![DOMAIN_GRANT];
+        sig_input.extend_from_slice(msg);
+        let sig = sk.sign(&sig_input).to_bytes().to_vec();
+        let pub_ok = sk.verifying_key().to_bytes();
+
+        // 31-byte pubkey: guard fires
+        assert!(matches!(
+            verify_signed_err(DOMAIN_GRANT, msg, &sig, &pub_ok[..31]),
+            Err(VerifyError::MalformedKey)
+        ));
+        // full 32-byte pubkey: signature verifies
+        assert!(verify_signed_err(DOMAIN_GRANT, msg, &sig, &pub_ok).is_ok());
+    }
+}
