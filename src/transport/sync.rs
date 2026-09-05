@@ -144,3 +144,116 @@ pub fn build_response(
     out[33] = count as u8;
     BuildResult { count, truncated, bytes_written: pos }
 }
+
+// --- WalkQueue (BE-SYNC-03) ---
+
+/// Bounded walk over parent hashes: stops at depth 128 AND total 4096;
+/// UNRESOLVED parents are SURFACED (reported back), NEVER retried inside
+/// the walk (sync.zig BE-SYNC_03).
+pub struct WalkQueue {
+    queue: std::collections::VecDeque<[u8; 32]>,
+    visited: Vec<[u8; 32]>, // linear scan; bounded by WALK_MAX_TOTAL
+    depth: usize,
+    unresolved: Vec<[u8; 32]>,
+}
+
+impl WalkQueue {
+    pub fn new(root: [u8; 32]) -> Self {
+        let mut q = Self {
+            queue: std::collections::VecDeque::new(),
+            visited: Vec::new(),
+            depth: 0,
+            unresolved: Vec::new(),
+        };
+        q.queue.push_back(root);
+        q.visited.push(root);
+        q
+    }
+
+    /// Push a parent hash. Refuses at WALK_MAX_TOTAL (fail closed).
+    pub fn push(&mut self, hash: [u8; 32]) -> Result<()> {
+        if self.visited.len() >= WALK_MAX_TOTAL {
+            return Err(SyncError::WalkExhausted);
+        }
+        if self.visited.iter().any(|v| *v == hash) {
+            return Ok(()); // seen (incl. surfaced): never retried
+        }
+        self.visited.push(hash);
+        self.queue.push_back(hash);
+        Ok(())
+    }
+
+    /// Next hash to walk, respecting WALK_MAX_DEPTH. None = walk complete.
+    pub fn next(&mut self) -> Option<[u8; 32]> {
+        if self.depth >= WALK_MAX_DEPTH {
+            return None; // depth bound: walk stops
+        }
+        match self.queue.pop_front() {
+            Some(h) => {
+                self.depth += 1;
+                Some(h)
+            }
+            None => None,
+        }
+    }
+
+    /// Record resolution outcome. Unresolved parents are SURFACED, never
+    /// re-enqueued.
+    pub fn record(&mut self, hash: [u8; 32], resolved: bool) {
+        if !resolved && !self.unresolved.contains(&hash) {
+            self.unresolved.push(hash);
+        }
+    }
+
+    pub fn depth(&self) -> usize { self.depth }
+    pub fn total(&self) -> usize { self.visited.len() }
+    pub fn unresolved(&self) -> &[[u8; 32]] { &self.unresolved }
+}
+
+#[cfg(test)]
+mod walk_tests {
+    use super::*;
+
+    #[test]
+    fn be_sync_03_walk_stops_at_depth_128() {
+        let mut w = WalkQueue::new([1u8; 32]);
+        // chain of 200 pushes; walk must stop at 128 pops
+        for i in 0..199u8 {
+            w.push([i; 32]).unwrap();
+        }
+        let mut pops = 0;
+        while w.next().is_some() {
+            pops += 1;
+        }
+        assert_eq!(pops, WALK_MAX_DEPTH);
+        assert_eq!(w.depth(), WALK_MAX_DEPTH);
+    }
+
+    #[test]
+    fn be_sync_03_walk_stops_at_total_4096() {
+        let mut w = WalkQueue::new([0u8; 32]);
+        let mut refused = false;
+        for i in 0..WALK_MAX_TOTAL + 10 {
+            let mut h = [0u8; 32];
+            h[..8].copy_from_slice(&(i as u64).to_be_bytes());
+            if w.push(h).is_err() {
+                refused = true;
+                break;
+            }
+        }
+        assert!(refused, "walk must refuse past total bound (fail closed)");
+        assert!(w.total() <= WALK_MAX_TOTAL);
+    }
+
+    #[test]
+    fn be_sync_03_unresolved_surfaced_never_retried() {
+        let mut w = WalkQueue::new([9u8; 32]);
+        w.next(); // pop root
+        w.record([9u8; 32], false); // unresolved
+        assert_eq!(w.unresolved(), &[[9u8; 32]]);
+        // re-push same hash: silently ignored (never retried), not surfaced twice
+        w.push([9u8; 32]).unwrap();
+        assert_eq!(w.unresolved().len(), 1);
+        assert_eq!(w.queue.len(), 0);
+    }
+}
