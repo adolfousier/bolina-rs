@@ -45,3 +45,50 @@ pub fn verify_mac1(
         .ct_eq(received)
         .into()
 }
+
+// ---------------------------------------------------------------------------
+// Cookie (mac2) layer: anti-amplification under load.
+// ---------------------------------------------------------------------------
+
+pub const KEY_BYTES: usize = 32;
+pub const COOKIE_ROTATE_MS: u64 = 120_000; // 2 minutes
+
+pub struct CookieSecret {
+    pub secret: [u8; KEY_BYTES],
+    pub created_ms: u64,
+}
+
+impl CookieSecret {
+    pub fn new(initial_secret: [u8; KEY_BYTES], now_ms: u64) -> Self {
+        Self { secret: initial_secret, created_ms: now_ms }
+    }
+
+    /// True once the secret is COOKIE_ROTATE_MS old.
+    pub fn needs_rotate(&self, now_ms: u64) -> bool {
+        now_ms.wrapping_sub(self.created_ms) >= COOKIE_ROTATE_MS
+    }
+
+    /// Replace secret with new material and stamp it now.
+    pub fn rotate(&mut self, new_secret: [u8; KEY_BYTES], now_ms: u64) {
+        self.secret = new_secret;
+        self.created_ms = now_ms;
+    }
+
+    /// Issue a cookie: BLAKE2s-128(keyed with secret) over source_addr.
+    pub fn issue_cookie(&self, source_addr: &[u8]) -> [u8; MAC_BYTES] {
+        use blake2::digest::Update;
+        let mut mac = <Blake2sMac<U16> as KeyInit>::new_from_slice(&self.secret)
+            .expect("BLAKE2s accepts 32-byte keys");
+        Update::update(&mut mac, source_addr);
+        let tag = mac.finalize().into_bytes();
+        let mut out = [0u8; MAC_BYTES];
+        out.copy_from_slice(&tag);
+        out
+    }
+
+    /// Constant-time cookie verify.
+    pub fn verify_cookie(&self, source_addr: &[u8], received: [u8; MAC_BYTES]) -> bool {
+        use subtle::ConstantTimeEq;
+        self.issue_cookie(source_addr).ct_eq(&received).into()
+    }
+}
