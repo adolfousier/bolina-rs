@@ -23,3 +23,4 @@ pub use noise::{
     transport_nonce, Error as NoiseError, HandshakeResult, Initiator, InitiationInfo, KeyPair,
     Responder, MSG1_BEFORE_MAC1, MSG1_SIZE, MSG2_BEFORE_MAC1, MSG2_SIZE,
 };
+pub mod handshake;

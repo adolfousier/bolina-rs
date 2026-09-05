@@ -27,3 +27,5 @@ pub mod daemon;
 pub mod ca;
 pub mod control;
 pub mod control_api;
+pub mod keys;
+pub mod http_parse;
