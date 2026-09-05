@@ -10,11 +10,11 @@
 //! (verify.zig:21-22, BE-GRANT-03b round 4 restatement).
 
 use crate::codec::{
-    self, verify_signed, Cert, Envelope, Grant,
-    BODY_GRANT,
-    DOMAIN_GRANT, DOMAIN_ENVELOPE,
+    self, verify_signed, Cert, Envelope, Grant, Refusal,
+    BODY_GRANT, BODY_INTENT, BODY_REFUSAL, BODY_EFFECT, BODY_CONTROL,
+    DOMAIN_GRANT, DOMAIN_ENVELOPE, DOMAIN_REFUSAL,
     LEN_ACTION_DIGEST, LEN_INTENT_ID, LEN_PUBKEY, LEN_SCOPE_ID,
-    ROLE_AGENT, ROLE_APPROVER,
+    ROLE_AGENT, ROLE_APPROVER, ROLE_EXECUTOR,
 };
 use crate::state::intent;
 use blake2::Blake2s256;
@@ -347,3 +347,190 @@ fn cert_carries_scope(cert: &Cert<'_>, scope: &[u8]) -> bool {
     }
     false
 }
+
+// ---------------------------------------------------------------------------
+// Refusal verification (SPEC 8.5, BE-GRANT-09 parse half).
+//
+// The Refusal is the approver's signed NO over a single intent_id (domain tag
+// 0x06). It transitions a PENDING intent to REJECTED and releases the resource
+// lock in one message instead of after T_pending (BE-GRANT-06a).
+// ---------------------------------------------------------------------------
+
+pub struct RefusalContext<'a> {
+    pub trusted_ca_keys: &'a [&'a [u8]],
+    pub approver_cert: Cert<'a>,
+    pub now_ms: u64,
+    pub intent_table: &'a mut intent::Table,
+}
+
+/// verifyRefusalThen: the single BE-GRANT-09 verification routine.
+/// On a verified Refusal whose intent_id names a PENDING intent, applyRefusal
+/// moves it to REJECTED and the caller's on_rejected fires once.
+pub fn verify_refusal_then<F>(
+    env: &Envelope<'_>,
+    refusal: &Refusal<'_>,
+    ctx: &mut RefusalContext<'_>,
+    on_rejected: F,
+) -> Result<(), VerifyError>
+where
+    F: FnOnce(&[u8]),
+{
+    use crate::codec::BODY_REFUSAL;
+
+    // 1. A Refusal arrives as a body_type=6 envelope whose sender is the approver.
+    if env.body_type != BODY_REFUSAL {
+        return Err(VerifyError::BadEnvelopeBinding);
+    }
+
+    // 2. Refusal.sig verifies against env.sender over (DOMAIN_REFUSAL || tbs).
+    verify_signed_err(DOMAIN_REFUSAL, refusal.tbs, refusal.sig, env.sender)?;
+
+    // 3. Approver certificate valid NOW and carries the approver role.
+    if (ctx.approver_cert.role_bits & ROLE_APPROVER) == 0 {
+        return Err(VerifyError::BadApproverCert);
+    }
+    if ctx.approver_cert.sig_pubkey != env.sender {
+        return Err(VerifyError::BadApproverCert);
+    }
+
+    // BE-GRANT-09 state transition: a verified Refusal whose intent_id names a
+    // PENDING intent moves it to REJECTED and releases the lock.
+    let intent_id_arr: [u8; LEN_INTENT_ID] = refusal.intent_id.try_into()
+        .map_err(|_| VerifyError::BadEnvelopeBinding)?;
+    if ctx.intent_table.apply_refusal(&intent_id_arr) == intent::RefusalOutcome::Rejected {
+        on_rejected(refusal.intent_id);
+    }
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Channel control verification (SPEC 6.1a-c, BE-CHAN/BE-GEN/BE-CTRL).
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ChannelError {
+    BadMatchRule,      // BE-GEN-04: match_rule != 1
+    BadChannelId,      // channel_id != BLAKE2s(name || ca_key_0)
+    DuplicateGenesis,  // BE-GEN-01: second genesis for existing channel_id
+    GenesisNotAdmin,   // BE-GEN-03: genesis not signed by admin_group cert
+    BadActionType,     // BE-CTRL-01: action_type not in {1, 2}
+    RevokeNotAdmin,    // BE-CTRL-02: Revoke sender lacks admin_group
+    SubjectRevoked,    // BE-CHAN-02/03: subject in grow-only revoked set
+    NotMember,         // BE-CHAN-01/03: cert does not carry member_group
+}
+
+pub struct ChannelContext<'a> {
+    pub genesis_exists: &'a dyn Fn(&[u8]) -> bool,
+    pub is_revoked: &'a dyn Fn(&[u8]) -> bool,
+}
+
+/// BE-CHAN-01: a cert carries a scope iff the 8-byte prefix appears in its scope_ids.
+fn cert_carries_scope_raw(cert: &Cert<'_>, scope: &[u8]) -> bool {
+    for i in 0..cert.scope_count as usize {
+        let off = i * LEN_SCOPE_ID;
+        if off + LEN_SCOPE_ID <= cert.scope_ids.len() {
+            if &cert.scope_ids[off..off + LEN_SCOPE_ID] == scope {
+                return true;
+            }
+        }
+    }
+    false
+}
+
+/// BE-GEN-03: channel_id = BLAKE2s(name || ca_key_0).
+pub fn verify_control_genesis(
+    genesis_name: &[u8],
+    genesis_ca_key_0: &[u8],
+    admin_cert: &Cert<'_>,
+    admin_group: &[u8],
+    channel_id: &[u8],
+    ctx: &ChannelContext<'_>,
+) -> Result<(), ChannelError> {
+    // BE-GEN-04: match_rule fixed at byte equality (1).
+    // (match_rule is on the genesis envelope, validated at parse time)
+
+    // BE-GEN-03: genesis signed by cert carrying admin_group.
+    if !cert_carries_scope_raw(admin_cert, admin_group) {
+        return Err(ChannelError::GenesisNotAdmin);
+    }
+
+    // channel_id = BLAKE2s(name || ca_key_0).
+    let mut hasher = Blake2s256::new();
+    hasher.update(genesis_name);
+    hasher.update(genesis_ca_key_0);
+    let derived = hasher.finalize();
+    if channel_id != &derived[..] {
+        return Err(ChannelError::BadChannelId);
+    }
+
+    // BE-GEN-01: exactly one genesis per channel_id.
+    if (ctx.genesis_exists)(channel_id) {
+        return Err(ChannelError::DuplicateGenesis);
+    }
+    Ok(())
+}
+
+/// BE-CTRL-01/02: validate a control body.
+pub fn verify_control(
+    action_type: u8,
+    sender_cert: &Cert<'_>,
+    admin_group: &[u8],
+) -> Result<(), ChannelError> {
+    // BE-CTRL-01: action_type must be 1 or 2.
+    if action_type != 1 && action_type != 2 {
+        return Err(ChannelError::BadActionType);
+    }
+    // BE-CTRL-02: a Revoke must be signed by a cert carrying admin_group.
+    if action_type == 2 && !cert_carries_scope_raw(sender_cert, admin_group) {
+        return Err(ChannelError::RevokeNotAdmin);
+    }
+    Ok(())
+}
+
+/// BE-CHAN-01/02/03: gate a channel message on the sender's membership.
+pub fn require_member(
+    sender_cert: &Cert<'_>,
+    member_group: &[u8],
+    ctx: &ChannelContext<'_>,
+) -> Result<(), ChannelError> {
+    if (ctx.is_revoked)(sender_cert.sig_pubkey) {
+        return Err(ChannelError::SubjectRevoked);
+    }
+    if !cert_carries_scope_raw(sender_cert, member_group) {
+        return Err(ChannelError::NotMember);
+    }
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// BE-ENV-03: body_type -> role map enforcement.
+// ---------------------------------------------------------------------------
+
+pub fn body_type_allowed(body_type: u8, role_bits: u8) -> bool {
+    let is_agent = (role_bits & ROLE_AGENT) != 0;
+    let is_approver = (role_bits & ROLE_APPROVER) != 0;
+    let is_executor = (role_bits & ROLE_EXECUTOR) != 0;
+
+    match body_type {
+        BODY_INTENT => is_agent,
+        BODY_GRANT | BODY_REFUSAL => is_approver,
+        BODY_EFFECT => is_executor,
+        BODY_CONTROL => true, // Control role-gated at verification
+        _ => false,
+    }
+}
+
+// ---------------------------------------------------------------------------
+// F10/D-090: the prunable expiry a Revoke body carries.
+// ---------------------------------------------------------------------------
+
+/// The SUBJECT's cert expiry travels in the Control body as u64be.
+/// A body without the field predates D-090 and yields u64::MAX (never pruned).
+pub fn revoke_prune_expiry(body: &[u8]) -> u64 {
+    if body.len() >= 8 {
+        u64::from_be_bytes(body[..8].try_into().unwrap())
+    } else {
+        u64::MAX
+    }
+}
+
