@@ -22,17 +22,17 @@
 | main | 269 | 89 | 100% | 0/0 | **FUNCIONAL** (boot simplificado; re-ver no wiring W9) | feita |
 | noise | 460 | 443 | 95% | 0/0 | **FUNCIONAL** (2 tipos → dalek; densidade, não falha) | feita |
 | grant_ledger | 554 | 355 | 90% | 2/3 | **FUNCIONAL** (2 tipos com outra forma; FirstReceipt/Orphan vivem) | feita |
-| sync | 289 | 146 | 72% | 0/1 | **PARCIAL** — SyncEngine/WalkQueue como API em falta | W10 |
+| sync | 289 | 234 | 80% | 1/1 | **PORTADO W10** — WalkQueue (depth 128/total 4096, unresolved surfaced, BE-SYNC-03) + RateWindow/RateTable/build_response; SyncError 7 variantes exactas | feita |
 | ca_material | 297 | 219 | 72% | 1/2 | **FUNCIONAL** (3 helpers inline; densidade) | feita |
-| relay | 255 | 165 | 70% | 1/1 | **PARCIAL** — drain/parse-registration em falta | W10 |
-| handshake | 75 | 722 | 60% | 0/1 | **PARCIAL** — processDatagram vive no daemon.rs com outra forma; auditar | W10 |
-| control | 444 | 208 | 60% | 0/0 | **PARCIAL** — servidor HTTP presente; API de erros/constantes diferente | W10 |
-| mac | 173 | 47 | 50% | 0/0 | **PARCIAL REAL** — mecanismo de cookies (issueCookie/rotate) NÃO portado | W10 |
+| relay | 255 | 165 | 70% | 1/1 | **FECHADO W9/W10** — drain vive em relay_store.rs (drain_next/purge_expired W9); parse-registration coberto por relay.rs parse/encode | feita |
+| handshake | 75 | 130 | 100% | 1/1 | **PORTADO W10** — transport/handshake.rs: MAX_SESSIONS=16, HandshakeError 4 distintas, ordering exacto (type/len→capacity→verify→send→finalize→commit, BE-SESS-02 single-commit), now_ms dropped e documentado | feita |
+| control | 444 | 208 | 60% | 0/0 | **AUDITADO W10** — servidor HTTP presente; a API /v1 vive em control_api.rs (linha própria); roteamento HTTP→control_api = wiring do daemon (pós-waves) | wiring |
+| mac | 173 | 130 | 75% | 1/1 | **PORTADO W10** — issueCookie/verifyCookie/needsRotate/rotate em mac1.rs (9 testes, BE-TR-04a) | feita |
 | replay | 114 | 0 | 50% | 0/0 | **DENSIDADE** — sliding window já vive em session.rs | feita |
-| http_parse | 139 | 208 | 33% | 0/0 | **DENSIDADE** — parser inline no control.rs; API Request/Method diferente; auditar | W10 |
-| parser | 328 | 558 | 34% | 0/1 | **DENSIDADE** — transport headers vivem em noise.rs com outros nomes; auditar item a item | W10 |
+| http_parse | 139 | 260 | 100% | 1/1 | **PORTADO W10** — src/http_parse.rs: HEADER_CAP 8192/BODY_CAP 64KiB, TE refuse, dup-CL byte-equal, obs-fold/space-before-colon/double-SP/control-in-target distintos, cap à declaração, slicing exacto (6 invariantes da ficha testadas) | feita |
+| parser | 328 | 558 | 80% | 1/1 | **AUDITADO W10** — ParseError 4 variantes exactas + Cursor.need (BE-WIRE-02) + parse envelope/intent/grant/refusal/span/cert ✅; handshake-init/response/cookie parsing vive em noise.rs (offsets OFF1_*/OFF2_*, mac1-antes-de-decrypt provado em testes) = DENSIDADE, nomes diferentes, semântica equivalente | feita |
 | daemon | 342 | 279 | 33% | 0/0 | **PARCIAL REAL** — wiring resolveAndAdmit/dispatch/F1 em falta | W9 |
-| keys | 194 | 498 | 30% | 0/1 | **PARCIAL** — funcionalidade espalhada por daemon/ca; API Keys não existe como módulo | W10 |
+| keys | 194 | 300 | 100% | 1/1 | **PORTADO W10** — src/keys.rs: KeysError 5, read/write_key_file (truncado=corrupção), fingerprint delega em executor_fp (BE-RES-06 única impl), loadOrGenerate byte-identical, 0600/0700, PubMismatch distinto, cert verbatim ≤1024, CA pubs em label order | feita |
 | listener | 173 | 0 | 35%* | 0/0 | **AUSENTE** (*falsos positivos: símbolos genéricos) | W9 |
 | relay_serve | 216 | 165 | 15% | 0/1 | **PARCIAL REAL** — role-gate served-cert/drain em falta | W9 |
 | relay_store | 143 | 0 | 15%* | 1/1 | **AUSENTE** — store-and-forward não portado | W9 |
@@ -47,7 +47,7 @@
 | historical | 105 | 0 | 0% | 0/4 | **AUSENTE** — inclui a prova por tipos do no-clock | W8 |
 | evidence | 294 | 0 | 6% | 0/3 | **AUSENTE** | W8 |
 | dag | 190 | 0 | 25%* | 0/3 | **AUSENTE** (*falsos positivos) | W8 |
-| control_api | 339 | 208 | 5% | 0/0 | **PARCIAL REAL** — /v1/intents, /v1/intents/{id}, /v1/events NÃO existem | W10 |
+| control_api | 339 | 356 | 90% | 1/1 | **PORTADO W10** — src/control_api.rs: postIntent via resolveAndAdmit (anti-god-mode), F5 status table (202/202-idempotent/400/409/422), EventRing seq-8 off-by-one, metrics trio de args, parseSince dígitos-estritos, F16 subject obrigatório; NOTA cross-diff: spelling SSE/counters segue a ficha, pinado em testes — byte-compare ao Zig na 1ª máquina com árvore | feita* |
 | ca_cli | 187 | 89 | 0%* | 0/2 | **DENSIDADE** — funcionalidade em main.rs com outra forma (*sym zig não transferidos) | feita |
 
 ## Resposta à pergunta do owner: densidade vs funcionalidade
@@ -56,7 +56,7 @@
 |---|---|---|
 | **Funcional (portada)** | ~2.950 (10 fichas) | testada: 174 testes, mutação 21/21, cross-diff 6/6, 2 soaks |
 | **Densidade/shape (funcionalidade presente, API diferente)** | ~1.400 (8 fichas) | auditar item a item na W10 antes de declarar |
-| **Parcial real (gaps dentro de portados)** | dentro das acima | control_api 5%, mac cookies, relay drain, daemon wiring, keys API, sync engine |
+| **Parcial real (gaps dentro de portados)** | 0 após W10 | restante: daemon wiring HTTP→control_api (pós-waves) |
 | **Ausente (zero código)** | 3 110 (13 fichas) | verify 711 · dispatch 352 · resolver 322 · ledger-env 333 · evidence 294 · binding 190 · dag 190 · listener 173 · grant_trace 163 · relay_store 143 · historical 105 · token 78 · render 56 |
 
 **Números citáveis:** assinaturas 243/506 (48%) · linhas 4.982/8.456 (59%, mas linhas mentem — daí este inventário) · BE citados em testes 15/49 (o resto está coberto por semântica sem citação ou não está coberto — a W7-W10 fecha isto ficha a ficha).
@@ -66,7 +66,7 @@
 - **W7 autoridade**: verify + dispatch + resolver = **1.385 linhas Zig**, a mais densa (F1/F13/F15/F16, ladder BE-GRANT 0-11)
 - **W8 audit/attestation**: evidence + dag + historical + grant_trace = **752 linhas**, inclui prova por tipos do no-clock
 - **W9 suporte + wiring**: listener + binding + token + relay_store + render + ledger-envelope + wiring do daemon (resolveAndAdmit/dispatch/F1) = **~1.475 linhas**
-- **W10 completar portado**: control_api + mac cookies + relay drain + keys API + sync engine + auditorias parser/http_parse/handshake = âmbito exacto sai da auditoria item a item
+- **W10 completar portado: FEITO** — control_api ✅ (ea78a22) · mac cookies ✅ (1f8fd93) · keys ✅ (311d901) · sync WalkQueue ✅ (311d901) · http_parse ✅ + handshake ✅ (2625311) · relay drain ✅ (relay_store W9) · auditorias parser/control ✅ veredictos nesta tabela
 
 
 ## BE gap (D-097 correccao 2) - 34 invariantes sem teste citante, por onda
