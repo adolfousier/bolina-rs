@@ -158,3 +158,170 @@ file = "src/transport/sync.rs"
 anchor = "        if self.used >= MAX_TRACKED_PEERS { return false; }"
 replacement = "        if self.used > MAX_TRACKED_PEERS { return false; }"
 description = "transport: sync MAX_TRACKED_PEERS boundary weakened"
+
+# ==================== W7-W10 (authority + audit + support + completion) ====================
+
+# --- VERIFY (W7) ---
+[[mutants]]
+domain = "verify"
+file = "src/transport/verify.rs"
+anchor = "    if now_ms >= not_after {"
+replacement = "    if now_ms > not_after {"
+description = "verify: not_after capability boundary weakened (BE-GRANT-05)"
+
+[[mutants]]
+domain = "verify"
+file = "src/transport/verify.rs"
+anchor = "    if now_ms > first_receipt_ms + t_recv_ms {"
+replacement = "    if now_ms >= first_receipt_ms + t_recv_ms {"
+description = "verify: t_recv receipt-window boundary weakened"
+
+[[mutants]]
+domain = "verify"
+file = "src/transport/verify.rs"
+anchor = "    if pubkey.len() != LEN_PUBKEY {"
+replacement = "    if pubkey.len() == LEN_PUBKEY {"
+description = "verify: pubkey length check inverted"
+
+# --- DISPATCH (W7) ---
+[[mutants]]
+domain = "dispatch"
+file = "src/transport/dispatch.rs"
+anchor = "        if intent.action.len() > MAX_ACTION {"
+replacement = "        if intent.action.len() >= MAX_ACTION {"
+description = "dispatch: action size boundary weakened"
+
+# --- DAG (W8) ---
+[[mutants]]
+domain = "dag"
+file = "src/transport/dag.rs"
+anchor = "        if self.node_count >= MAX_NODES {"
+replacement = "        if self.node_count > MAX_NODES {"
+description = "dag: MAX_NODES boundary weakened (admits 257th node)"
+
+[[mutants]]
+domain = "dag"
+file = "src/transport/dag.rs"
+anchor = "        if pc >= MAX_PARENTS {"
+replacement = "        if pc > MAX_PARENTS {"
+description = "dag: MAX_PARENTS boundary weakened"
+
+# --- EVIDENCE (W8) ---
+[[mutants]]
+domain = "evidence"
+file = "src/transport/evidence.rs"
+anchor = "    if body.len() >= 8 {"
+replacement = "    if body.len() > 8 {"
+description = "evidence: minimum body length boundary weakened"
+
+# --- SYNC/WALK (W10) ---
+[[mutants]]
+domain = "sync"
+file = "src/transport/sync.rs"
+anchor = "        if self.visited.len() >= WALK_MAX_TOTAL {"
+replacement = "        if self.visited.len() > WALK_MAX_TOTAL {"
+description = "sync: WALK_MAX_TOTAL boundary weakened (BE-SYNC-03)"
+
+[[mutants]]
+domain = "sync"
+file = "src/transport/sync.rs"
+anchor = "        if self.depth >= WALK_MAX_DEPTH {"
+replacement = "        if self.depth > WALK_MAX_DEPTH {"
+description = "sync: WALK_MAX_DEPTH boundary weakened (BE-SYNC-03)"
+
+[[mutants]]
+domain = "sync"
+file = "src/transport/sync.rs"
+anchor = "        if !resolved && !self.unresolved.contains(&hash) {"
+replacement = "        if !resolved && self.unresolved.contains(&hash) {"
+description = "sync: unresolved surfacing inverted (BE-SYNC-03)"
+
+[[mutants]]
+domain = "sync"
+file = "src/transport/sync.rs"
+anchor = "        if count >= MAX_RESPONSE_ENVELOPES || pos + need + 1 > MAX_RESPONSE_BYTES {"
+replacement = "        if count > MAX_RESPONSE_ENVELOPES || pos + need + 1 > MAX_RESPONSE_BYTES {"
+description = "sync: response envelope cap boundary weakened (BE-SYNC-02)"
+
+# --- CONTROL_API (W10) ---
+[[mutants]]
+domain = "control_api"
+file = "src/control_api.rs"
+anchor = "    if hex.len() != ID_HEX_LEN || !is_hex(hex) {"
+replacement = "    if hex.len() == ID_HEX_LEN || !is_hex(hex) {"
+description = "control_api: id hex length check inverted (F5 table)"
+
+[[mutants]]
+domain = "control_api"
+file = "src/control_api.rs"
+anchor = "    if subject.len() != SUBJ_HEX_LEN || !is_hex(subject) {"
+replacement = "    if subject.len() == SUBJ_HEX_LEN || !is_hex(subject) {"
+description = "control_api: F16 subject validation inverted"
+
+[[mutants]]
+domain = "control_api"
+file = "src/control_api.rs"
+anchor = "    if body.len() > BODY_MAX {"
+replacement = "    if body.len() >= BODY_MAX {"
+description = "control_api: BODY_MAX boundary weakened"
+
+[[mutants]]
+domain = "control_api"
+file = "src/control_api.rs"
+anchor = "        if self.events.len() == RING_CAP {"
+replacement = "        if self.events.len() > RING_CAP {"
+description = "control_api: ring drop-oldest trigger weakened (seq-8 off-by-one)"
+
+# --- KEYS (W10) ---
+[[mutants]]
+domain = "keys"
+file = "src/keys.rs"
+anchor = "            if c.len() > MAX_CERT {"
+replacement = "            if c.len() >= MAX_CERT {"
+description = "keys: cert MAX_CERT boundary weakened (verbatim load broken)"
+
+[[mutants]]
+domain = "keys"
+file = "src/keys.rs"
+anchor = "    diff == 0"
+replacement = "    diff != 0"
+description = "keys: timing-safe compare inverted (tamper accepted, good rejected)"
+
+# --- HTTP_PARSE (W10) ---
+[[mutants]]
+domain = "http_parse"
+file = "src/http_parse.rs"
+anchor = "    if method == Method::Post && content_length == 0 {"
+replacement = "    if method == Method::Post && content_length == 1 {"
+description = "http_parse: POST length-required guard weakened"
+
+[[mutants]]
+domain = "http_parse"
+file = "src/http_parse.rs"
+anchor = "                    Some(prev) if prev != v => {"
+replacement = "                    Some(prev) if prev == v => {"
+description = "http_parse: duplicate Content-Length byte-equal rule inverted"
+
+# --- HANDSHAKE (W10) ---
+[[mutants]]
+domain = "handshake"
+file = "src/transport/handshake.rs"
+anchor = "    if datagram.len() != MSG1_SIZE || datagram[0] != 1 {"
+replacement = "    if datagram.len() != MSG1_SIZE || datagram[0] == 1 {"
+description = "handshake: initiation type check inverted (BE-SESS-02)"
+
+# --- MAC1 COOKIE (W10) ---
+[[mutants]]
+domain = "mac1"
+file = "src/transport/mac1.rs"
+anchor = "        now_ms.wrapping_sub(self.created_ms) >= COOKIE_ROTATE_MS"
+replacement = "        now_ms.wrapping_sub(self.created_ms) > COOKIE_ROTATE_MS"
+description = "mac1: cookie rotation boundary weakened (BE-TR-04a)"
+
+# --- RESOLVER (W7) ---
+[[mutants]]
+domain = "resolver"
+file = "src/transport/resolver.rs"
+anchor = "    if &id[..4] != b\"bol:\" {"
+replacement = "    if &id[..4] == b\"bol:\" {"
+description = "resolver: canonical bol: prefix check inverted (BE-RES-01)"

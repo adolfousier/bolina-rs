@@ -100,7 +100,14 @@ pub enum ApiError {
 }
 
 impl From<ResolveError> for ApiError {
-    fn from(e: ResolveError) -> Self { ApiError::Resolve(e) }
+    fn from(e: ResolveError) -> Self {
+        match e {
+            // the resolver flattens admit-stage errors; the F5 table needs
+            // them re-exposed (409/202 vs 422)
+            ResolveError::Intent(ie) => ApiError::Intent(ie),
+            other => ApiError::Resolve(other),
+        }
+    }
 }
 
 impl From<IntentError> for ApiError {
