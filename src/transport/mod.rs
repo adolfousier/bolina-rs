@@ -7,6 +7,7 @@ pub mod reassembly;
 pub mod sync;
 pub mod verify;
 pub mod resolver;
+pub mod dispatch;
 pub use mac1::{compute_mac1, verify_mac1, MAC_BYTES};
 pub use noise::{
     transport_nonce, Error as NoiseError, HandshakeResult, Initiator, InitiationInfo, KeyPair,

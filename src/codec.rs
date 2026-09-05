@@ -221,7 +221,7 @@ pub struct Span<'a> {
     pub sig: &'a [u8],
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Cert<'a> {
     pub version: u8,
     pub role_bits: u8,
