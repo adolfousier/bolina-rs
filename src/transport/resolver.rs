@@ -36,6 +36,9 @@ pub enum ResolveError {
     AmbiguousResource,
     ForeignExecutor,
     BufferTooSmall,
+    /// Admit-stage error surfaced 1:1 (control_api needs DuplicateIntentId
+    /// vs ResourceHeld distinct; collapsing loses the F5 status table).
+    Intent(intent::IntentError),
 }
 
 // ---------------------------------------------------------------------------
@@ -314,7 +317,7 @@ impl Resolver {
         }
         canonical_buf[..canonical.len()].copy_from_slice(canonical);
         table.admit(intent_id, &canonical_buf, canonical.len(), now_ms)
-            .map_err(|_| ResolveError::UnknownResource)
+            .map_err(ResolveError::Intent)
     }
 
     fn find_entry(&self, canonical: &[u8]) -> Option<usize> {
