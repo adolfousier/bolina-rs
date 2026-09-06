@@ -409,3 +409,34 @@ fn token_save_permissions_0600() {
     let meta = std::fs::metadata(&path).unwrap();
     assert_eq!(meta.permissions().mode() & 0o777, 0o600);
 }
+
+// --- BE-ID-04: approver needs >= APPROVER_QUORUM CA signatures ---
+#[test]
+fn be_id_04_approver_quorum_enforced() {
+    use bolina::transport::binding::{validate_cert_chain, CertView, CertChainError, APPROVER_QUORUM, ROLE_APPROVER};
+
+    // Approver with only 1 CA sig (below quorum of 2) → rejected
+    let cert = CertView {
+        sig_pubkey: &[1u8; 32],
+        kex_pubkey: &[2u8; 32],
+        role_bits: ROLE_APPROVER,
+        not_before: 0,
+        not_after: 1_000_000,
+        tbs: &[],
+        ca_sigs: &[],
+        ca_sig_count: 1, // below APPROVER_QUORUM
+    };
+    let trusted: &[&[u8]] = &[];
+    let result = validate_cert_chain(&cert, trusted);
+    assert_eq!(result, Err(CertChainError::ApproverNoQuorum));
+
+    // Approver with exactly APPROVER_QUORUM CA sigs → passes quorum check
+    // (may fail later checks like BadCaSignature, but NOT ApproverNoQuorum)
+    let cert_ok = CertView {
+        ca_sig_count: APPROVER_QUORUM as usize,
+        ..cert
+    };
+    let result = validate_cert_chain(&cert_ok, trusted);
+    assert_ne!(result, Err(CertChainError::ApproverNoQuorum),
+        "approver with quorum must NOT fail on quorum check");
+}

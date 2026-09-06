@@ -325,3 +325,48 @@ file = "src/transport/resolver.rs"
 anchor = "    if &id[..4] != b\"bol:\" {"
 replacement = "    if &id[..4] == b\"bol:\" {"
 description = "resolver: canonical bol: prefix check inverted (BE-RES-01)"
+
+# --- LEDGER-ENVELOPE (W11) ---
+[[mutants]]
+domain = "ledger_envelope"
+file = "src/ledger_envelope.rs"
+anchor = "        if self.envelopes.len() >= MAX_ENVELOPES {"
+replacement = "        if self.envelopes.len() > MAX_ENVELOPES {"
+description = "ledger_envelope: capacity check weakened (BE-LEDGER-02)"
+
+[[mutants]]
+domain = "ledger_envelope"
+file = "src/ledger_envelope.rs"
+anchor = "                if existing.hash == entry.hash {"
+replacement = "                if existing.hash != entry.hash {"
+description = "ledger_envelope: idempotent check inverted (BE-ENV-05)"
+
+[[mutants]]
+domain = "ledger_envelope"
+file = "src/ledger_envelope.rs"
+anchor = "        parents.iter().all(|p| self.envelopes.iter().any(|e| &e.hash == p))"
+replacement = "        parents.iter().any(|p| self.envelopes.iter().any(|e| &e.hash == p))"
+description = "ledger_envelope: all parents → any parents (BE-LEDGER-01)"
+
+[[mutants]]
+domain = "ledger_envelope"
+file = "src/ledger_envelope.rs"
+anchor = "        if self.revocations.len() >= MAX_REVOCATIONS {"
+replacement = "        if self.revocations.len() > MAX_REVOCATIONS {"
+description = "ledger_envelope: revocation capacity weakened (F10)"
+
+# --- RELAY SERVE (W11) ---
+[[mutants]]
+domain = "relay_serve"
+file = "src/relay_serve.rs"
+anchor = "        MSG_HANDSHAKE_INIT | MSG_HANDSHAKE_RESP | MSG_HANDSHAKE_DATA => {"
+replacement = "        MSG_HANDSHAKE_INIT | MSG_HANDSHAKE_RESP => {"
+description = "relay_serve: handshake type 3 dropped from classifier (BE-EXEC-04)"
+
+# --- TOKEN (W11) ---
+[[mutants]]
+domain = "token"
+file = "src/transport/token.rs"
+anchor = "    if data.len() != TOKEN_HEX_LEN {"
+replacement = "    if data.len() == TOKEN_HEX_LEN {"
+description = "token: load length check inverted (BE-TR-04a)"
