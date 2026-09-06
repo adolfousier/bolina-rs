@@ -29,3 +29,6 @@ pub mod control;
 pub mod control_api;
 pub mod keys;
 pub mod http_parse;
+
+/// In-memory evidence ledger: hash store, seq windows, anchors, revocations (W11).
+pub mod ledger_envelope;

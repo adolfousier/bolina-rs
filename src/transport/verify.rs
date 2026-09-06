@@ -534,6 +534,61 @@ pub fn revoke_prune_expiry(body: &[u8]) -> u64 {
     }
 }
 
+// ---------------------------------------------------------------------------
+// F5: envelope admission pipeline — parents-before-seq ordering.
+// ---------------------------------------------------------------------------
+
+/// Verify envelope admission via the in-memory evidence ledger.
+///
+/// F5 ordering: allParentsPresent (BE-LEDGER-01) BEFORE checkSeq (BE-ENV-03/04).
+/// If parents fail, the seq window is NOT advanced — prevents seq consumption
+/// on envelopes that can't be validated.
+///
+/// Steps:
+/// 1. all_parents_present → UnknownParents if any parent missing
+/// 2. check_seq → SeqWindowStale if stale/duplicate
+/// 3. insert_envelope → Equivocation on divergent hash, internal error on full
+pub fn verify_envelope_admission(
+    ledger: &mut crate::ledger_envelope::Ledger,
+    hash: &[u8; 32],
+    sender: &[u8; 32],
+    channel: &[u8; 32],
+    seq: u64,
+    parents: &[[u8; 32]],
+) -> Result<(), VerifyError> {
+    use crate::ledger_envelope::{EnvelopeEntry, LedgerError};
+
+    // F5 step 1: parents before seq.
+    if !ledger.all_parents_present(parents) {
+        return Err(VerifyError::UnknownParents);
+    }
+
+    // F5 step 2: seq window check.
+    ledger
+        .check_seq(sender, channel, seq)
+        .map_err(|e| match e {
+            LedgerError::WindowStale => VerifyError::SeqWindowStale,
+            LedgerError::SeqWindowsFull => VerifyError::SeqWindowStale,
+            _ => VerifyError::SeqWindowStale,
+        })?;
+
+    // F5 step 3: insert envelope hash.
+    ledger
+        .insert_envelope(EnvelopeEntry {
+            hash: *hash,
+            sender: *sender,
+            channel: *channel,
+            seq,
+        })
+        .map_err(|e| match e {
+            LedgerError::Divergence => VerifyError::Equivocation,
+            LedgerError::StoreFull => VerifyError::Equivocation, // capacity = fail-closed
+            _ => VerifyError::Equivocation,
+        })?;
+
+    Ok(())
+}
+
 
 #[cfg(test)]
 mod boundary_tests {

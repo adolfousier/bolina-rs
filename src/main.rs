@@ -18,6 +18,7 @@ mod daemon;
 mod control;
 mod state;
 mod transport;
+mod ledger_envelope;
 
 use daemon::{Daemon, Keys, install_shutdown_handler};
 
