@@ -43,3 +43,70 @@ pub fn verify(provided: &[u8], expected: &[u8; TOKEN_HEX_LEN]) -> bool {
     }
     diff == 0
 }
+
+// ---------------------------------------------------------------------------
+// File I/O (token.zig: save/load with 0600 permissions)
+// ---------------------------------------------------------------------------
+
+/// Save a token as hex to a file with 0600 permissions.
+///
+/// Creates the file if it doesn't exist, overwrites if it does.
+/// Returns DiskError on any I/O failure.
+pub fn save(path: &str, token: &[u8; TOKEN_BYTES]) -> Result<(), TokenError> {
+    use std::fs;
+    #[cfg(unix)]
+    use std::os::unix::fs::OpenOptionsExt;
+
+    let hex_bytes = hex(token);
+
+    #[cfg(unix)]
+    {
+        let mut opts = fs::OpenOptions::new();
+        opts.write(true).create(true).truncate(true).mode(0o600);
+        let mut file = opts.open(path).map_err(|_| TokenError::DiskError)?;
+        use std::io::Write;
+        file.write_all(&hex_bytes).map_err(|_| TokenError::DiskError)?;
+    }
+
+    #[cfg(not(unix))]
+    {
+        fs::write(path, &hex_bytes).map_err(|_| TokenError::DiskError)?;
+    }
+
+    Ok(())
+}
+
+/// Load a token from a hex file.
+///
+/// Returns None if:
+/// - File doesn't exist (absent)
+/// - File is shorter than TOKEN_HEX_LEN bytes (short)
+/// - File contains non-hex bytes (corrupt)
+///
+/// Fail-closed: any ambiguity returns None.
+pub fn load(path: &str) -> Option<[u8; TOKEN_BYTES]> {
+    use std::fs;
+
+    let data = fs::read(path).ok()?;
+    if data.len() != TOKEN_HEX_LEN {
+        return None; // absent or short
+    }
+
+    // Decode hex
+    let mut token = [0u8; TOKEN_BYTES];
+    for i in 0..TOKEN_BYTES {
+        let hi = hex_val(data[i * 2])?;
+        let lo = hex_val(data[i * 2 + 1])?;
+        token[i] = (hi << 4) | lo;
+    }
+    Some(token)
+}
+
+fn hex_val(b: u8) -> Option<u8> {
+    match b {
+        b'0'..=b'9' => Some(b - b'0'),
+        b'a'..=b'f' => Some(b - b'a' + 10),
+        b'A'..=b'F' => Some(b - b'A' + 10),
+        _ => None, // corrupt
+    }
+}

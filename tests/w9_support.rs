@@ -306,3 +306,106 @@ fn binding_quorum_constant() {
 fn binding_max_lifetime_30_days() {
     assert_eq!(MAX_PRIVILEGED_LIFETIME_MS, 30 * 24 * 3600 * 1000);
 }
+
+// =========================================================================
+// Listener OS socket seam tests
+// =========================================================================
+
+use bolina::transport::listener::{Listener, Family};
+
+#[test]
+fn listener_open_bind_ipv4_loopback() {
+    let result = Listener::open_bind("127.0.0.1", 0, Family::Ipv4);
+    assert!(result.is_ok(), "should bind to loopback:0");
+    let listener = result.unwrap();
+    let addr = listener.local_addr().unwrap();
+    assert_eq!(addr.ip().to_string(), "127.0.0.1");
+    assert_ne!(addr.port(), 0);
+    assert_eq!(listener.family(), Family::Ipv4);
+    listener.close();
+}
+
+#[test]
+fn listener_bind_refused_on_occupied_port() {
+    let l1 = Listener::open_bind("127.0.0.1", 0, Family::Ipv4).unwrap();
+    let port = l1.local_addr().unwrap().port();
+    let result = Listener::open_bind("127.0.0.1", port, Family::Ipv4);
+    assert!(result.is_err());
+    match result {
+        Err(ListenError::BindRefused) => {},
+        other => panic!("expected BindRefused, got {:?}", other),
+    }
+    l1.close();
+}
+
+#[test]
+fn listener_bind_failure_releases_claim_invariant() {
+    let mut registry = EndpointRegistry::new();
+    let addr = b"127.0.0.1";
+
+    // Claim the slot
+    registry.claim(addr, 65000).unwrap();
+    assert_eq!(registry.count(), 1);
+
+    // Bind fails (invalid address)
+    let result = Listener::open_bind("invalid-addr-xyz", 65000, Family::Ipv4);
+    assert!(result.is_err());
+
+    // Release the slot on failure (caller's responsibility per invariant)
+    registry.release(addr, 65000);
+    assert_eq!(registry.count(), 0);
+}
+
+// =========================================================================
+// Token save/load tests (uses token already imported at top of file)
+// =========================================================================
+
+#[test]
+fn token_save_and_load_roundtrip() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("token.hex");
+    let path_str = path.to_str().unwrap();
+
+    let tok = [0xAB_u8; token::TOKEN_BYTES];
+    token::save(path_str, &tok).unwrap();
+
+    let loaded = token::load(path_str).unwrap();
+    assert_eq!(loaded, tok);
+}
+
+#[test]
+fn token_load_absent_returns_none() {
+    let result = token::load("/tmp/nonexistent_token_file_bolina");
+    assert!(result.is_none());
+}
+
+#[test]
+fn token_load_short_returns_none() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("short.hex");
+    std::fs::write(&path, "abcd").unwrap(); // 4 bytes, need 64
+    let result = token::load(path.to_str().unwrap());
+    assert!(result.is_none());
+}
+
+#[test]
+fn token_load_corrupt_returns_none() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("corrupt.hex");
+    // 64 bytes but not valid hex
+    std::fs::write(&path, &[b'X'; 64]).unwrap();
+    let result = token::load(path.to_str().unwrap());
+    assert!(result.is_none());
+}
+
+#[cfg(unix)]
+#[test]
+fn token_save_permissions_0600() {
+    use std::os::unix::fs::PermissionsExt;
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("perms.hex");
+    let tok = [0x42_u8; token::TOKEN_BYTES];
+    token::save(path.to_str().unwrap(), &tok).unwrap();
+    let meta = std::fs::metadata(&path).unwrap();
+    assert_eq!(meta.permissions().mode() & 0o777, 0o600);
+}

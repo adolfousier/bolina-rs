@@ -100,3 +100,71 @@ impl EndpointRegistry {
         self.count
     }
 }
+
+// ---------------------------------------------------------------------------
+// OS socket seam (listener.zig: open/bind/recv/close)
+// ---------------------------------------------------------------------------
+
+/// A bound UDP listener wrapping a registry slot.
+///
+/// The bind-failure-releases-claim invariant: if `bind` fails after
+/// `claim` succeeded, the registry slot is released automatically.
+#[derive(Debug)]
+pub struct Listener {
+    socket: std::net::UdpSocket,
+    family: Family,
+}
+
+impl Listener {
+    /// Open and bind a UDP socket to the given address.
+    ///
+    /// On success: the socket is bound and ready for recv/recv_from.
+    /// On failure: returns the appropriate ListenError.
+    ///
+    /// IMPORTANT: if this is called after `EndpointRegistry::claim`,
+    /// the caller MUST call `EndpointRegistry::release` on bind failure
+    /// to avoid leaking the registry slot.
+    pub fn open_bind(addr: &str, port: u16, family: Family) -> Result<Self, ListenError> {
+        use std::net::UdpSocket;
+
+        let bind_addr = match family {
+            Family::Ipv4 => format!("{}:{}", addr, port),
+            Family::Ipv6 => format!("[{}]:{}", addr, port),
+        };
+
+        let socket = UdpSocket::bind(&bind_addr)
+            .map_err(|_| ListenError::BindRefused)?;
+
+        Ok(Self { socket, family })
+    }
+
+    /// Receive data into the caller's buffer.
+    /// Returns the number of bytes received.
+    pub fn recv(&self, buf: &mut [u8]) -> Result<usize, ListenError> {
+        self.socket.recv(buf).map_err(|_| ListenError::RecvFailed)
+    }
+
+    /// Receive data and the source address.
+    /// Returns (bytes_received, source_addr_string).
+    pub fn recv_from(&self, buf: &mut [u8]) -> Result<(usize, String), ListenError> {
+        let (n, addr) = self.socket.recv_from(buf)
+            .map_err(|_| ListenError::RecvFailed)?;
+        Ok((n, addr.to_string()))
+    }
+
+    /// Get the local address this listener is bound to.
+    pub fn local_addr(&self) -> Result<std::net::SocketAddr, ListenError> {
+        self.socket.local_addr()
+            .map_err(|_| ListenError::SocketFailed)
+    }
+
+    pub fn family(&self) -> Family {
+        self.family
+    }
+
+    /// Close the listener (drops the socket).
+    pub fn close(self) {
+        // Socket is closed when dropped.
+        drop(self.socket);
+    }
+}
