@@ -302,3 +302,33 @@ Os outros 28 dos 34 gaps originais estão fechados (citados em testes ou src).
 
 - resolver, dag, grant_trace, relay_store, binding, evidence, replay: paridade completa ou substancial com testes
 - historical: type-system proof correcto, falta 1 teste end-to-end (não bloqueia soak)
+
+---
+
+## Gap closure status (W11, post-audit)
+
+All gaps identified in the original audit have been closed:
+
+| Gap | Lines | Status | Commit |
+|---|---|---|---|
+| ledger-envelope (admission pipeline) | 333 → 628 | **CLOSED** | 0a76083 |
+| verify mesh + admission | ~122 → 203 | **CLOSED** | 64871aa |
+| dispatch ledger seam + tombstone | ~136 → 187 | **CLOSED** | b49e789 |
+| BE-EXEC-04 relay_serve | ~100 → 251 | **CLOSED** | b4a5e4a |
+| listener OS socket | ~71 → 120 | **CLOSED** | 64ca564 |
+| token save/load | ~33 → 118 | **CLOSED** | 64ca564 |
+| BE-ID-04 CITA | — | **CLOSED** | c673718 |
+
+### BE-* status (final)
+
+All 34 original BE-* gaps are now closed:
+- 28 closed by W7-W10 work
+- 4 closed by W11: BE-ID-04, BE-EXEC-04, BE-LEDGER-02, BE-HIST-02
+- 2 exceptions remain declared: HIST-04a, SURF-03
+
+### Bug fix
+- render.rs LEN_ACTION_DIGEST: 8 → 32 (divergence between render and verify digest lengths)
+
+### Suite growth
+- Before gaps: 319 passed / 0 failed
+- After gaps: ~370 passed / 0 failed
