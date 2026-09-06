@@ -375,3 +375,49 @@ fn hex_to_bytes(s: &str) -> Vec<u8> {
         .map(|i| u8::from_str_radix(&s[2 * i..2 * i + 2], 16).unwrap())
         .collect()
 }
+
+// =========================================================================
+// Dispatch ledger seam + tombstone + event ring tests (w7_authority.rs)
+// =========================================================================
+
+use bolina::transport::dispatch::{
+    Orphan, init_durable_ledger, close_durable_ledger,
+    tombstone_orphan, EventSink, NullEventSink,
+};
+
+#[test]
+fn dispatch_init_durable_ledger_structural_seam() {
+    let mut orphans = Vec::new();
+    let count = init_durable_ledger("/tmp/nonexistent", &mut orphans).unwrap();
+    assert_eq!(count, 0); // clean startup
+    assert!(orphans.is_empty());
+}
+
+#[test]
+fn dispatch_close_durable_ledger_is_safe_to_call() {
+    close_durable_ledger(); // should not panic
+}
+
+#[test]
+fn dispatch_tombstone_orphan_structural_seam() {
+    let grant_id = [0xAA_u8; 16];
+    let result = tombstone_orphan(&grant_id);
+    assert!(result.is_ok());
+}
+
+#[test]
+fn dispatch_null_event_sink_accepts_publishes() {
+    let mut sink = NullEventSink;
+    sink.publish(0, 1); // should not panic
+    sink.publish(1, 2);
+}
+
+#[test]
+fn dispatch_orphan_struct_constructible() {
+    let orphan = Orphan {
+        grant_id: [0xBB_u8; 16],
+        seq: 42,
+    };
+    assert_eq!(orphan.grant_id, [0xBB; 16]);
+    assert_eq!(orphan.seq, 42);
+}
