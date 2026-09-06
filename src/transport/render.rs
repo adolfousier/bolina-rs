@@ -7,7 +7,7 @@
 use blake2::{Blake2s256, Digest};
 
 pub const RATIONALE_UNTRUSTED_LABEL: &str = "untrusted, agent-authored";
-pub const LEN_ACTION_DIGEST: usize = 8;
+pub const LEN_ACTION_DIGEST: usize = 32;
 
 pub struct Rationale<'a> {
     pub text: &'a [u8],
