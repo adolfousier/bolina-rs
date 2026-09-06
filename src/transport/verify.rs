@@ -535,6 +535,100 @@ pub fn revoke_prune_expiry(body: &[u8]) -> u64 {
 }
 
 // ---------------------------------------------------------------------------
+// Mesh served-cert verification (verify.zig:571-595).
+// ---------------------------------------------------------------------------
+
+/// Errors from mesh certificate verification.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MeshError {
+    /// Cert not signed by any trusted anchor.
+    Untrusted,
+    /// Cert expired at now_ms.
+    Expired,
+    /// Signature verification failed.
+    BadSignature,
+    /// Cert structure malformed (parse failure).
+    MalformedCert,
+}
+
+/// Session keys derived from the Noise handshake.
+/// Used to bind the served cert to the transport session.
+#[derive(Clone)]
+pub struct SessionKeys {
+    pub send_key: [u8; 32],
+    pub recv_key: [u8; 32],
+    pub handshake_hash: [u8; 32],
+}
+
+/// Context for mesh served-cert verification.
+pub struct MeshContext<'a> {
+    /// Trusted CA public keys (anchored mesh members).
+    pub trusted_anchors: &'a [&'a [u8; 32]],
+    /// Current time in milliseconds since epoch.
+    pub now_ms: u64,
+    /// Hook: check if a pubkey is revoked.
+    pub is_revoked: &'a dyn Fn(&[u8; 32]) -> bool,
+}
+
+/// Verify a relay-served certificate, then invoke the callback on success.
+///
+/// Steps (verify.zig:571-595):
+/// 1. Parse cert structure
+/// 2. Check expiry against now_ms
+/// 3. Verify signature against trusted anchors
+/// 4. Check revocation via hook
+/// 5. On success: invoke callback with the cert's sig_pubkey
+///
+/// The callback pattern (verifyServedCertThen) ensures the caller only
+/// proceeds with verified key material — fail-closed on any error.
+pub fn verify_served_cert_then<F, R>(
+    cert_bytes: &[u8],
+    ctx: &MeshContext<'_>,
+    then: F,
+) -> Result<R, MeshError>
+where
+    F: FnOnce(&[u8; 32]) -> R,
+{
+    // Step 1: parse cert (expect at least sig_pubkey + expiry + sig).
+    if cert_bytes.len() < 32 + 8 + 64 {
+        return Err(MeshError::MalformedCert);
+    }
+    let sig_pubkey: &[u8; 32] = cert_bytes[..32].try_into().unwrap();
+    let expiry_ms = u64::from_be_bytes(cert_bytes[32..40].try_into().unwrap());
+    let sig = &cert_bytes[40..104];
+
+    // Step 2: check expiry.
+    if ctx.now_ms > expiry_ms {
+        return Err(MeshError::Expired);
+    }
+
+    // Step 3: verify signature against trusted anchors.
+    // The cert signs over (sig_pubkey || expiry_ms).
+    let mut tbs = Vec::with_capacity(40);
+    tbs.extend_from_slice(sig_pubkey);
+    tbs.extend_from_slice(&expiry_ms.to_be_bytes());
+
+    let mut trusted = false;
+    for anchor in ctx.trusted_anchors {
+        if crate::codec::verify_signed(crate::codec::DOMAIN_CERT, &tbs, sig, *anchor) {
+            trusted = true;
+            break;
+        }
+    }
+    if !trusted {
+        return Err(MeshError::Untrusted);
+    }
+
+    // Step 4: check revocation.
+    if (ctx.is_revoked)(sig_pubkey) {
+        return Err(MeshError::Untrusted); // revoked = not trusted
+    }
+
+    // Step 5: success — invoke callback with verified pubkey.
+    Ok(then(sig_pubkey))
+}
+
+// ---------------------------------------------------------------------------
 // F5: envelope admission pipeline — parents-before-seq ordering.
 // ---------------------------------------------------------------------------
 

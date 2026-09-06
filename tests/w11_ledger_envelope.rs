@@ -305,3 +305,112 @@ fn f5_happy_path_admission_succeeds() {
     assert_eq!(led.envelope_count(), 2); // parent + new
     assert_eq!(led.seq_window_count(), 1);
 }
+
+// =========================================================================
+// Mesh served-cert verification tests
+// =========================================================================
+
+use bolina::transport::verify::{MeshError, MeshContext, SessionKeys, verify_served_cert_then};
+use ed25519_dalek::{SigningKey, Signer};
+
+/// Build a served cert: sig_pubkey(32) || expiry_ms(8) || sig(64)
+fn build_served_cert(sk: &SigningKey, expiry_ms: u64) -> Vec<u8> {
+    let pk = sk.verifying_key().to_bytes();
+    let mut tbs = Vec::new();
+    tbs.extend_from_slice(&pk);
+    tbs.extend_from_slice(&expiry_ms.to_be_bytes());
+    // Sign with DOMAIN_CERT tag
+    let mut sig_input = vec![0x01]; // DOMAIN_CERT
+    sig_input.extend_from_slice(&tbs);
+    let sig = sk.sign(&sig_input).to_bytes();
+    let mut cert = tbs;
+    cert.extend_from_slice(&sig);
+    cert
+}
+
+#[test]
+fn mesh_served_cert_ok_happy_path() {
+    let sk = SigningKey::from_bytes(&[7u8; 32]);
+    let pk = sk.verifying_key().to_bytes();
+    let cert = build_served_cert(&sk, 2_000_000);
+    let is_revoked = |_pk: &[u8; 32]| false;
+    let ctx = MeshContext {
+        trusted_anchors: &[&pk],
+        now_ms: 1_000_000,
+        is_revoked: &is_revoked,
+    };
+    let result = verify_served_cert_then(&cert, &ctx, |verified_pk| {
+        *verified_pk == pk
+    });
+    assert!(result.is_ok());
+    assert!(result.unwrap());
+}
+
+#[test]
+fn mesh_served_cert_expired() {
+    let sk = SigningKey::from_bytes(&[7u8; 32]);
+    let cert = build_served_cert(&sk, 500); // expired at 500ms
+    let is_revoked = |_pk: &[u8; 32]| false;
+    let ctx = MeshContext {
+        trusted_anchors: &[],
+        now_ms: 1_000_000,
+        is_revoked: &is_revoked,
+    };
+    let result = verify_served_cert_then(&cert, &ctx, |_| ());
+    assert_eq!(result, Err(MeshError::Expired));
+}
+
+#[test]
+fn mesh_served_cert_untrusted_no_matching_anchor() {
+    let sk = SigningKey::from_bytes(&[7u8; 32]);
+    let other_pk = [0xAA_u8; 32]; // different anchor
+    let cert = build_served_cert(&sk, 2_000_000);
+    let is_revoked = |_pk: &[u8; 32]| false;
+    let ctx = MeshContext {
+        trusted_anchors: &[&other_pk],
+        now_ms: 1_000_000,
+        is_revoked: &is_revoked,
+    };
+    let result = verify_served_cert_then(&cert, &ctx, |_| ());
+    assert_eq!(result, Err(MeshError::Untrusted));
+}
+
+#[test]
+fn mesh_served_cert_malformed_too_short() {
+    let short_cert = vec![0u8; 10]; // way too short
+    let is_revoked = |_pk: &[u8; 32]| false;
+    let ctx = MeshContext {
+        trusted_anchors: &[],
+        now_ms: 0,
+        is_revoked: &is_revoked,
+    };
+    let result = verify_served_cert_then(&short_cert, &ctx, |_| ());
+    assert_eq!(result, Err(MeshError::MalformedCert));
+}
+
+#[test]
+fn mesh_served_cert_revoked_key_refused() {
+    let sk = SigningKey::from_bytes(&[7u8; 32]);
+    let pk = sk.verifying_key().to_bytes();
+    let cert = build_served_cert(&sk, 2_000_000);
+    let is_revoked = |check_pk: &[u8; 32]| *check_pk == pk; // this key is revoked
+    let ctx = MeshContext {
+        trusted_anchors: &[&pk],
+        now_ms: 1_000_000,
+        is_revoked: &is_revoked,
+    };
+    let result = verify_served_cert_then(&cert, &ctx, |_| ());
+    assert_eq!(result, Err(MeshError::Untrusted));
+}
+
+#[test]
+fn session_keys_struct_constructible() {
+    let keys = SessionKeys {
+        send_key: [1u8; 32],
+        recv_key: [2u8; 32],
+        handshake_hash: [3u8; 32],
+    };
+    assert_eq!(keys.send_key, [1u8; 32]);
+    assert_eq!(keys.recv_key, [2u8; 32]);
+    assert_eq!(keys.handshake_hash, [3u8; 32]);
+}
