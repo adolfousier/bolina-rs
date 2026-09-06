@@ -32,3 +32,6 @@ pub mod http_parse;
 
 /// In-memory evidence ledger: hash store, seq windows, anchors, revocations (W11).
 pub mod ledger_envelope;
+
+/// Relay serve classifier: first-byte routing + sender gate (BE-EXEC-04).
+pub mod relay_serve;

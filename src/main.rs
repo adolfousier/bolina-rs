@@ -19,6 +19,7 @@ mod control;
 mod state;
 mod transport;
 mod ledger_envelope;
+mod relay_serve;
 
 use daemon::{Daemon, Keys, install_shutdown_handler};
 
