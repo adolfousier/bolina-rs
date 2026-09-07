@@ -35,6 +35,21 @@
 | Evidence files | 2,979 hashed, 353 MB (tarball 65 MB) |
 | Evidence SHA | `b4497654f269f6c7…` |
 
+## Scope of Validation — What Was and Wasn't Measured
+
+**This soak validates modules in isolation via `cargo test`. It does not validate the integrated daemon.**
+
+The soak exercised the module test suite (373 tests/round, 2,964 rounds) under sustained load. What it did NOT exercise:
+
+- The daemon (`src/daemon.rs`) does not import or execute W7-W11 modules. It imports only `state::{ledger, Table}` and `transport::mac1`.
+- `verify`, `dispatch`, `resolver`, `evidence`, `dag`, `historical`, and envelope admission have **zero references** in the daemon code path.
+- 27 files in `src/` carry `#![allow(dead_code)]` with the comment "public API not yet wired to daemon; remove post-parity" — these modules are tested but not executed by the daemon.
+- **No test in the soak executed through the daemon admitting an envelope.**
+
+**Implication for swap:** a swap of the reference head today would produce a daemon that does not verify authority, because `verify` is not in the execution path. The daemon wiring (connecting W7-W11 modules to the daemon's request path) is a **prerequisite for any production swap**, and will require its own soak — it will be the first time the daemon executes the authority layer.
+
+The soak verdict covers **module correctness under load**, not **integrated system behaviour**.
+
 ## What This Run Validates vs Runs 1-2
 
 | Aspect | Run 1-2 | Run 3 (G3) |
@@ -75,6 +90,19 @@ Evidence was initially written to two directories due to a wrapper bug (SOAK_LOG
 
 The soak ran with **373 tests/round**. Since then, the cron watcher identified and closed a real BE-LEDGER-01 mutation survivor (partial-parents gap), adding 2 literal tests. Current suite: **375 passed / 0 failed**. The 2 additional tests exercise the same ledger code that ran in every G3 round.
 
+## Src Drift Since Soak
+
+The tag `v0.7.0-candidate` points at `be8f658`, which is the code that was soaked. The current `origin/main` head has diverged from the soak tag:
+
+| Aspect | Detail |
+|---|---|
+| Files changed | 25 |
+| Nature | `#![allow(dead_code)]` annotations and re-export cleanup only |
+| Logic changes | **none** |
+| Impact on correctness | none — cosmetic lint suppression for unwired API |
+
+The soak evidence applies to the tag, not to the current head. The divergence is documented and does not affect the soak verdict.
+
 ## Pre-existing Drift (Documented, Not Fixed)
 
 | Item | Status |
@@ -85,12 +113,13 @@ The soak ran with **373 tests/round**. Since then, the cron watcher identified a
 
 This drift is cosmetic and does not affect correctness, mutation coverage, or soak results.
 
-## Residual Items (Declared, Not Blocking)
+## Residual Items (Declared, Prerequisites for Swap)
 
-1. **Daemon wiring HTTP→control_api** — the `/v1` module exists and is tested; not wired to the daemon server
-2. **SSE/counter byte-compare vs Zig** — spelling pinned in Rust tests; byte-compare needs Zig tree on owner's machine
+1. **Daemon wiring (W7-W11 → daemon request path)** — the authority layer (verify, dispatch, resolver, evidence, dag, historical, envelope admission) exists as tested modules but is NOT imported or executed by the daemon. This is not a cosmetic gap — a swap today produces a daemon that does not verify authority. Wiring is a **prerequisite for production swap** and will require its own soak.
+2. **HTTP→control_api routing** — the `/v1` module exists and is tested; not wired to the daemon server
+3. **SSE/counter byte-compare vs Zig** — spelling pinned in Rust tests; byte-compare needs Zig tree on owner's machine
 
-Neither blocks seal parity — they are post-port integration work.
+Item 1 is blocking for swap. Items 2-3 are post-port integration work.
 
 ## Seal Recommendation
 
@@ -100,7 +129,8 @@ The evidence supports sealing `v0.7.0-candidate` (`be8f658`) as the reference Ru
 |---|---|
 | Suite (373→375/0) | ✅ pass |
 | Mutation (49/49 KILLED) | ✅ pass |
-| Soak (24h, 2,964 rounds, 0 failures) | ✅ pass |
+| Soak — modules isolated (24h, 2,964 rounds, 373 tests, 0 failures) | ✅ pass |
+| Soak — daemon integrated | ⛔ not measured (see Scope of Validation) |
 | Cross-diff (6/6 × 2,964) | ✅ pass |
 | Co-tenancy (288/288 clean) | ✅ pass |
 | T3 anomaly (<1/5,500 @ 95%) | ✅ acceptable |
