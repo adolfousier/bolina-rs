@@ -1,6 +1,6 @@
 # W12 Integration Harness Design
 
-**Status:** Design — awaiting owner review before implementation
+**Status:** Approved with amendments (Daniel, 2026-09-07) — two mitigations added: frozen-vector envelope policy (section 5.3) and rung E Zig interop sanity (section 5.1); counter source clarified (section 8: SSE EventRing, not logs); soak duration tied to cost measurement (section 10)
 **Author:** OpenCrabs
 **Date:** 2026-09-07
 **Depends on:** G3 receipt (`docs/g3-soak-receipt.md`), W1-W11 module parity
@@ -169,13 +169,52 @@ Inspired by G2's ladder. Each rung exercises a different path through the daemon
 
 ## 5. Round Definition
 
-A **round** is one complete execution of all four ladders:
+A **round** is one complete execution of the ladders against the Rust daemon:
 
 ```
 round = ladder_A + ladder_B + ladder_C + ladder_D
 ```
 
-Expected outcomes per round:
+Plus **rung E** (interop sanity), which runs ONCE per soak session against the Zig daemon — see section 5.1.
+
+### 5.1 Rung E — Zig Interop Sanity (once per soak session)
+
+**The symmetry trap (W4 lesson, LOGBOOK):** the client and the daemon share the `bolina` crate. A shared codec bug cancels itself out: the client commits it when building, the daemon commits it when reading, the round passes green. In W4, "Rust-Rust roundtrips passed (symmetry trap), every KAT passed, the live daemon dropped message 1." Only the G2 ladder against the Zig daemon caught it.
+
+**Rung E exists to break the symmetry.** Before the soak loop starts, the client runs against the **Zig daemon v0.6.1** (sealed reference):
+
+| Step | Client Action | Expected Zig Daemon Outcome |
+|------|--------------|----------------------------|
+| 1 | Noise_IK handshake (client's own codec) | Handshake completes — the msg1 pre-message path that W4 got wrong |
+| 2 | Binding frame | Bound |
+| 3 | One envelope (frozen vector bytes) | Admitted |
+| 4 | `GET /v1/events` | Admission visible in the event stream |
+
+**Pass criteria:** all four steps succeed. **On failure the soak aborts** — there is no point burning machine hours on a client that cannot talk to the reference implementation. This is exactly how G2 caught the msg1 bug.
+
+Rung E does not need the full ladder. It needs to exist, once, per soak session.
+
+### 5.2 Daemon Epochs and the Frozen Round
+
+A **daemon epoch** starts at soak start and at every daemon restart. The first round of each epoch (**epoch round 0**) uses **100% frozen vector bytes** for ladders A, B and C — no client-built envelope fields at all. Subsequent rounds use client-built envelopes for A/B (fresh seq/timestamps) while C stays frozen (rejections need no freshness). See section 5.3.
+
+### 5.3 Frozen Vector Policy
+
+`test/vectors.json` is the byte-level reference of the Zig implementation. The anti-symmetry rule: **wherever the daemon can be fed frozen bytes instead of bytes the client's codec produced, it must be.**
+
+| Ladder | Byte source | Every round? | Notes |
+|--------|------------|--------------|-------|
+| C (rejections) | **Frozen vectors, 100%** | Yes — every round | Stale-seq, unknown-parents, malformed, duplicate: all frozen garbage. No freshness needed. |
+| A (happy path) | Frozen on epoch round 0; client-built after | Epoch round 0 only | Frozen seq values collide with the replay window across rounds. |
+| B (refusal) | Frozen on epoch round 0; client-built after | Epoch round 0 only | Same seq constraint. |
+| D (control API) | Client-built JSON | Yes | HTTP JSON bodies; codec exposure is minimal and covered by vectors tests. |
+| E (interop) | Frozen vector bytes | Once per session | Against the Zig daemon. |
+
+**Declaration rule (per Daniel's instruction):** where an envelope must be fresh, the round log declares exactly which fields came from the vector and which the client built. The frozen fields are the envelope structure, body encoding, and signature scheme; the client-built fields are seq, timestamps, not_before/not_after, and the transport wrapper (receiver_index, counter, nonce — always fresh, session-derived by necessity).
+
+**Vector freshness hazard:** frozen envelopes carry absolute timestamps. At soak start, each vector is classified (admit-able vs expired by now) and the classification is logged. A vector grant whose not_after has passed since generation is usable as-is for ladder B (expired → refusal path) but not for ladder A (happy path needs a live grant → client-built, declared).
+
+Expected outcomes per round (Rust daemon, after epoch round 0):
 
 | Metric | Expected |
 |--------|----------|
@@ -189,7 +228,7 @@ Expected outcomes per round:
 | HTTP 400 | 1 (D) |
 | SSE responses | 1 (D) |
 
-A round **passes** if all counts match expected values. Any deviation is a failure.
+A round **passes** if all counts match expected values. Any deviation is a failure. Epoch round 0 expects the same counts (frozen bytes, classified as above).
 
 ## 6. Determinism
 
@@ -245,14 +284,29 @@ kill $DAEMON_PID
 echo "Rounds: $ROUND, Failures: $FAILURES"
 ```
 
-## 8. Metrics Collection
+## 8. Metrics Collection and Counter Source
+
+**Where the counts come from (per Daniel's question):** the authoritative source is the daemon's own `/v1/events` SSE stream — the EventRing that `dispatch` publishes to. The client reads `GET /v1/events?since=<last_seq>` at the end of each round and counts admissions, refusals and rejections **from the daemon itself**, not from log parsing.
+
+| Count | Source | Why |
+|-------|--------|-----|
+| Wire admissions / refusals / rejections | `GET /v1/events` SSE stream (daemon's EventRing) | Authoritative: comes from dispatch outcomes inside the daemon. Log parsing is fragile (format drift) and measures the logger, not the daemon. |
+| HTTP 202 / 422 / 400 | HTTP status codes observed by the client | Direct, unambiguous. |
+| Handshakes / bindings | Client-side observation (msg2 received, bind ack) | The client is the only party that knows these completed. |
+| SSE responses | Client-side observation | Direct. |
+
+**Side effect by design:** if the EventRing is not wired to dispatch outcomes, the SSE stream is empty and every round fails. This is correct behaviour — an unwired event ring is a wiring gap, and the harness is the thing that finds it.
+
+**Cross-check:** a round passes only if SSE counts == expected counts AND HTTP statuses == expected statuses. Both must hold.
 
 Per-round metrics written to `integration-rounds.log`:
 
 ```
-round=1 handshakes=4 bindings=4 admissions=6 refusals=1 rejections=3 http_202=2 http_422=1 http_400=1 sse=1 latency_ms=142 status=PASS
-round=2 handshakes=4 bindings=4 admissions=6 refusals=1 rejections=3 http_202=2 http_422=1 http_400=1 sse=1 latency_ms=138 status=PASS
+round=1 epoch=0 frozen=A,B,C handshakes=4 bindings=4 admissions=6 refusals=1 rejections=3 http_202=2 http_422=1 http_400=1 sse=1 latency_ms=142 status=PASS
+round=2 epoch=0 frozen=C handshakes=4 bindings=4 admissions=6 refusals=1 rejections=3 http_202=2 http_422=1 http_400=1 sse=1 latency_ms=138 status=PASS
 ```
+
+The `frozen=` field implements the declaration rule from section 5.3: it names which ladders used 100% frozen vector bytes in that round.
 
 Aggregate metrics in `integration-summary.log`:
 
@@ -279,19 +333,21 @@ This means: **the harness validates the wiring as it lands**. No need to wait fo
 W12 is complete when:
 
 1. `grep -rl "allow(dead_code)" src/ | wc -l` = 0
-2. All four ladders pass in a single round
-3. 100 consecutive rounds pass with 0 failures
-4. The integration soak runs for >=1h with 0 failures
+2. Rung E passes against the Zig daemon (once, before the loop)
+3. All four ladders pass in a single round
+4. 100 consecutive rounds pass with 0 failures
+5. The integration soak runs with 0 failures for a duration set by cost measurement — **not** the placeholder "≥1h" from the first draft. G3 precedent: the module soak ran 24h. The integration soak target is either ≥8h or ≥1,000 rounds, whichever comes first, adjusted after we see cost-per-round (Daniel: "isso decide-se quando virmos o custo por ronda").
 
 ## 11. Implementation Order
 
 1. **Client binary skeleton** — key generation, UDP socket, Noise_IK initiator
 2. **Ladder A** — handshake + binding + intent + grant + effect
 3. **Ladder B** — refusal path
-4. **Ladder C** — admission rejection
+4. **Ladder C** — admission rejection (frozen vectors from day one)
 5. **Ladder D** — control API
-6. **Soak wrapper** — loop + metrics + reporting
-7. **Daemon wiring** — each TODO, validated by the harness as it lands
+6. **Rung E** — Zig interop sanity check
+7. **Soak wrapper** — loop + metrics + reporting
+8. **Daemon wiring** — each TODO, validated by the harness as it lands
 
 The client and daemon wiring can proceed in parallel: the client sends correct packets from day one, and the daemon starts processing them as each TODO gets implemented.
 
@@ -299,17 +355,19 @@ The client and daemon wiring can proceed in parallel: the client sends correct p
 
 | Risk | Mitigation |
 |------|-----------|
-| Daemon crashes mid-round | Soak wrapper restarts daemon, logs the failure |
+| **Symmetry trap: client and daemon share the bolina crate — a shared codec bug cancels itself out and rounds pass green** (happened in W4: Rust-Rust roundtrips passed, live Zig daemon dropped msg1) | (1) Ladder C fed 100% frozen vector bytes every round; ladders A/B frozen on every epoch round 0 (section 5.3). (2) Rung E: client validated against the Zig daemon v0.6.1 once per soak session — the exact check that caught the W4 bug. (3) Fresh fields declared per-round in the `frozen=` log field. |
+| Daemon crashes mid-round | Soak wrapper restarts daemon, logs the failure, starts a new epoch (epoch round 0 re-freezes ladders A/B/C) |
 | Session table exhaustion (MAX_SESSIONS=16) | Each round uses 4 sessions; rounds are sequential, not parallel |
 | Ledger file growth | Soak wrapper uses TempDir, cleans up after |
 | Port conflicts | Configurable ports, default 9800/9801 |
 | Timing-dependent failures | Fixed delays between operations, configurable |
+| Frozen vectors decay (absolute timestamps pass) | Vector freshness classified at soak start (section 5.3); expired vectors route to ladder B, live path uses declared client-built envelopes |
 
 ## 13. What This Does NOT Cover
 
 - **Cross-node mesh** — this is single-daemon, single-client. Multi-node mesh routing (relay, served-cert) is out of scope for W12.
 - **Performance benchmarking** — the soak measures correctness under sustained load, not throughput.
-- **Zig interop** — this is Rust-daemon-only. Zig interop (G2-style) is a separate gate.
+- **Full Zig interop ladder** — rung E is deliberately minimal (handshake + binding + one admitted envelope). The full G2-style A/B/C ladder against the Zig daemon remains a separate gate if the owner wants it; rung E exists so that the symmetry-trap defense does not depend on that separate gate ever being scheduled (the mistake of the first draft, which parked Zig interop as "gate separado").
 
 ---
 
