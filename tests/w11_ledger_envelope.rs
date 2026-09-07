@@ -82,6 +82,25 @@ fn be_ledger_01_known_parents_pass() {
     assert!(led.all_parents_present(&parents));
 }
 
+// --- BE-LEDGER-01: partial parents rejected (one known + one unknown) ---
+// Literal test for the all-vs-any distinction: `any` would report present
+// with a single known parent, admitting envelopes with unknown parents.
+// Kills mutant: ledger_envelope all parents -> any parents.
+#[test]
+fn be_ledger_01_partial_parents_rejected() {
+    let mut led = Ledger::new();
+    led.insert_envelope(EnvelopeEntry {
+        hash: hash(0x10),
+        sender: sender(1),
+        channel: channel(1),
+        seq: 0,
+    })
+    .unwrap();
+    // 0x10 known, 0xFF unknown -> all_parents_present must be false.
+    let parents = [hash(0x10), hash(0xFF)];
+    assert!(!led.all_parents_present(&parents));
+}
+
 // --- BE-HIST-02: first envelope becomes anchor ---
 #[test]
 fn be_hist_02_first_envelope_becomes_anchor() {
@@ -304,6 +323,34 @@ fn f5_happy_path_admission_succeeds() {
     assert!(result.is_ok());
     assert_eq!(led.envelope_count(), 2); // parent + new
     assert_eq!(led.seq_window_count(), 1);
+}
+
+// --- F5: partial parents (one known, one unknown) -> rejected before seq ---
+// Integration kill for BE-LEDGER-01 all->any: admission must refuse when ANY
+// parent is unknown, even with a known one present, and leave no seq window.
+#[test]
+fn f5_partial_parents_rejected_before_seq() {
+    use bolina::transport::verify::{verify_envelope_admission, VerifyError};
+
+    let mut led = Ledger::new();
+    let parent_hash = hash(0x01);
+    led.insert_envelope(EnvelopeEntry {
+        hash: parent_hash,
+        sender: sender(99),
+        channel: channel(99),
+        seq: 0,
+    })
+    .unwrap();
+
+    let s = sender(1);
+    let c = channel(1);
+    let h = hash(0xCC);
+    // One known parent + one unknown -> UnknownParents, nothing admitted.
+    let parents = [parent_hash, hash(0xFF)];
+    let result = verify_envelope_admission(&mut led, &h, &s, &c, 100, &parents);
+    assert_eq!(result, Err(VerifyError::UnknownParents));
+    assert_eq!(led.seq_window_count(), 0);
+    assert_eq!(led.envelope_count(), 1); // only the pre-stored parent
 }
 
 // =========================================================================
