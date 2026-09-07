@@ -194,6 +194,15 @@ Plus **rung E** (interop sanity), which runs ONCE per soak session against the Z
 
 Rung E does not need the full ladder. It needs to exist, once, per soak session.
 
+#### 5.1.1 Rung E logistics — it runs on the OWNER's machine (Daniel, 2026-09-07)
+
+The sealed Zig daemon v0.6.1 lives at `~/srv/soak-g3/bolina` on the **owner's machine** — the same sealed binary that G2 and the Zig soak exercised. The dev machine does not have it. Therefore:
+
+- **Rung E is implemented with full logic here, but is assumed to run elsewhere.** No part of ladders A–D or the main soak depends on a Zig binary being present locally.
+- **The wrapper gets a standalone mode:** `tools/g4-integration-soak.sh rung-e [--zig-daemon <addr>]` runs ONLY rung E against a running Zig daemon and prints a verdict (PASS/FAIL with the failing step), without starting a Rust daemon or entering the soak loop. This lets the owner validate the client against the sealed reference **before** committing an integration-soak window.
+- **Dev-machine coverage:** ladders A–D and the wrapper are developed and tested here against the Rust daemon, with zero Zig dependency. Optionally a local Zig v0.6.1 can be stood up for rung E development iteration — but the verdict that counts is the owner's run against the sealed binary.
+- **Final flow at W12 close:** the 8 tasks land, the owner runs `rung-e` isolated, then one full five-rung round, and only then does the integration-soak window open. If rung E fails on the owner's machine, we stop there and fix - that is its purpose.
+
 ### 5.2 Daemon Epochs and the Frozen Round
 
 A **daemon epoch** starts at soak start and at every daemon restart. The first round of each epoch (**epoch round 0**) uses **100% frozen vector bytes** for ladders A, B and C — no client-built envelope fields at all. Subsequent rounds use client-built envelopes for A/B (fresh seq/timestamps) while C stays frozen (rejections need no freshness). See section 5.3.
@@ -246,7 +255,16 @@ This means: same seed + same daemon state then same sequence of operations then 
 ```bash
 #!/bin/bash
 # G4 Integration Soak — exercises the daemon integrated
-# Usage: g4-integration-soak.sh [--hours N] [--workers N] [--seed SEED]
+# Usage:
+#   g4-integration-soak.sh soak  [--hours N] [--workers N] [--seed SEED]
+#                                [--rust-daemon <addr>]
+#   g4-integration-soak.sh rung-e --zig-daemon <addr> [--seed SEED]
+#
+# Modes:
+#   soak   — full soak: start Rust daemon, run client rounds A-D in a loop
+#   rung-e — standalone interop sanity: client vs a RUNNING Zig daemon v0.6.1
+#            (owner's machine, sealed binary). Prints PASS/FAIL verdict only.
+#            No Rust daemon started, no soak loop. Exit 0 = pass, 1 = fail.
 
 DAEMON_PORT=${DAEMON_PORT:-9800}
 CONTROL_PORT=${CONTROL_PORT:-9801}
