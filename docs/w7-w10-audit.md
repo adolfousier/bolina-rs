@@ -332,3 +332,10 @@ All 34 original BE-* gaps are now closed:
 ### Suite growth
 - Before gaps: 319 passed / 0 failed
 - After gaps: ~370 passed / 0 failed
+
+### W11 mutation closure (2026-09-07)
+
+- Verify run settled the conflicting Sep-6 logs: 48/49, anchor #46 (ledger_envelope all->any parents, BE-LEDGER-01) survived deterministically; the Sep-6 09:58 "49/49" was a compile-failure artifact (runner counts any nonzero cargo-test exit as killed, that tree did not compile mid-sweep).
+- Root cause: no test exercised partial parents (one known + one unknown); every existing parents test hit states where all() and any() agree (empty store or fully known parents).
+- Fix (b9cc42b): be_ledger_01_partial_parents_rejected (direct) + f5_partial_parents_rejected_before_seq (admission integration); double kill proven manually before the re-run (pass on original, FAIL under applied mutant, src restored).
+- Receipt re-run: **49/49 KILLED**, 0 survived / 0 equivalent / 0 unviable (log /tmp/mutation-w11-fix-20260907.log, ~87 min under load 5). Suite exact: 375 passed / 0 failed.
