@@ -2,6 +2,7 @@
 //!
 //! Port of src/relay.zig (255 lines) + relay_test.zig (328 lines).
 //! BE-MESH-02/05. MD5 heritage: dedup-first insert.
+#![allow(dead_code)]
 
 
 // --- Constants ---

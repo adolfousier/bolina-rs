@@ -7,6 +7,7 @@
 //! 4. Ledger attach
 //! 5. Control plane attach (optional)
 //! 6. Run loop with signal handling
+#![allow(dead_code)] // W7-W11: daemon wiring incomplete; remove post-parity
 
 use std::env;
 use std::net::SocketAddr;

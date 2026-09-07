@@ -8,6 +8,7 @@
 //!   commit_consumed_11 emitted ONLY after durable appendSync returns OK.
 //!   effect_start IS the normative APPROVED->EXECUTING transition (D-067).
 //!   effect_refused: refused path never emits mark_published afterwards.
+#![allow(dead_code)]
 
 // ---------------------------------------------------------------------------
 // Tag enum: wire-stable ids (numbering matches Zig for cross-impl comparison).

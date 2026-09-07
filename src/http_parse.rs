@@ -6,6 +6,7 @@
 //! line, no obs-fold, no space-before-colon, Content-Length framing ONLY
 //! (Transfer-Encoding is a hard refuse). Smuggling guards each get their
 //! own error (exhaustive enum, no catch-all - D-049 style).
+#![allow(dead_code)]
 
 pub const HEADER_CAP: usize = 8192;
 pub const BODY_CAP: usize = 64 * 1024;

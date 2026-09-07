@@ -3,6 +3,7 @@
 //! BE-GRANT-07: the digest is recomputed from exactly the bytes the view
 //! carries. No wire digest can enter this module.
 //! BE-GRANT-07a: displayed rationale MUST be marked untrusted agent text.
+#![allow(dead_code)]
 
 use blake2::{Blake2s256, Digest};
 

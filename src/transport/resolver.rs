@@ -4,6 +4,7 @@
 //! resource_id byte string and returns the canonical form drawn from the
 //! operator-declared set. The requester proposes, the executor resolves
 //! (BE-RES-01).
+#![allow(dead_code)]
 
 use crate::state::intent;
 use blake2::{Blake2s256, Digest};

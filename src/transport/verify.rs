@@ -8,6 +8,7 @@
 //! The routine does NOT hand back a capability: it runs the checks, commits the
 //! ledger (check 11), and invokes the effect itself inside its own frame
 //! (verify.zig:21-22, BE-GRANT-03b round 4 restatement).
+#![allow(dead_code)]
 
 use crate::codec::{
     self, verify_signed, Cert, Envelope, Grant, Refusal,

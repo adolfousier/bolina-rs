@@ -4,6 +4,7 @@
 //! ordered exactly here: admission routes through resolveAndAdmit (same path
 //! wire uses), grants execute through verifyGrantThen, durable consumed-grant
 //! ledger owns replay refusal, effects fire EXACTLY ONCE inside the verify call.
+#![allow(dead_code)]
 
 use crate::codec::{
     parse_envelope, parse_grant, parse_intent, parse_refusal,

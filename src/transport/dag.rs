@@ -9,6 +9,7 @@
 //! and the structure never allocates. Capacity is fixed; an insert past
 //! capacity is an error. isAncestor uses an explicit work queue and a visited
 //! bitmap, never recursion (BE-DEP-02 shape).
+#![allow(dead_code)]
 
 pub const NODE_BYTES: usize = 32;
 pub type Node = [u8; NODE_BYTES];

@@ -4,7 +4,7 @@ use bolina::transport::dag::{Dag, DagError, node_from_slice, NODE_BYTES, MAX_NOD
 use bolina::transport::evidence::{
     EvidenceClass, ClaimState, ResolutionRecord, Supported,
     class_of, ceiling_q8, is_volatile, effective_confidence, check_bounds,
-    resolve_claim, Claim, Span, ResolveContext, Role, OriginState,
+    resolve_claim, Claim, ResolveContext, Role, OriginState,
     MAX_UTTERANCE_CLAIMS, MAX_UTTERANCE_SPANS,
 };
 use bolina::transport::historical::{HistoricalError, historical_validity, AuditContext};

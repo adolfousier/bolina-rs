@@ -11,6 +11,7 @@
 //!
 //! The Zig processDatagram takes now_ms and ignores it (timestamp replay is
 //! session-layer policy, SPEC 2.2); the Rust head drops the param.
+#![allow(dead_code)]
 
 use super::noise::{KeyPair, MSG1_SIZE, MSG2_SIZE, Responder};
 use x25519_dalek::{x25519, X25519_BASEPOINT_BYTES};

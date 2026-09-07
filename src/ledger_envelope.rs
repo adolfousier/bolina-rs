@@ -4,6 +4,7 @@
 //! windows (BE-ENV-03/04), anchor table (BE-HIST-02), revocation table (BE-HIST-04).
 //! Pure slice, no I/O; the DURABLE log is state/ledger.rs (separate module).
 //! Powers admission checks in verify.rs (allParentsPresent precedes seq/insert: F5).
+#![allow(dead_code)]
 
 use crate::transport::replay::ReplayWindow;
 

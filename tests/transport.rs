@@ -3,7 +3,7 @@
 //! and the transport nonce composition. Every assertion cites its Zig source.
 
 use bolina::transport::noise::*;
-use bolina::transport::{compute_mac1, verify_mac1, MAC_BYTES};
+use bolina::transport::mac1::{compute_mac1, verify_mac1, MAC_BYTES};
 
 fn kp(seed: u8) -> KeyPair {
     let mut s = [seed; 32];

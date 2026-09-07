@@ -2,6 +2,7 @@
 //!
 //! BE-MESH-03: bounded relay storage with TTL expiry.
 //! Storage keys by overlay_addr, not client_index (D-058).
+#![allow(dead_code)]
 
 pub const MAX_BODY: usize = 2048;
 pub const MAX_PER_RECIPIENT: usize = 64;

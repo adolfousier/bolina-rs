@@ -2,6 +2,7 @@
 //!
 //! BE-EXEC-02: one listener per (address, port).
 //! BE-EXEC-03: one address family per socket.
+#![allow(dead_code)]
 
 pub const MAX_ENDPOINTS: usize = 8;
 

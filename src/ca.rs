@@ -3,6 +3,7 @@
 //! Port of src/ca_material.zig (297 lines) + ca_cli.zig (187 lines).
 //! Commands: init, issue, list, show, revoke.
 //!
+#![allow(dead_code)]
 //! F15 heritage: version = 3 ALWAYS (v3-with-empty-scopes = deny-all D-085 R4).
 //! BE-CTRL-03: revoke body carries SUBJECT expiry, never admin's.
 

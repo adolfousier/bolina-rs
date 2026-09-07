@@ -3,6 +3,7 @@
 //! One bearer token, generated from CSPRNG at first boot, stored 0600,
 //! compared timing-safely. Fail-closed: absent/short/corrupt token refuses
 //! every request except /healthz.
+#![allow(dead_code)]
 
 pub const TOKEN_BYTES: usize = 32;
 pub const TOKEN_HEX_LEN: usize = 64;

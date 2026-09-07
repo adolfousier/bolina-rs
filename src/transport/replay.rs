@@ -2,6 +2,7 @@
 //!
 //! RFC 6479 sliding bitmap at 1024 bits. Zero-heap, caller-owned.
 //! BE-TR-03: window MUST be at least 1024 counters wide.
+#![allow(dead_code)]
 
 pub const WINDOW_BITS: usize = 1024;
 pub const WORD_BITS: usize = 64;

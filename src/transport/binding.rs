@@ -2,6 +2,7 @@
 //!
 //! BE-ID-01..04: certificate validation against trust set + clock.
 //! BE-TR-01: post-handshake session binding via Ed25519 sig over Noise h.
+#![allow(dead_code)]
 
 use crate::codec::{verify_signed, DOMAIN_CERT};
 

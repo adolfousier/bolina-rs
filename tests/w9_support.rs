@@ -3,12 +3,12 @@
 use bolina::transport::token::{self, TOKEN_BYTES, TOKEN_HEX_LEN};
 use bolina::transport::render::{self, RATIONALE_UNTRUSTED_LABEL, LEN_ACTION_DIGEST};
 use bolina::transport::relay_store::{
-    Store, StoreError, MAX_BODY, MAX_STORED, TTL_MS,
+    Store, StoreError, MAX_BODY, TTL_MS,
 };
 use bolina::transport::replay::{ReplayWindow, WINDOW_BITS};
 use bolina::transport::listener::{EndpointRegistry, ListenError, MAX_ENDPOINTS};
 use bolina::transport::binding::{
-    self, CertView, BindingError, CertChainError,
+    CertChainError,
     ROLE_AGENT, ROLE_EXECUTOR, ROLE_APPROVER,
     APPROVER_QUORUM, MAX_PRIVILEGED_LIFETIME_MS,
     check_role_constraints, derive_overlay_addr,

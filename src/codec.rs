@@ -3,6 +3,7 @@
 //! Port of `src/parser/channel.zig` + `src/parser/session.zig` (cert) +
 //! `verify.verifySigned`. Zero-alloc parsers: every returned slice aliases the
 //! caller buffer, one central `Cursor::need` exit (BE-WIRE-02 as construction).
+#![allow(dead_code)]
 //! Big-endian everywhere; version parsed, never rejected (SPEC 2.2).
 //!
 //! Invariants inherited from the Zig reference (specs/*.md sheets):

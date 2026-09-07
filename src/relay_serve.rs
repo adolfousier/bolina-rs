@@ -3,6 +3,7 @@
 //! Relay role service: classifier + forwarder + store-and-forward post office
 //! for relay traffic, sitting beside the handshake server on the SAME socket fd.
 //! BE-EXEC-04: sender gate (established session) precedes ALL service.
+#![allow(dead_code)]
 
 use crate::transport::relay_store;
 

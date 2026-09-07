@@ -9,6 +9,7 @@
 //! spelling and Prometheus counter names follow the sheet's descriptions and
 //! are PINNED by tests in tests/w10_control_api.rs; first reach of the Zig
 //! tree must byte-compare both (audit item, inventory).
+#![allow(dead_code)]
 
 use crate::state::intent::{self, IntentError, State as IntentState};
 use crate::transport::resolver::{Resolver, ResolveError};

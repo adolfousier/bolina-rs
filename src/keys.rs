@@ -11,6 +11,7 @@
 //! - truncated secret file = corruption, NEVER silent regeneration
 //! - cert.bin loads verbatim up to MAX_CERT; ABSENT = len 0 unbound-accept
 //! - CA pubs load ca0.pub..ca7.pub in LABEL ORDER (order = cert sig slots)
+#![allow(dead_code)]
 
 use crate::transport::resolver::executor_fp;
 use ed25519_dalek::SigningKey;
