@@ -225,6 +225,37 @@ The rung E verdict runs against **`v0.6.1-13-g9447ca8`** (Zig trunk HEAD on the 
 
 **Receipt wording (binding for any rung-E / soak-integration receipt):** "Rung E ran against v0.6.1-13-g9447ca8, not the v0.6.1 tag. Reason: the tag lacks link_libc (never compiled on Linux; f55c4b5) and carries the type-2 handshake index bug fixed by e4fd0d4, which the Rust port already conforms to. Wire-identical to the port's verification reference (v0.6.1-18-g53fd099, docs-only delta)."
 
+#### 5.1.3 Rung E daemon provisioning — the Zig daemon must run as the vector executor (declared 2026-09-08)
+
+The e4 step (admission visible in SSE) requires the Zig daemon to **admit** the frozen intent envelope. The frozen intent's resource is `bol:c3efd641bfa0582f/logs/deploy.log` — the fp `c3efd641bfa0582f` is the vector executor's identity fp (Blake2s-8 of its sig_pubkey). For the daemon to resolve this resource locally (not refuse as ForeignExecutor per BE-RES-02), it must **be** that executor.
+
+**Provisioning is straight config — no key generation, no CA reconstruction.** The script `tools/rung-e-provision.sh <data_dir>` writes all required files from `test/vectors.json`:
+
+| File | Content | Source |
+|------|---------|--------|
+| `<data_dir>/sig.secret` | 32B raw — executor Ed25519 seed | vectors `keys.executor.seed` |
+| `<data_dir>/sig.pub` | 32B raw — executor Ed25519 pubkey | vectors `keys.executor.sig_pubkey` |
+| `<data_dir>/kex.secret` | 32B raw — executor X25519 secret | vectors `keys.executor.kex_seed` |
+| `<data_dir>/kex.pub` | 32B raw — executor X25519 pubkey | vectors `keys.executor.kex_pubkey` |
+| `<data_dir>/ca/ca0.pub` | 32B raw — CA1 Ed25519 pubkey (trust anchor) | vectors `keys.ca1.sig_pubkey` |
+
+**No cert.bin** — the executor receives envelopes, doesn't send them. The daemon enters bound-require mode (CA trust anchors present) and verifies the client's binding frame against ca1.
+
+**Daemon env:**
+```
+BOLINA_RESOURCES=bol:c3efd641bfa0582f/logs/deploy.log
+```
+
+**Client flags (from the provisioned data dir):**
+```
+--zig-kex-pub 93d19c4cd991569bb8526d1fc6761618f9865d61f4c27bc302dd6ef509a33932
+--zig-sig-pub 882d0ea3b2864e7a587f3e698cea4459998312e655e05fa5e8b5119d8baac8cd
+```
+
+**Expected e4 outcome with full provisioning:** the Zig daemon resolves the resource locally, admits the envelope, publishes `intent_admitted` to its EventRing, and the SSE GET returns the event. Cross-admission between independent implementations proven.
+
+**If provisioning is incomplete** (e.g. BOLINA_RESOURCES missing, or wrong executor fp), the daemon refuses silently (fail-closed per D-091) and e4 sees 0 events — the exact failure observed before this section was written.
+
 
 ### 5.2 Daemon Epochs and the Frozen Round
 
