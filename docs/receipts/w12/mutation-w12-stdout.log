@@ -1,0 +1,67 @@
+mutation-test-rs: 55 mutants loaded
+domains: ca, codec, control, control_api, daemon, dag, dispatch, evidence, handshake, http_parse, keys, ledger_envelope, mac1, relay_serve, resolver, state, sync, token, transport, verify
+[1/55] codec — codec: body_len MAX_BODY boundary weakened ... KILLED ✓
+[2/55] codec — codec: parent_count MAX_PARENTS boundary weakened ... KILLED ✓
+[3/55] codec — codec: scope_count MAX_SCOPE boundary weakened ... KILLED ✓
+[4/55] codec — codec: ca_sig_count MAX_CA_SIGS boundary weakened ... KILLED ✓
+[5/55] codec — codec: ca_key ascending check weakened (allows duplicate keys) ... KILLED ✓
+[6/55] state — state: intent MAX_PENDING boundary weakened (admits 257th) ... KILLED ✓
+[7/55] state — state: intent timeout boundary weakened ... KILLED ✓
+[8/55] state — state: intent compact trigger weakened ... KILLED ✓
+[9/55] state — state: ledger consumed MAX_LIVE boundary weakened ... KILLED ✓
+[10/55] transport — transport: session rekey threshold weakened ... ANCHOR ERROR: anchor not found in src/transport/session.rs: "if self.counter >= REKEY_AFTER_MESSAGES { return Err(TransportError::RekeyRequir"
+[11/55] transport — transport: session MAX_SESSIONS boundary weakened ... ANCHOR ERROR: anchor not found in src/transport/session.rs: "if (local_index as usize) >= MAX_SESSIONS { return None; }"
+[12/55] transport — transport: noise key length check weakened ... KILLED ✓
+[13/55] control — control: slowloris guard weakened ... KILLED ✓
+[14/55] daemon — daemon: WouldBlock handling inverted ... KILLED ✓
+[15/55] ca — ca: privileged TTL boundary weakened ... KILLED ✓
+[16/55] ca — ca: CA count upper bound weakened ... KILLED ✓
+[17/55] transport — transport: reassembly MAX_FRAGMENTS boundary weakened ... KILLED ✓
+[18/55] transport — transport: reassembly SESSIONS_PER_NODE boundary weakened ... ANCHOR ERROR: anchor not found in src/transport/reassembly.rs: "        if self.sessions >= SESSIONS_PER_NODE { return NodeEvent::Refused; }"
+[19/55] transport — transport: relay MAX_RELAY_TABLE boundary weakened ... ANCHOR ERROR: anchor not found in src/transport/relay.rs: "        if self.entries.len() >= MAX_RELAY_TABLE { return false; }"
+[20/55] transport — transport: relay MAX_EXPIRY boundary weakened ... ANCHOR ERROR: anchor not found in src/transport/relay.rs: "        if expiry > MAX_EXPIRY { return Err(RelayError::ExpiryTooLong); }"
+[21/55] transport — transport: sync MAX_TRACKED_PEERS boundary weakened ... ANCHOR ERROR: anchor not found in src/transport/sync.rs: "        if self.used >= MAX_TRACKED_PEERS { return false; }"
+[22/55] verify — verify: not_after capability boundary weakened (BE-GRANT-05) ... KILLED ✓
+[23/55] verify — verify: t_recv receipt-window boundary weakened ... KILLED ✓
+[24/55] verify — verify: pubkey length check inverted ... KILLED ✓
+[25/55] dispatch — dispatch: action size boundary weakened ... KILLED ✓
+[26/55] dag — dag: MAX_NODES boundary weakened (admits 257th node) ... KILLED ✓
+[27/55] dag — dag: MAX_PARENTS boundary weakened ... KILLED ✓
+[28/55] evidence — evidence: BE-EVID-02 receiver-decides min inverted (stated leaks past ceiling) ... KILLED ✓
+[29/55] sync — sync: WALK_MAX_TOTAL boundary weakened (BE-SYNC-03) ... KILLED ✓
+[30/55] sync — sync: WALK_MAX_DEPTH boundary weakened (BE-SYNC-03) ... KILLED ✓
+[31/55] sync — sync: unresolved surfacing inverted (BE-SYNC-03) ... KILLED ✓
+[32/55] sync — sync: response envelope cap boundary weakened (BE-SYNC-02) ... KILLED ✓
+[33/55] control_api — control_api: id hex length check inverted (F5 table) ... KILLED ✓
+[34/55] control_api — control_api: F16 subject validation inverted ... KILLED ✓
+[35/55] control_api — control_api: BODY_MAX boundary weakened ... KILLED ✓
+[36/55] control_api — control_api: ring drop-oldest trigger weakened (seq-8 off-by-one) ... KILLED ✓
+[37/55] keys — keys: cert MAX_CERT boundary weakened (verbatim load broken) ... KILLED ✓
+[38/55] keys — keys: timing-safe compare inverted (tamper accepted, good rejected) ... KILLED ✓
+[39/55] http_parse — http_parse: POST length-required guard weakened ... KILLED ✓
+[40/55] http_parse — http_parse: duplicate Content-Length byte-equal rule inverted ... KILLED ✓
+[41/55] handshake — handshake: initiation type check inverted (BE-SESS-02) ... KILLED ✓
+[42/55] mac1 — mac1: cookie rotation boundary weakened (BE-TR-04a) ... KILLED ✓
+[43/55] resolver — resolver: canonical bol: prefix check inverted (BE-RES-01) ... KILLED ✓
+[44/55] ledger_envelope — ledger_envelope: capacity check weakened (BE-LEDGER-02) ... KILLED ✓
+[45/55] ledger_envelope — ledger_envelope: idempotent check inverted (BE-ENV-05) ... KILLED ✓
+[46/55] ledger_envelope — ledger_envelope: all parents → any parents (BE-LEDGER-01) ... ANCHOR ERROR: anchor not found in src/ledger_envelope.rs: "        parents.iter().all(|p| self.envelopes.iter().any(|e| &e.hash == p))"
+[47/55] ledger_envelope — ledger_envelope: revocation capacity weakened (F10) ... KILLED ✓
+[48/55] relay_serve — relay_serve: handshake type 3 dropped from classifier (BE-EXEC-04) ... ANCHOR ERROR: anchor not found in src/relay_serve.rs: "        MSG_HANDSHAKE_INIT | MSG_HANDSHAKE_RESP | MSG_HANDSHAKE_DATA => {"
+[49/55] token — token: load length check inverted (BE-TR-04a) ... KILLED ✓
+[50/55] daemon — w12: msg2 sendto closure dropped (send not wired) ... KILLED ✓
+[51/55] daemon — w12: dispatch type-1 crossed to transport handler ... KILLED ✓
+[52/55] daemon — w12: handshake admission gate inverted ... KILLED ✓
+[53/55] daemon — w12: bound/unbound transport routing swapped (BE-TR-01a gate) ... KILLED ✓
+[54/55] daemon — w12: transport rejection counter dropped (SSE counter source) ... KILLED ✓
+[55/55] control_api — w12: SSE framing loses blank-line terminator ... KILLED ✓
+
+=== SUMMARY ===
+Total:      55
+Killed:     47
+Survived:   0
+Equivalent: 0
+Unviable:   0
+
+All mutants killed. ✓
+lastro: receipt docs/receipts/w12/mutation-w12.receipt · bol:4b21992593be60a3/git/bolina-rs/cc9ca1c40d02edd8ca6292c2c65e70f30a58fa4c/check/w12-mutation · exit 0 · 6056 bytes observed · digest 41f0972da5b9725a…
