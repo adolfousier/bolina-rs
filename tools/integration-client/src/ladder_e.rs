@@ -88,7 +88,14 @@ pub fn run(
         Ok(pair) => pair,
         Err(e) => return log.fail("e2.session", format!("{e} - no interop with the Zig daemon; ABORT SOAK")),
     };
-    log = log.step("e2.session", format!("msg2 verified + binding sent ({}B) - Rust initiator <-> Zig responder INTEROP, F1 coherent", bind_n));
+    let daemon_index = hs.daemon_index;
+    let send_key_hex = hex::encode(&hs.session.send.key[..8]);
+    let handshake_hash_hex = hex::encode(&hs.result.handshake_hash[..8]);
+    let counter_after_bind = hs.session.send.counter;
+    log = log.step("e2.session", format!(
+        "msg2 verified + binding sent ({}B) - Rust initiator <-> Zig responder INTEROP, F1 coherent | receiver_index={} send_key[0..8]={} handshake_hash[0..8]={} counter_after_bind={}",
+        bind_n, daemon_index, send_key_hex, handshake_hash_hex, counter_after_bind
+    ));
 
     // Envelope: frozen intent wire verbatim (sealed fresh, bytes frozen).
     let mut pkt = vec![0u8; id.intent_wire.len() + 64];
