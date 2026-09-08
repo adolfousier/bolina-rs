@@ -4,7 +4,7 @@
 //!   1. handshake + binding
 //!   2. grant envelope with expired not_after -> admitted, verify -> Expired
 //!   3. refusal envelope for that grant -> admitted, verify_refusal -> OK
-//! Expected: 2 admissions, 1 refusal outcome, 0 rejections.
+//!      Expected: 2 admissions, 1 refusal outcome, 0 rejections.
 //!
 //! Freshness classification (design 5.3): at round start the FROZEN grant
 //! vector is decoded and classified admit-able vs expired against the wall
@@ -22,6 +22,7 @@ use crate::keys::ClientKeys;
 use crate::ladder_a::{build_envelope, load_frozen, now_ms, seq_for, RoundLog};
 
 const B_LANE: u64 = 5; // seq lane for ladder B (A uses 1..3, C uses 7..)
+#[allow(clippy::too_many_arguments)]
 
 pub fn run(
     socket: &UdpSocket,
@@ -55,7 +56,7 @@ pub fn run(
                 // to ladder B when their time comes, per design 5.3.
                 (
                     format!("admit-able (expires in {remain_s}s) -> using client-built expired grant"),
-                    client_expired_grant(ck, seed, round, now),
+                    client_expired_grant(ck, seed, round, now, &daemon_sig_pub),
                 )
             } else {
                 let ago_s = (now - g.not_after) / 1_000;
@@ -118,13 +119,13 @@ pub fn run(
 
 const EFFECT_ALWAYS: &str = "effect:n/a";
 
-fn client_expired_grant(ck: &ClientKeys, seed: u64, round: u32, now: u64) -> Vec<u8> {
+fn client_expired_grant(ck: &ClientKeys, seed: u64, round: u32, now: u64, daemon_sig_pub: &[u8; 32]) -> Vec<u8> {
     let gid = crate::ladder_a::id16(seed, round, "b-grant");
     let iid = crate::ladder_a::id16(seed, round, "b-intent");
     let approver_pub = ck.approver.verifying_key().to_bytes();
     let subject_pub = ck.sig.verifying_key().to_bytes();
     let exec_pub = ck.sig.verifying_key().to_bytes();
-    let resource = format!("bol:{}/harness/b{}", hex::encode([0u8; 8]), round);
+    let resource = crate::ladder_a::resource_for(daemon_sig_pub, "b");
     let not_after = now.saturating_sub(1_000); // expired 1s ago
 
     let mut tbs = Vec::with_capacity(220);

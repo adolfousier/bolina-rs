@@ -74,7 +74,14 @@ PY
 
 # ---- soak mode -------------------------------------------------------------
 mode_soak() {
-  local rounds="${ROUNDS:-0}" duration="${DURATION:-0}" epoch_rounds="${EPOCH_ROUNDS:-100}"
+  # EPOCH_ROUNDS default 5: the handshake server table is 16 slots in BOTH
+  # implementations (Rust handshake.rs:20; Zig handshake.zig:25) and neither
+  # frees slots — the Zig v0.6.1 reference returns TableFull at the 17th
+  # handshake (handshake.zig:51) and so must the Rust port (parity, not a
+  # bug). 3 transport handshakes per round (ladders A/B/C; D is HTTP-only)
+  # means 5 rounds = 15 slots; the 6th round would refuse msg2. The epoch
+  # restart re-arms the table and re-freezes vectors (design section 5.3).
+  local rounds="${ROUNDS:-0}" duration="${DURATION:-0}" epoch_rounds="${EPOCH_ROUNDS:-5}"
   local bind="${BIND:-127.0.0.1:9800}" control="${CONTROL:-127.0.0.1:9801}"
   local daemon_kex="${DAEMON_KEX_PUB:-}" daemon_sig="${DAEMON_SIG_PUB:-}"
   local abort_on_fail=0
@@ -105,22 +112,68 @@ mode_soak() {
   echo "note: rung E is Zig-interop, owner-machine mode (g4-integration-soak.sh rung-e); skipped inside the Rust soak loop" | tee -a "$soak_log"
 
   # ---- daemon lifecycle (epochs) ----
-  local data_dir="$ev/daemon-data" daemon_pid="" start_epoch_epoch=0
+  # Task-8 wiring: each epoch = fresh keys; boot1 generates keys+token and
+  # announces pubs; the wrapper installs the seeded client CA as ca0.pub,
+  # computes the executor fp (BE-RES-06) and declares BOLINA_RESOURCES, then
+  # boot2 runs the real serve loop with the control plane + trust set armed.
+  local data_dir="$ev/daemon-data" daemon_pid="" daemon_token=""
+  daemon_fp() {
+    python3 -c 'import sys,hashlib
+b = bytes.fromhex(sys.argv[1])
+print(hashlib.blake2s(b, digest_size=32).hexdigest()[:16])' "$1"
+  }
   start_daemon() {
     rm -rf "$data_dir"
-    BOLINA_BIND="$bind" BOLINA_DATA_DIR="$data_dir" "$DAEMON_BIN" > "$ev/daemon.log" 2>&1 &
-    daemon_pid=$!
-    # daemon must announce its pubs for the client (W12 wiring prints these)
+    local res
+    # boot 1: key material + control token generation
+    BOLINA_BIND="$bind" BOLINA_DATA_DIR="$data_dir" BOLINA_CONTROL="$control" \
+      "$DAEMON_BIN" > "$ev/daemon-boot1.log" 2>&1 &
+    local pid1=$!
     local i=0
     while [ $i -lt 50 ]; do
-      if grep -q "daemon_sig_pub=" "$ev/daemon.log" 2>/dev/null; then break; fi
-      kill -0 "$daemon_pid" 2>/dev/null || { echo "daemon exited during startup:" | tee -a "$soak_log"; cat "$ev/daemon.log" | tee -a "$soak_log"; return 1; }
+      grep -q "daemon_sig_pub=" "$ev/daemon-boot1.log" 2>/dev/null && break
+      kill -0 "$pid1" 2>/dev/null || { echo "daemon (boot1) exited during startup:" | tee -a "$soak_log"; cat "$ev/daemon-boot1.log" | tee -a "$soak_log"; return 1; }
       sleep 0.2; i=$((i+1))
     done
-    daemon_kex="$(grep -o 'daemon_kex_pub=[0-9a-f]*' "$ev/daemon.log" | head -1 | cut -d= -f2)"
-    daemon_sig="$(grep -o 'daemon_sig_pub=[0-9a-f]*' "$ev/daemon.log" | head -1 | cut -d= -f2)"
-    [ -n "$daemon_kex" ] && [ -n "$daemon_sig" ] || { echo "daemon did not announce pubs (task-8 wiring prints daemon_kex_pub=/daemon_sig_pub=)" | tee -a "$soak_log"; return 1; }
-    return 0
+    daemon_kex="$(grep -o 'daemon_kex_pub=[0-9a-f]*' "$ev/daemon-boot1.log" | head -1 | cut -d= -f2)"
+    daemon_sig="$(grep -o 'daemon_sig_pub=[0-9a-f]*' "$ev/daemon-boot1.log" | head -1 | cut -d= -f2)"
+    daemon_token="$(grep -o 'control plane token [0-9a-f]*' "$ev/daemon-boot1.log" | head -1 | awk '{print $4}')"
+    [ -n "$daemon_kex" ] && [ -n "$daemon_sig" ] || { echo "daemon did not announce pubs" | tee -a "$soak_log"; return 1; }
+    [ -n "$daemon_token" ] || { echo "daemon did not mint a control token" | tee -a "$soak_log"; return 1; }
+    # trust set: the seeded client identity's CA becomes ca0.pub (raw 32B)
+    local ca_hex
+    ca_hex="$("$CLIENT" --seed "$SEED" --print-ca | grep -o 'client_ca_pub=[0-9a-f]*' | head -1 | cut -d= -f2)"
+    [ -n "$ca_hex" ] || { echo "client --print-ca produced nothing" | tee -a "$soak_log"; return 1; }
+    mkdir -p "$data_dir/ca"
+    printf '%s' "$ca_hex" | xxd -r -p > "$data_dir/ca/ca0.pub"
+    # declared resources (BE-RES-02): executor-fp canonicals for the ladders
+    local fp
+    fp="$(daemon_fp "$daemon_sig")" || { echo "fp computation failed" | tee -a "$soak_log"; return 1; }
+    res="bol:${fp}/harness/a,bol:${fp}/harness/b,bol:${fp}/ns/dev/x"
+    # Ladder D posts one NEW intent per epoch round; a PENDING intent holds
+    # its resource for T_PENDING_MS=900s (Zig intent.zig BE-GRANT-06: a held
+    # resource refuses new intents with 409). So each epoch round gets its
+    # own declared resource r$er — resolver stays fail-closed (BE-RES-02).
+    local der=0
+    while [ "$der" -lt "$epoch_rounds" ]; do
+      res="$res,bol:${fp}/ns/dev/r${der}"
+      der=$((der + 1))
+    done
+    kill "$pid1" 2>/dev/null; wait "$pid1" 2>/dev/null || true
+    sleep 0.3
+    # boot 2: the real serve loop
+    BOLINA_BIND="$bind" BOLINA_DATA_DIR="$data_dir" BOLINA_CONTROL="$control" \
+      BOLINA_RESOURCES="$res" BOLINA_LEDGER="$data_dir/ledger.bin" \
+      "$DAEMON_BIN" > "$ev/daemon.log" 2>&1 &
+    daemon_pid=$!
+    i=0
+    while [ $i -lt 50 ]; do
+      grep -q "bolina: running" "$ev/daemon.log" 2>/dev/null && return 0
+      kill -0 "$daemon_pid" 2>/dev/null || { echo "daemon (boot2) exited during startup:" | tee -a "$soak_log"; cat "$ev/daemon.log" | tee -a "$soak_log"; return 1; }
+      sleep 0.2; i=$((i+1))
+    done
+    echo "daemon did not reach 'bolina: running'" | tee -a "$soak_log"
+    return 1
   }
   stop_daemon() { { [ -n "$daemon_pid" ] && kill "$daemon_pid" 2>/dev/null; } || true; wait "$daemon_pid" 2>/dev/null || true; daemon_pid=""; }
 
@@ -132,11 +185,18 @@ mode_soak() {
   # ---- round loop ----
   local r=0 epoch_r=0 fails=0 passes=0 start_ts=$(date +%s)
   run_round() {
-    local rr="$1" er="$2" log="$ev/round-$(printf '%04d' "$rr").log" l f rc bad=""
+    local rr="$1" er="$2" l f rc bad="" fp
+    local log="$ev/round-$(printf '%04d' "$rr").log"
+    fp="$(daemon_fp "$daemon_sig")"
     for l in a b c d; do
+      # ladder D: one fresh declared resource per epoch round (T_PENDING_MS
+      # physics); ladders A/B/C keep the shared canonical (self-resolving).
+      local lcanon="bol:${fp}/ns/dev/x"
+      if [ "$l" = "d" ]; then lcanon="bol:${fp}/ns/dev/r${er}"; fi
       set +e
       "$CLIENT" --daemon "$bind" --control "$control" --seed "$SEED" --round "$er" \
-        --ladder "$l" --timeout-ms "$TIMEOUT_MS" --canonical "$(printf 'bol:%016x/ns/dev/x' "$SEED")" \
+        --ladder "$l" --timeout-ms "$TIMEOUT_MS" --canonical "$lcanon" \
+        --control-token "$daemon_token" \
         --daemon-kex-pub "$daemon_kex" --daemon-sig-pub "$daemon_sig" > "$log.$l" 2>&1
       rc=$?
       set -e

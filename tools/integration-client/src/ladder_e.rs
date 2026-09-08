@@ -101,7 +101,7 @@ pub fn run(
     log = log.step("e3.envelope", format!("frozen intent envelope sent ({}B wire) -> expect admission", n_env));
 
     // Admission visible in the Zig daemon event stream.
-    match http_request(control, "GET", "/v1/events?since=0", None, _timeout) {
+    match http_request(control, "GET", "/v1/events?since=0", None, None, _timeout) {
         Ok((status, body)) => {
             if status != 200 {
                 return log.fail("e4.events", format!("GET /v1/events -> {status}, expected 200"));

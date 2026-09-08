@@ -98,6 +98,7 @@ pub fn open_bound_session(
 }
 
 /// Handshake + binding with an explicit identity and cert wire (rung E:
+#[allow(clippy::too_many_arguments)]
 /// frozen vector agent identity + frozen CA-signed cert).
 pub fn open_bound_with(
     socket: &UdpSocket,

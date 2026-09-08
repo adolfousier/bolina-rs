@@ -34,6 +34,7 @@ struct Args {
     daemon_sig_pub: [u8; 32],
     timeout_ms: u64,
     canonical: String,
+    control_token: Option<String>,
     ladder: char,
 }
 
@@ -83,6 +84,7 @@ fn parse_args() -> Result<Args, String> {
         daemon_sig_pub: [0u8; 32],
         timeout_ms: 2_000,
         canonical: "bol:0000000000000000/ns/dev/x".to_string(),
+        control_token: None,
         ladder: 'a',
     };
     let mut have_daemon = false;
@@ -96,6 +98,14 @@ fn parse_args() -> Result<Args, String> {
         match flag.as_str() {
             "--help" | "-h" => {
                 println!("{}", usage());
+                std::process::exit(0);
+            }
+            "--print-ca" => {
+                // harness harvest mode: print the seeded identity's CA pub
+                // (hex64) and exit; the wrapper installs it as ca0.pub so the
+                // daemon trusts the client's binding certs (task-8 wiring)
+                let ck: ClientKeys = seeded(args.seed);
+                println!("client_ca_pub={}", hex::encode(ck.ca.verifying_key().to_bytes()));
                 std::process::exit(0);
             }
             "--daemon" => {
@@ -130,6 +140,9 @@ fn parse_args() -> Result<Args, String> {
             }
             "--timeout-ms" => {
                 args.timeout_ms = value()?.parse().map_err(|_| "--timeout-ms: expected u64")?
+            }
+            "--control-token" => {
+                args.control_token = Some(value()?);
             }
             other => return Err(format!("unknown flag: {other} (see --help)")),
         }
@@ -192,7 +205,7 @@ fn main() -> ExitCode {
         'b' => ladder_b::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.zig),
         'c' => ladder_c::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.round, args.zig),
         'e' => ladder_e::run(&socket, args.daemon, args.daemon_kex_pub, args.daemon_sig_pub, args.round, args.control, Duration::from_millis(args.timeout_ms)),
-        'd' => ladder_d::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.control, &args.canonical, Duration::from_millis(args.timeout_ms)),
+        'd' => ladder_d::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.control, &args.canonical, args.control_token.as_deref(), Duration::from_millis(args.timeout_ms)),
         other => {
             eprintln!("error: ladder '{other}' not implemented yet");
             return ExitCode::from(2);

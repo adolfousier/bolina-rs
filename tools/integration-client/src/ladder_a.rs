@@ -155,13 +155,12 @@ pub fn send_sealed(
     Ok(n)
 }
 
-fn grant_body(ck: &ClientKeys, seed: u64, round: u32, not_after: u64) -> Vec<u8> {
+fn grant_body(ck: &ClientKeys, seed: u64, round: u32, not_after: u64, resource: &str) -> Vec<u8> {
     let gid = id16(seed, round, "grant");
     let iid = id16(seed, round, "intent");
     let approver_pub = ck.approver.verifying_key().to_bytes();
     let subject_pub = ck.sig.verifying_key().to_bytes();
     let exec_pub = ck.sig.verifying_key().to_bytes();
-    let resource = format!("bol:{}/harness/round{}", hex::encode([0u8; 8]), round);
 
     let mut tbs = Vec::with_capacity(220);
     tbs.push(1); // grant version
@@ -194,12 +193,20 @@ fn grant_body(ck: &ClientKeys, seed: u64, round: u32, not_after: u64) -> Vec<u8>
     codec::encode_grant(&g)
 }
 
-fn intent_body(seed: u64, round: u32) -> Vec<u8> {
-    let iid = id16(seed, round, "intent");
-    let res = format!("bol:{}/harness/round{}", hex::encode([0u8; 8]), round);
+/// Executor canonical for this soak (BE-RES-06): the resource MUST embed the
+/// daemon's executor fp or resolve() refuses ForeignExecutor on any honest
+/// daemon. One canonical per ladder; the wrapper seeds them daemon-side via
+/// BOLINA_RESOURCES. Declared W12 delta: the first draft embedded a zeros fp,
+/// which no daemon whose own_fp differs from zeros can ever admit.
+pub fn resource_for(daemon_sig_pub: &[u8; 32], lane: &str) -> String {
+    let fp = bolina::transport::resolver::executor_fp(daemon_sig_pub);
+    format!("bol:{}/harness/{}", String::from_utf8_lossy(&fp), lane)
+}
+
+fn intent_body(iid: [u8; 16], resource: &str) -> Vec<u8> {
     let i = Intent {
         intent_id: &iid,
-        resource_id: res.as_bytes(),
+        resource_id: resource.as_bytes(),
         action: b"read",
         rationale: b"harness ladder A",
     };
@@ -274,6 +281,7 @@ pub fn run(
     };
     let channel = channel_for(seed, round);
     let sender = ck.sig.verifying_key().to_bytes();
+    let resource = resource_for(&daemon_sig_pub, "a");
 
     // 4a. intent: round 0 = the frozen FULL envelope verbatim.
     if round == 0 {
@@ -283,7 +291,8 @@ pub fn run(
         };
         log = log.step("env.intent", format!("FROZEN full envelope (vector seq), {n} bytes on wire"));
     } else {
-        let env = build_envelope(&ck.sig, &channel, &sender, seq_for(round, 1), codec::BODY_INTENT, &intent_body(seed, round));
+        let iid = id16(seed, round, "intent");
+        let env = build_envelope(&ck.sig, &channel, &sender, seq_for(round, 1), codec::BODY_INTENT, &intent_body(iid, &resource));
         let n = match send_sealed(socket, daemon, &mut hs.session, &env) {
             Ok(n) => n,
             Err(e) => return log.fail("env.intent", e),
@@ -296,7 +305,7 @@ pub fn run(
     let grant_payload = if round == 0 {
         frozen.grant_body.clone()
     } else {
-        grant_body(ck, seed, round, now_ms() + 60_000)
+        grant_body(ck, seed, round, now_ms() + 60_000, &resource)
     };
     let tag = if round == 0 { "FROZEN body" } else { "built" };
     let env = build_envelope(&ck.sig, &channel, &sender, grant_seq, codec::BODY_GRANT, &grant_payload);
