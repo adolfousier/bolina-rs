@@ -122,7 +122,7 @@ mode_soak() {
     [ -n "$daemon_kex" ] && [ -n "$daemon_sig" ] || { echo "daemon did not announce pubs (task-8 wiring prints daemon_kex_pub=/daemon_sig_pub=)" | tee -a "$soak_log"; return 1; }
     return 0
   }
-  stop_daemon() { [ -n "$daemon_pid" ] && kill "$daemon_pid" 2>/dev/null; wait "$daemon_pid" 2>/dev/null || true; daemon_pid=""; }
+  stop_daemon() { { [ -n "$daemon_pid" ] && kill "$daemon_pid" 2>/dev/null; } || true; wait "$daemon_pid" 2>/dev/null || true; daemon_pid=""; }
 
   if ! start_daemon; then
     echo "SOAK ABORT: daemon failed to start" | tee -a "$soak_log"
