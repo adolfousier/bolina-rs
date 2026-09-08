@@ -62,6 +62,7 @@ pub fn run(
     daemon_sig_pub: [u8; 32],
     round: u32,
     control: SocketAddr,
+    control_token: Option<&str>,
     _timeout: Duration,
 ) -> RoundLog {
     let mut log = RoundLog {
@@ -100,9 +101,17 @@ pub fn run(
     }
     log = log.step("e3.envelope", format!("frozen intent envelope sent ({}B wire) -> expect admission", n_env));
 
-    // Admission visible in the Zig daemon event stream.
-    match http_request(control, "GET", "/v1/events?since=0", None, None, _timeout) {
+    // Admission visible in the Zig daemon event stream. The Zig control
+    // plane requires its boot token (403 without it) — the wrapper passes
+    // it via --control-token (--zig-token in rung-e mode).
+    match http_request(control, "GET", "/v1/events?since=0", None, control_token, _timeout) {
         Ok((status, body)) => {
+            if status == 403 {
+                return log.fail(
+                    "e4.events",
+                    "GET /v1/events -> 403: control-plane token missing or wrong - pass --zig-token <hex> (printed at Zig daemon boot, stored in <data_dir>/control.token); ABORT SOAK".to_string(),
+                );
+            }
             if status != 200 {
                 return log.fail("e4.events", format!("GET /v1/events -> {status}, expected 200"));
             }

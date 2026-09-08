@@ -204,7 +204,7 @@ fn main() -> ExitCode {
         'a' => ladder_a::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.zig),
         'b' => ladder_b::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.zig),
         'c' => ladder_c::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.round, args.zig),
-        'e' => ladder_e::run(&socket, args.daemon, args.daemon_kex_pub, args.daemon_sig_pub, args.round, args.control, Duration::from_millis(args.timeout_ms)),
+        'e' => ladder_e::run(&socket, args.daemon, args.daemon_kex_pub, args.daemon_sig_pub, args.round, args.control, args.control_token.as_deref(), Duration::from_millis(args.timeout_ms)),
         'd' => ladder_d::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.control, &args.canonical, args.control_token.as_deref(), Duration::from_millis(args.timeout_ms)),
         other => {
             eprintln!("error: ladder '{other}' not implemented yet");

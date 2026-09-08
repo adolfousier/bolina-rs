@@ -12,6 +12,12 @@
 #
 # Exit codes: 0 pass | 1 verdict/round failure | 2 abort-on-fail | 3 rung-e
 # failed (soak must not start).
+#
+# Capturing the exit status: run the wrapper WITHOUT piping it into another
+# command. `./g4-integration-soak.sh ... | tee log` reports the LAST pipeline
+# stage's status (tee = 0), which masks the verdict — measured 2026-09-08
+# (rung-e FAIL run: exit 3 redirected, exit 0 piped). Either redirect to a
+# file and read $?, or `set -o pipefail` in the caller.
 
 set -u
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
@@ -31,13 +37,14 @@ build_client() {
 
 # ---- rung-e mode -----------------------------------------------------------
 mode_rung_e() {
-  local zig_daemon="" zig_control="" zig_kex="" zig_sig="" round=0 outdir=""
+  local zig_daemon="" zig_control="" zig_kex="" zig_sig="" zig_token="" round=0 outdir=""
   while [ $# -gt 0 ]; do
     case "$1" in
       --zig-daemon)  zig_daemon="$2"; shift 2 ;;
       --zig-control) zig_control="$2"; shift 2 ;;
       --zig-kex-pub) zig_kex="$2"; shift 2 ;;
       --zig-sig-pub) zig_sig="$2"; shift 2 ;;
+      --zig-token)   zig_token="$2"; shift 2 ;;
       --round)       round="$2"; shift 2 ;;
       --outdir)      outdir="$2"; shift 2 ;;
       *) die "rung-e: unknown arg $1" ;;
@@ -47,6 +54,9 @@ mode_rung_e() {
   [ -n "$zig_daemon" ] || die "rung-e: --zig-daemon <ip:port> required"
   [ -n "$zig_kex" ]    || die "rung-e: --zig-kex-pub <hex64> required"
   [ -n "$zig_sig" ]    || die "rung-e: --zig-sig-pub <hex64> required"
+  # The sealed Zig control plane requires its boot bearer token on /v1/*
+  # (403 without it). Printed at daemon boot, persisted in <data_dir>/control.token.
+  [ -n "$zig_token" ]  || die "rung-e: --zig-token <hex> required (Zig control-plane bearer; daemon boot log or <data_dir>/control.token)"
   zig_control="${zig_control:-$(python3 - "$zig_daemon" <<'PY'
 import sys, socket
 h, _, p = sys.argv[1].rpartition(":")
@@ -56,11 +66,12 @@ PY
   build_client
 
   echo "== G4 RUNG E — Zig interop sanity (v0.6.1 sealed) ==" | tee "${outdir:+$outdir/}rung-e.log"
-  echo "zig_daemon=$zig_daemon zig_control=$zig_control round=$round" | tee -a "${outdir:+$outdir/}rung-e.log"
+  echo "zig_daemon=$zig_daemon zig_control=$zig_control round=$round token=$([ -n "$zig_token" ] && echo set || echo unset)" | tee -a "${outdir:+$outdir/}rung-e.log"
   set +e
   "$CLIENT" --daemon "$zig_daemon" --control "$zig_control" \
     --seed "$SEED" --round "$round" --ladder e --timeout-ms "$TIMEOUT_MS" \
     --daemon-kex-pub "$zig_kex" --daemon-sig-pub "$zig_sig" \
+    --control-token "$zig_token" \
     2>&1 | tee -a "${outdir:+$outdir/}rung-e.log"
   local rc=${PIPESTATUS[0]}
   set -e
