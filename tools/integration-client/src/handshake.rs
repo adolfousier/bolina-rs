@@ -6,7 +6,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use bolina::transport::noise::{
     HandshakeResult, Initiator, MSG1_SIZE, MSG2_SIZE, OFF2_SENDER_INDEX,
 };
-use bolina::transport::session::Session;
+use bolina::transport::session::{Session, HEADER_SIZE};
 
 use crate::keys::ClientKeys;
 
@@ -62,4 +62,43 @@ pub fn exchange(
     session.bound = true; // client-side bookkeeping only
 
     Ok(Exchange { result, session, daemon_index })
+}
+
+/// Handshake + binding frame in one step (shared by all ladders).
+/// Returns the exchange with the client session armed and the binding
+/// frame already sent (counter 0).
+pub fn open_bound_session(
+    socket: &UdpSocket,
+    daemon: SocketAddr,
+    ck: &ClientKeys,
+    daemon_kex_pub: [u8; 32],
+    daemon_sig_pub: [u8; 32],
+    our_index: u32,
+) -> Result<(Exchange, usize), String> {
+    let mut ex = exchange(socket, daemon, ck, daemon_kex_pub, daemon_sig_pub, our_index)?;
+
+use bolina::transport::binding::DOMAIN_BINDING;
+    use ed25519_dalek::Signer;
+    use std::time::SystemTime;
+
+    let t = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0);
+    let cert = crate::keys::build_cert(ck, t.saturating_sub(1_000), t + 3_600_000);
+    let bind_input = [vec![DOMAIN_BINDING], ex.result.handshake_hash.to_vec()].concat();
+    let bind_sig = ck.sig.sign(&bind_input);
+    let mut binding_pt = cert;
+    binding_pt.extend_from_slice(bind_sig.to_bytes().as_slice());
+
+    let mut wire = vec![0u8; HEADER_SIZE + binding_pt.len() + 16];
+    let n = ex
+        .session
+        .seal(&mut wire, &binding_pt)
+        .map_err(|e| format!("binding seal: {e:?}"))?;
+    wire.truncate(n);
+    socket
+        .send_to(&wire, daemon)
+        .map_err(|e| format!("binding send_to: {e}"))?;
+    Ok((ex, n))
 }

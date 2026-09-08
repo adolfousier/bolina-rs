@@ -12,6 +12,7 @@
 mod handshake;
 mod keys;
 mod ladder_a;
+mod ladder_b;
 
 use std::net::{SocketAddr, UdpSocket};
 use std::process::ExitCode;
@@ -29,6 +30,7 @@ struct Args {
     daemon_kex_pub: [u8; 32],
     daemon_sig_pub: [u8; 32],
     timeout_ms: u64,
+    ladder: char,
 }
 
 fn usage() -> String {
@@ -46,6 +48,7 @@ fn usage() -> String {
          \x20   --daemon-kex-pub <hex>  responder X25519 static pub, 64 hex chars (required)\n\
          \x20   --daemon-sig-pub <hex>  responder Ed25519 sig pub, 64 hex chars (required)\n\
          \x20   --zig                   rung E: target the Zig daemon v0.6.1 (symmetry check)\n\
+         \x20   --ladder <a|b|c|d>      which ladder to run (default a)\n\
          \x20   --timeout-ms <u64>      per-step wire timeout, milliseconds (default 2000)\n\
          \x20   --help                  show this help\n\
          \n\
@@ -75,6 +78,7 @@ fn parse_args() -> Result<Args, String> {
         daemon_kex_pub: [0u8; 32],
         daemon_sig_pub: [0u8; 32],
         timeout_ms: 2_000,
+        ladder: 'a',
     };
     let mut have_daemon = false;
     let mut have_control = false;
@@ -108,6 +112,14 @@ fn parse_args() -> Result<Args, String> {
                 have_sig = true;
             }
             "--zig" => args.zig = true,
+            "--ladder" => {
+                let v = value()?;
+                let c = v.chars().next().ok_or("--ladder: empty")?.to_ascii_lowercase();
+                if !matches!(c, 'a' | 'b' | 'c' | 'd') {
+                    return Err(format!("--ladder: unknown ladder '{v}' (a|b|c|d)"));
+                }
+                args.ladder = c;
+            }
             "--timeout-ms" => {
                 args.timeout_ms = value()?.parse().map_err(|_| "--timeout-ms: expected u64")?
             }
@@ -167,16 +179,14 @@ fn main() -> ExitCode {
         return ExitCode::FAILURE;
     }
 
-    let log = ladder_a::run(
-        &socket,
-        args.daemon,
-        &ck,
-        args.daemon_kex_pub,
-        args.daemon_sig_pub,
-        args.seed,
-        args.round,
-        args.zig,
-    );
+    let log = match args.ladder {
+        'a' => ladder_a::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.zig),
+        'b' => ladder_b::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.zig),
+        other => {
+            eprintln!("error: ladder '{other}' not implemented yet (c: task 4, d: task 5)");
+            return ExitCode::from(2);
+        }
+    };
 
     // Round log: frozen= declaration first (acceptance criterion), steps after.
     println!("{}", log.frozen);

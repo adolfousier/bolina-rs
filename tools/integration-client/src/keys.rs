@@ -2,8 +2,10 @@
 //! Same seed => byte-identical keys => same fingerprint. This is the
 //! reproducibility contract the soak relies on (design section 6).
 
+use bolina::codec;
+use bolina::transport::binding::ROLE_AGENT;
 use bolina::transport::noise::KeyPair;
-use ed25519_dalek::SigningKey;
+use ed25519_dalek::{Signer, SigningKey};
 use rand::RngCore;
 use rand_chacha::rand_core::SeedableRng;
 use rand_chacha::ChaCha8Rng;
@@ -38,3 +40,31 @@ pub fn seeded(seed: u64) -> ClientKeys {
         ca: SigningKey::from_bytes(&ca_seed),
     }
 }
+
+/// Self-CA'd agent cert for the binding frame (shared by all ladders). cert.kex_pubkey equals the
+/// handshake static (F1); whether the daemon's trust set accepts this CA
+/// is task-8 wiring - the frame format is what this proves.
+pub fn build_cert(ck: &ClientKeys, nb: u64, na: u64) -> Vec<u8> {
+    let sig_pub = ck.sig.verifying_key().to_bytes();
+    let name = b"integration-client";
+    let mut tbs = Vec::with_capacity(160);
+    tbs.push(3); // version
+    tbs.push(ROLE_AGENT); // agent: no quorum requirement (BE-ID-04 n/a)
+    tbs.extend_from_slice(&sig_pub);
+    tbs.extend_from_slice(&ck.kex.public);
+    tbs.extend_from_slice(&nb.to_be_bytes());
+    tbs.extend_from_slice(&na.to_be_bytes());
+    tbs.extend_from_slice(&(name.len() as u16).to_be_bytes());
+    tbs.extend_from_slice(name);
+    tbs.push(1); // scope_count: v3-with-empty-scopes is deny-all (D-085 R4)
+    tbs.extend_from_slice(&[0u8; 8]); // scope id 0 (LEN_SCOPE_ID = 8)
+    // CA sig: tag-then-tbs over DOMAIN_CERT (binding sheet invariant 2 shape)
+    let sig_input = [vec![codec::DOMAIN_CERT], tbs.clone()].concat();
+    let ca_sig = ck.ca.sign(&sig_input);
+    let mut out = tbs;
+    out.push(1); // ca_sig_count
+    out.extend_from_slice(&ck.ca.verifying_key().to_bytes());
+    out.extend_from_slice(ca_sig.to_bytes().as_slice());
+    out
+}
+

@@ -16,7 +16,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use bolina::codec::{self, Grant, Intent};
 use bolina::keys as bkeys;
-use bolina::transport::binding::{DOMAIN_BINDING, ROLE_AGENT};
+use bolina::transport::binding::DOMAIN_BINDING;
 use bolina::transport::session::{Session, HEADER_SIZE};
 use ed25519_dalek::Signer;
 
@@ -33,11 +33,11 @@ pub struct RoundLog {
 }
 
 impl RoundLog {
-    fn step(mut self, name: &'static str, msg: String) -> Self {
+    pub fn step(mut self, name: &'static str, msg: String) -> Self {
         self.steps.push((name, msg));
         self
     }
-    fn fail(mut self, name: &'static str, msg: String) -> Self {
+    pub fn fail(mut self, name: &'static str, msg: String) -> Self {
         self.steps.push((name, format!("FAIL: {msg}")));
         self.ok = false;
         self.failed_at = Some(name);
@@ -45,23 +45,21 @@ impl RoundLog {
     }
 }
 
-struct Frozen {
-    intent_wire: Vec<u8>,
-    grant_body: Vec<u8>,
-    effect_body: Vec<u8>,
+pub struct Frozen {
+    pub intent_wire: Vec<u8>,
+    pub grant_body: Vec<u8>,
+    pub effect_body: Vec<u8>,
 }
 
 /// Load the Zig-reference bytes. Fixed path: the client always runs from
 /// tools/integration-client; vectors live in test/ at the repo root.
-fn load_frozen() -> Result<Frozen, String> {
+pub fn load_frozen() -> Result<Frozen, String> {
     #[derive(serde::Deserialize)]
     struct Wire {
-        #[serde(rename = "wireHex")]
         wire_hex: String,
     }
     #[derive(serde::Deserialize)]
     struct Structs {
-        #[serde(rename = "envelopeIntent")]
         envelope_intent: Wire,
         grant: Wire,
         effect: Wire,
@@ -81,7 +79,7 @@ fn load_frozen() -> Result<Frozen, String> {
     })
 }
 
-fn now_ms() -> u64 {
+pub fn now_ms() -> u64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map(|d| d.as_millis() as u64)
@@ -89,7 +87,7 @@ fn now_ms() -> u64 {
 }
 
 /// Deterministic 32-byte tag (channel id) from the round identity.
-fn channel_for(seed: u64, round: u32) -> [u8; 32] {
+pub fn channel_for(seed: u64, round: u32) -> [u8; 32] {
     let fp = bkeys::fingerprint(format!("{seed}:{round}:channel").as_bytes());
     let mut out = [0u8; 32];
     out[..16].copy_from_slice(&fp);
@@ -97,7 +95,7 @@ fn channel_for(seed: u64, round: u32) -> [u8; 32] {
     out
 }
 
-fn id16(seed: u64, round: u32, what: &str) -> [u8; 16] {
+pub fn id16(seed: u64, round: u32, what: &str) -> [u8; 16] {
     let fp = bkeys::fingerprint(format!("{seed}:{round}:{what}").as_bytes());
     let mut id = [0u8; 16];
     id.copy_from_slice(&fp);
@@ -127,7 +125,7 @@ fn envelope_tbs(
     tbs
 }
 
-fn build_envelope(
+pub fn build_envelope(
     sig_key: &ed25519_dalek::SigningKey,
     channel: &[u8; 32],
     sender: &[u8; 32],
@@ -144,7 +142,7 @@ fn build_envelope(
     wire
 }
 
-fn send_sealed(
+pub fn send_sealed(
     socket: &UdpSocket,
     daemon: SocketAddr,
     session: &mut Session,
@@ -155,33 +153,6 @@ fn send_sealed(
     wire.truncate(n);
     socket.send_to(&wire, daemon).map_err(|e| format!("send_to: {e}"))?;
     Ok(n)
-}
-
-/// Self-CA'd agent cert for the binding frame. cert.kex_pubkey equals the
-/// handshake static (F1); whether the daemon's trust set accepts this CA
-/// is task-8 wiring - the frame format is what this proves.
-fn build_cert(ck: &ClientKeys, nb: u64, na: u64) -> Vec<u8> {
-    let sig_pub = ck.sig.verifying_key().to_bytes();
-    let name = b"integration-client";
-    let mut tbs = Vec::with_capacity(160);
-    tbs.push(3); // version
-    tbs.push(ROLE_AGENT); // agent: no quorum requirement (BE-ID-04 n/a)
-    tbs.extend_from_slice(&sig_pub);
-    tbs.extend_from_slice(&ck.kex.public);
-    tbs.extend_from_slice(&nb.to_be_bytes());
-    tbs.extend_from_slice(&na.to_be_bytes());
-    tbs.extend_from_slice(&(name.len() as u16).to_be_bytes());
-    tbs.extend_from_slice(name);
-    tbs.push(1); // scope_count: v3-with-empty-scopes is deny-all (D-085 R4)
-    tbs.extend_from_slice(&[0u8; 8]); // scope id 0 (LEN_SCOPE_ID = 8)
-    // CA sig: tag-then-tbs over DOMAIN_CERT (binding sheet invariant 2 shape)
-    let sig_input = [vec![codec::DOMAIN_CERT], tbs.clone()].concat();
-    let ca_sig = ck.ca.sign(&sig_input);
-    let mut out = tbs;
-    out.push(1); // ca_sig_count
-    out.extend_from_slice(&ck.ca.verifying_key().to_bytes());
-    out.extend_from_slice(ca_sig.to_bytes().as_slice());
-    out
 }
 
 fn grant_body(ck: &ClientKeys, seed: u64, round: u32, not_after: u64) -> Vec<u8> {
@@ -235,7 +206,7 @@ fn intent_body(seed: u64, round: u32) -> Vec<u8> {
     codec::encode_intent(&i)
 }
 
-fn seq_for(round: u32, k: u64) -> u64 {
+pub fn seq_for(round: u32, k: u64) -> u64 {
     (round as u64) * 10 + k
 }
 
@@ -281,7 +252,7 @@ pub fn run(
     // Step 3: binding frame - first type-4 packet, counter 0.
     // Plaintext = cert || binding_sig over DOMAIN_BINDING || handshake_hash.
     let t = now_ms();
-    let cert = build_cert(ck, t.saturating_sub(1_000), t + 3_600_000);
+    let cert = crate::keys::build_cert(ck, t.saturating_sub(1_000), t + 3_600_000);
     let bind_input = [vec![DOMAIN_BINDING], hs.result.handshake_hash.to_vec()].concat();
     let bind_sig = ck.sig.sign(&bind_input);
     let cert_len = cert.len();
