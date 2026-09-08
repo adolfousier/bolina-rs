@@ -191,7 +191,7 @@ Plus **rung E** (interop sanity), which runs ONCE per soak session against the Z
 
 **The symmetry trap (W4 lesson, LOGBOOK):** the client and the daemon share the `bolina` crate. A shared codec bug cancels itself out: the client commits it when building, the daemon commits it when reading, the round passes green. In W4, "Rust-Rust roundtrips passed (symmetry trap), every KAT passed, the live daemon dropped message 1." Only the G2 ladder against the Zig daemon caught it.
 
-**Rung E exists to break the symmetry.** Before the soak loop starts, the client runs against the **Zig daemon v0.6.1** (sealed reference):
+**Rung E exists to break the symmetry.** Before the soak loop starts, the client runs against the **Zig daemon trunk** (independent reference — see 5.1.2 for why the trunk, not the v0.6.1 tag):
 
 | Step | Client Action | Expected Zig Daemon Outcome |
 |------|--------------|----------------------------|
@@ -212,6 +212,19 @@ The sealed Zig daemon v0.6.1 lives at `~/srv/soak-g3/bolina` on the **owner's ma
 - **The wrapper gets a standalone mode:** `tools/g4-integration-soak.sh rung-e [--zig-daemon <addr>]` runs ONLY rung E against a running Zig daemon and prints a verdict (PASS/FAIL with the failing step), without starting a Rust daemon or entering the soak loop. This lets the owner validate the client against the sealed reference **before** committing an integration-soak window.
 - **Dev-machine coverage:** ladders A–D and the wrapper are developed and tested here against the Rust daemon, with zero Zig dependency. Optionally a local Zig v0.6.1 can be stood up for rung E development iteration — but the verdict that counts is the owner's run against the sealed binary.
 - **Final flow at W12 close:** the 8 tasks land, the owner runs `rung-e` isolated, then one full five-rung round, and only then does the integration-soak window open. If rung E fails on the owner's machine, we stop there and fix - that is its purpose.
+
+#### 5.1.2 Rung E reference target — v0.6.1-13-g9447ca8, not the v0.6.1 tag (declared 2026-09-08)
+
+The rung E verdict runs against **`v0.6.1-13-g9447ca8`** (Zig trunk HEAD on the owner's machine), not against the `v0.6.1` tag. Declared reason, verified in the dev clone (`~/srv/zig/bolina`):
+
+| Fact | Receipt |
+|------|---------|
+| The v0.6.1 tag never compiled on Linux | `v0.6.1:build.zig` contains zero `link_libc`; fixed in `f55c4b5` ("Linux compile was broken since day one; macOS links libc implicitly"), one of the 13 |
+| The tag carries a known wire bug the port does NOT have | `e4fd0d4` — "type-2 response indexes... found swapped by the G2 live interop run, byte-level pin added, kill-proven." The Rust port was written against the trunk lineage and already implements the conformed indexes (daemon `handshake.rs` `responder_index` fix, 2026-09-08). A rung E against the tag would fail the handshake with our client CORRECT and the reference WRONG — a worse reference, not a purer one |
+| The reference the port was actually compared against is wire-identical | Dev clone HEAD = `53fd099` = `v0.6.1-18`; `git diff --stat 9447ca8..53fd099` touches docs and tools only — zero `src/`, zero `build.zig`. Wire behavior at -13 and -18 is identical, so the owner's `-13` build tests exactly the semantics the port was verified against |
+
+**Receipt wording (binding for any rung-E / soak-integration receipt):** "Rung E ran against v0.6.1-13-g9447ca8, not the v0.6.1 tag. Reason: the tag lacks link_libc (never compiled on Linux; f55c4b5) and carries the type-2 handshake index bug fixed by e4fd0d4, which the Rust port already conforms to. Wire-identical to the port's verification reference (v0.6.1-18-g53fd099, docs-only delta)."
+
 
 ### 5.2 Daemon Epochs and the Frozen Round
 
