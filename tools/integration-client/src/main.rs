@@ -15,6 +15,7 @@ mod ladder_a;
 mod ladder_b;
 mod ladder_c;
 mod ladder_d;
+mod ladder_e;
 
 use std::net::{SocketAddr, UdpSocket};
 use std::process::ExitCode;
@@ -119,7 +120,7 @@ fn parse_args() -> Result<Args, String> {
             "--ladder" => {
                 let v = value()?;
                 let c = v.chars().next().ok_or("--ladder: empty")?.to_ascii_lowercase();
-                if !matches!(c, 'a' | 'b' | 'c' | 'd') {
+                if !matches!(c, 'a' | 'b' | 'c' | 'd' | 'e') {
                     return Err(format!("--ladder: unknown ladder '{v}' (a|b|c|d)"));
                 }
                 args.ladder = c;
@@ -190,9 +191,10 @@ fn main() -> ExitCode {
         'a' => ladder_a::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.zig),
         'b' => ladder_b::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.zig),
         'c' => ladder_c::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.round, args.zig),
+        'e' => ladder_e::run(&socket, args.daemon, args.daemon_kex_pub, args.daemon_sig_pub, args.round, args.control, Duration::from_millis(args.timeout_ms)),
         'd' => ladder_d::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.control, &args.canonical, Duration::from_millis(args.timeout_ms)),
         other => {
-            eprintln!("error: ladder '{other}' not implemented yet (e: task 6)");
+            eprintln!("error: ladder '{other}' not implemented yet");
             return ExitCode::from(2);
         }
     };

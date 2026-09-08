@@ -62,7 +62,7 @@ pub fn run(
         Ok(n) => n,
         Err(e) => return log.fail("c1.seal", format!("{e:?}")),
     };
-    if let Err(e) = socket.send_to(&pkt[..n1 + HEADER_SIZE + 16], daemon) {
+    if let Err(e) = socket.send_to(&pkt[..(n1 as usize)], daemon) {
         return log.fail("c1.send", format!("{e:?}"));
     }
     log = log.step("c1.admission", format!("frozen intent sent ({}B) -> expect admit", n1 + HEADER_SIZE + 16));
@@ -73,13 +73,13 @@ pub fn run(
         Ok(n) => n,
         Err(e) => return log.fail("c2.seal", format!("{e:?}")),
     };
-    if let Err(e) = socket.send_to(&pkt2[..n2 + HEADER_SIZE + 16], daemon) {
+    if let Err(e) = socket.send_to(&pkt2[..n2], daemon) {
         return log.fail("c2.send", format!("{e:?}"));
     }
     log = log.step("c2.idempotent", "same envelope, new transport counter -> expect idempotent-duplicate (ledger dedupe, no advance)".to_string());
 
     // c3: byte-identical transport replay of the c2 packet -> expect ReplayWindow rejection.
-    if let Err(e) = socket.send_to(&pkt2[..n2 + HEADER_SIZE + 16], daemon) {
+    if let Err(e) = socket.send_to(&pkt2[..n2], daemon) {
         return log.fail("c3.send", format!("{e:?}"));
     }
     log = log.step("c3.replay", "exact c2 packet bytes re-sent -> expect transport ReplayWindow rejection (same counter)".to_string());
@@ -91,7 +91,7 @@ pub fn run(
         Ok(n) => n,
         Err(e) => return log.fail("c4.seal", format!("{e:?}")),
     };
-    if let Err(e) = socket.send_to(&pkt4[..n4 + HEADER_SIZE + 16], daemon) {
+    if let Err(e) = socket.send_to(&pkt4[..n4], daemon) {
         return log.fail("c4.send", format!("{e:?}"));
     }
     log = log.step("c4.truncated", format!("frozen wire minus 1B ({}B) -> expect parse Truncated rejection", cut.len()));
@@ -104,7 +104,7 @@ pub fn run(
         Ok(n) => n,
         Err(e) => return log.fail("c5.seal", format!("{e:?}")),
     };
-    if let Err(e) = socket.send_to(&pkt5[..n5 + HEADER_SIZE + 16], daemon) {
+    if let Err(e) = socket.send_to(&pkt5[..n5], daemon) {
         return log.fail("c5.send", format!("{e:?}"));
     }
     log = log.step("c5.sig-patched", "body_type byte 2->5, sig untouched -> expect envelope sig rejection".to_string());

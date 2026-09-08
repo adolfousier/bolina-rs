@@ -13,7 +13,7 @@ use crate::keys::ClientKeys;
 use crate::ladder_a::RoundLog;
 
 /// Minimal HTTP/1.1 client: one request per connection, no deps.
-fn http_request(
+pub fn http_request(
     control: SocketAddr,
     method: &str,
     path: &str,

@@ -26,7 +26,20 @@ pub fn exchange(
     daemon_sig_pub: [u8; 32],
     our_index: u32,
 ) -> Result<Exchange, String> {
-    let mut initiator = Initiator::new(ck.kex, daemon_kex_pub);
+    exchange_with(socket, daemon, ck.kex, daemon_kex_pub, daemon_sig_pub, our_index)
+}
+
+/// Core handshake with an explicit kex identity (rung E passes the frozen
+/// vector agent identity; the ladders pass the client's seeded keys).
+pub fn exchange_with(
+    socket: &UdpSocket,
+    daemon: SocketAddr,
+    kex: bolina::transport::noise::KeyPair,
+    daemon_kex_pub: [u8; 32],
+    daemon_sig_pub: [u8; 32],
+    our_index: u32,
+) -> Result<Exchange, String> {
+    let mut initiator = Initiator::new(kex, daemon_kex_pub);
     let mut msg1 = [0u8; MSG1_SIZE];
     let ts = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -75,21 +88,36 @@ pub fn open_bound_session(
     daemon_sig_pub: [u8; 32],
     our_index: u32,
 ) -> Result<(Exchange, usize), String> {
-    let mut ex = exchange(socket, daemon, ck, daemon_kex_pub, daemon_sig_pub, our_index)?;
-
-use bolina::transport::binding::DOMAIN_BINDING;
-    use ed25519_dalek::Signer;
     use std::time::SystemTime;
-
     let t = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map(|d| d.as_millis() as u64)
         .unwrap_or(0);
     let cert = crate::keys::build_cert(ck, t.saturating_sub(1_000), t + 3_600_000);
+    open_bound_with(socket, daemon, ck.kex, ck.sig.clone(), cert, daemon_kex_pub, daemon_sig_pub, our_index)
+}
+
+/// Handshake + binding with an explicit identity and cert wire (rung E:
+/// frozen vector agent identity + frozen CA-signed cert).
+pub fn open_bound_with(
+    socket: &UdpSocket,
+    daemon: SocketAddr,
+    kex: bolina::transport::noise::KeyPair,
+    sig: ed25519_dalek::SigningKey,
+    cert_wire: Vec<u8>,
+    daemon_kex_pub: [u8; 32],
+    daemon_sig_pub: [u8; 32],
+    our_index: u32,
+) -> Result<(Exchange, usize), String> {
+    let mut ex = exchange_with(socket, daemon, kex, daemon_kex_pub, daemon_sig_pub, our_index)?;
+    use bolina::transport::binding::DOMAIN_BINDING;
+    use ed25519_dalek::Signer;
+
     let bind_input = [vec![DOMAIN_BINDING], ex.result.handshake_hash.to_vec()].concat();
-    let bind_sig = ck.sig.sign(&bind_input);
-    let mut binding_pt = cert;
+    let bind_sig = sig.sign(&bind_input);
+    let mut binding_pt = cert_wire;
     binding_pt.extend_from_slice(bind_sig.to_bytes().as_slice());
+
 
     let mut wire = vec![0u8; HEADER_SIZE + binding_pt.len() + 16];
     let n = ex
