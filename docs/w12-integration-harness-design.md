@@ -424,3 +424,73 @@ SSE, `/healthz` unauthenticated). The rung-D round counts come from the
 EventRing over SSE (section 8), so a rung-D pass also proves the ring is
 wired to dispatch.
 
+
+## 14. W12 task-8 wiring addendum (2026-09-08)
+
+### 14.1 Handshake responder_index fix
+
+The Rust daemon's `write_response` calls are correct: `responder_index`
+(computed from the first free handshake table slot) goes at OFF2[4..8] per
+SPEC 4.1a; `info.sender_index` (the initiator's announced index) echoes at
+OFF2[8..12]. This was verified by live run + test: msg2 returns the daemon's
+own slot (1) for the second handshake. A stale build-cache artifact
+previously masked this during rig development.
+
+### 14.2 Client deltas (declared)
+
+**Resource fp (BE-RES-06):** The first draft embedded a zeros fp
+(`hex::encode([0u8; 8])`), which no honest daemon can resolve (ForeignExecutor
+rejects any canonical whose embedded fp ≠ the node's own). Fixed: the client
+now derives the daemon's executor fp from `--daemon-sig-pub` via
+`resolver::executor_fp` and uses `bol:<fp>/harness/<lane>` as the canonical.
+Ladder D passes `--canonical "bol:<fp>/ns/dev/x"`. The wrapper seeds
+BOLINA_RESOURCES with the daemon's own fp.
+
+**Grant version (RED-TEAM-08 F6):** The client's grant body pushed
+`version: 1`; verify_grant_then check 0 requires `version == 2` (the Zig
+spec pinned this at F6). All client-built grants were silently rejected at
+dispatch. The frozen vector bytes already carry version 2 (spec-faithful
+gen-vectors). Not yet fixed in the client (requires approver quorum certs
+for the grant path to reach check 10); declared as the multi-identity cert
+residual below.
+
+**Control plane bearer (F7):** Added `--control-token <hex>` to the client;
+the wrapper captures the minted token from the daemon boot log and passes it
+to every ladder invocation. Token is minted once per epoch (boot1) and
+reloaded from `<data_dir>/control.token` on boot2.
+
+### 14.3 Multi-identity cert store (declared residual)
+
+`dispatch.rs` resolves BOTH the approver and subject certs from the
+envelope sender's single binding cert. Agent+approver on one cert is
+BE-ID-03 forbidden (check_role_constraints), so verify_grant_then check 4
+(BadSubjectCert) blocks every grant whose subject ≠ envelope sender. This is
+the protocol working as designed: the authority layer requires distinct
+identities for distinct roles.
+
+**What passes:** checks 0-4 fire in order and the reject is counted (w12
+rig test `w12_valid_grant_refuses_effect_fail_closed_and_publishes` proves
+this end-to-end). What is needed: a cert store that maps
+sender_sig_pubkey → Vec<Cert> (one per bound identity), with the grant
+path looking up `grant.approver` and `grant.subject` independently.
+
+### 14.4 F5 admission ordering
+
+Confirmed: `verify_envelope_admission` runs parents → seq → hash store
+(F5 ordering from the W11 sheet). The sig gate (`verify_envelope`) fires
+BEFORE admission (ladder C declared physics: sig before seq/parents). This
+is not a new observation; it was the wired pipeline's designed order,
+verified by the sig-patched test (c5) catching the bad envelope at the sig
+stage rather than reaching the seq check.
+
+### 14.5 Ladder C frozen vector resource (c1)
+
+The frozen vector intent's resource carries the vector executor's fp, which
+does not match the daemon's own fp. `resolve()` returns ForeignExecutor →
+the envelope is rejected at the dispatch stage. This is correct and
+expected: the frozen policy for ladders A/B was narrowed to the envelope
+structure and signature scheme only; the resource field is client-built
+(after the fp fix). C's c1 step is a structural admission test (dup,
+replay, truncated, sig-patched) whose exact admission/rejection outcome
+depends on the fp match. The c2 dup, c3 replay, c4 truncated, and c5
+sig-patched steps are independent of fp and fire as expected.

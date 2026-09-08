@@ -222,24 +222,13 @@ impl Daemon {
             // exact-length sendto; a failed send aborts BEFORE commit
             |out: &[u8]| sock.send_to(out, src).map(|_| ()).map_err(|_| ()),
         );
-        match res {
-            Ok(slot) => {
-                // The slot was committed this call; it cannot be vacant.
-                let Some(s) = self.hs.slots[slot].as_ref() else {
-                    return;
-                };
-                let (send_key, recv_key, h, peer) =
-                    (s.send_key, s.recv_key, s.handshake_hash, s.peer_static);
-                let now = now_ms();
-                if self
-                    .sessions
-                    .admit(slot as u32, 0, send_key, recv_key, h, now)
-                    .is_ok()
-                {
-                    self.peer_static[slot] = Some(peer);
-                }
+        if let Ok(slot) = res {
+            let Some(s) = self.hs.slots[slot].as_ref() else { return };
+            let (send_key, recv_key, h, peer) =
+                (s.send_key, s.recv_key, s.handshake_hash, s.peer_static);
+            if self.sessions.admit(slot as u32, 0, send_key, recv_key, h, now_ms()).is_ok() {
+                self.peer_static[slot] = Some(peer);
             }
-            Err(_) => {} // Mac1Failed / Refused / TableFull / SendFailed: drop
         }
     }
 
@@ -355,6 +344,7 @@ impl Daemon {
             self.rejected_total += 1;
             return;
         }
+        #[allow(clippy::chunks_exact_to_as_chunks)]
         let parents: Vec<[u8; 32]> = env
             .parents
             .chunks_exact(32)
@@ -536,7 +526,7 @@ fn route_http(conn: &mut Connection, ctx: RouteCtx<'_>) -> Result<(), String> {
                 Ok(control_api::IntentOutcome::AcceptedIdempotent) => {
                     (202, b"idempotent\n".to_vec())
                 }
-                Err(e) => (e.status(), format!("error\n").into_bytes()),
+                Err(e) => (e.status(), "error\n".to_string().into_bytes()),
             }
         }
         (Method::Get, t) if t.starts_with(b"/v1/intents/") => {
