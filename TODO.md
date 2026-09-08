@@ -19,6 +19,7 @@ No sheet, no wave. After each batch: push, tick LOGBOOK.
 - [ ] W4 Noise_IK + handshake + binding - INTEROP LIVE vs Zig daemon (G2 ladder A/B/C)
 - [ ] W5 listener/relay/session/daemon + control plane HTTP (pilot e2e analog)
 - [ ] W6 ca CLI + keys (cross-acceptance Zig verifier <-> Rust material)
+- [x] W12 task-8 daemon wiring (handshake msg2 -> binding -> sig gate -> F5 admission -> dispatch/EventRing -> control API/SSE; keys::load_or_generate at boot; 10 named tests in tests/w12_daemon.rs) + task-9 mutation closure 47/47 killed, lastro receipt docs/receipts/w12/ (W7-W11 closures: see LOGBOOK)
 
 ## Unbreakable rules
 
