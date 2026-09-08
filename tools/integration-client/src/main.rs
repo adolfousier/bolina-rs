@@ -13,6 +13,7 @@ mod handshake;
 mod keys;
 mod ladder_a;
 mod ladder_b;
+mod ladder_c;
 
 use std::net::{SocketAddr, UdpSocket};
 use std::process::ExitCode;
@@ -182,8 +183,9 @@ fn main() -> ExitCode {
     let log = match args.ladder {
         'a' => ladder_a::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.zig),
         'b' => ladder_b::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.zig),
+        'c' => ladder_c::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.round, args.zig),
         other => {
-            eprintln!("error: ladder '{other}' not implemented yet (c: task 4, d: task 5)");
+            eprintln!("error: ladder '{other}' not implemented yet (d: task 5)");
             return ExitCode::from(2);
         }
     };

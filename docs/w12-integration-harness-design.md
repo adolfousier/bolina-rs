@@ -145,15 +145,25 @@ Inspired by G2's ladder. Each rung exercises a different path through the daemon
 
 ### Ladder C — Admission Rejection
 
+Frozen-only physics (declared delta, discovered during implementation): the
+envelope sig gate fires BEFORE the seq-window and parents checks in the
+daemon pipeline, so stale-seq and unknown-parents wire variants are
+UNREACHABLE from a single frozen full envelope (a validly-signed distinct
+envelope requires the client codec). Wire cases, all from frozen bytes:
+
 | Step | Client Action | Expected Daemon Outcome |
 |------|--------------|------------------------|
 | 1 | Handshake + binding | Session established |
-| 2 | Duplicate envelope (same hash as step 3 from ladder A) | insertEnvelope then idempotent OK (same hash) |
-| 3 | Envelope with stale seq (seq=1 after window seeded at 1000) | checkSeq then WindowStale then rejected |
-| 4 | Envelope with unknown parent hash | allParentsPresent then UnknownParents then rejected |
-| 5 | Malformed envelope (truncated) | parse_envelope then Truncated then dropped |
+| 2 | Duplicate frozen envelope, new transport counter | insertEnvelope then idempotent OK (same hash) |
+| 3 | Byte-identical replay of step-2 packet (same counter) | transport ReplayWindow then rejected |
+| 4 | Frozen wire truncated minus 1 byte | parse_envelope then Truncated then dropped |
+| 5 | Frozen wire, body_type byte patched 2->5, sig untouched | envelope sig verification then rejected |
 
-**Expected counts:** 1 admission (duplicate, idempotent), 0 refusals, 3 rejections
+**Expected counts:** 1 admission + 1 idempotent + 3 rejections.
+Stale-seq and unknown-parents rejections: covered daemon-side by the W11
+named tests (be_env seq-window, be_ledger_01 partial/unknown parents, F5
+integration) and become wire-reachable via ladder A's built path once the
+W12 task 8 wiring lands.
 
 ### Ladder D — Control API
 
