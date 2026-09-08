@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 //! sync.rs — BE-SYNC-01..05 admission + rate budget + response builder
 //!
 //! Port of src/sync.zig (289 lines) + sync_test.zig (8 named tests).
@@ -40,7 +39,11 @@ pub struct RateWindow {
 
 impl RateWindow {
     pub fn new(budget: usize) -> Self {
-        Self { stamps: [0; SERVE_BUDGET], budget, next: 0 }
+        Self {
+            stamps: [0; SERVE_BUDGET],
+            budget,
+            next: 0,
+        }
     }
 
     /// Admit iff fewer than `budget` recorded events lie inside the window.
@@ -52,7 +55,9 @@ impl RateWindow {
                 inside += 1;
             }
         }
-        if inside >= self.budget { return false; }
+        if inside >= self.budget {
+            return false;
+        }
         self.stamps[self.next] = now_ms;
         self.next = (self.next + 1) % self.budget;
         true
@@ -64,7 +69,6 @@ impl RateWindow {
 pub struct RateTable {
     peers: [[u8; 32]; MAX_TRACKED_PEERS],
     windows: [RateWindow; MAX_TRACKED_PEERS],
-    budget: usize,
     used: usize,
 }
 
@@ -73,7 +77,6 @@ impl RateTable {
         Self {
             peers: [[0; 32]; MAX_TRACKED_PEERS],
             windows: std::array::from_fn(|_| RateWindow::new(budget)),
-            budget,
             used: 0,
         }
     }
@@ -85,13 +88,17 @@ impl RateTable {
                 return self.windows[i].admit(window_ms, now_ms);
             }
         }
-        if self.used >= MAX_TRACKED_PEERS { return false; }
+        if self.used >= MAX_TRACKED_PEERS {
+            return false;
+        }
         self.peers[self.used] = peer;
         self.used += 1;
         self.windows[self.used - 1].admit(window_ms, now_ms)
     }
 
-    pub fn used(&self) -> usize { self.used }
+    pub fn used(&self) -> usize {
+        self.used
+    }
 }
 
 // --- ServeItem + BuildResult (BE-SYNC-02) ---
@@ -119,7 +126,11 @@ pub fn build_response(
     have_hashes: &[[u8; 32]],
 ) -> BuildResult {
     if out.len() < RESPONSE_HEADER {
-        return BuildResult { count: 0, truncated: false, bytes_written: 0 };
+        return BuildResult {
+            count: 0,
+            truncated: false,
+            bytes_written: 0,
+        };
     }
     out[0] = 1; // version
     out[1..33].copy_from_slice(&channel_id);
@@ -142,7 +153,11 @@ pub fn build_response(
     }
 
     out[33] = count as u8;
-    BuildResult { count, truncated, bytes_written: pos }
+    BuildResult {
+        count,
+        truncated,
+        bytes_written: pos,
+    }
 }
 
 // --- WalkQueue (BE-SYNC-03) ---
@@ -205,9 +220,15 @@ impl WalkQueue {
         }
     }
 
-    pub fn depth(&self) -> usize { self.depth }
-    pub fn total(&self) -> usize { self.visited.len() }
-    pub fn unresolved(&self) -> &[[u8; 32]] { &self.unresolved }
+    pub fn depth(&self) -> usize {
+        self.depth
+    }
+    pub fn total(&self) -> usize {
+        self.visited.len()
+    }
+    pub fn unresolved(&self) -> &[[u8; 32]] {
+        &self.unresolved
+    }
 }
 
 #[cfg(test)]

@@ -201,7 +201,10 @@ fn dedupe_before_capacity_resend_on_full_succeeds() {
         channel: channel(0),
         seq: 0,
     });
-    assert!(result.is_ok(), "re-send of stored envelope must succeed on FULL store");
+    assert!(
+        result.is_ok(),
+        "re-send of stored envelope must succeed on FULL store"
+    );
 
     // New envelope on full store → StoreFull.
     let result = led.insert_envelope(EnvelopeEntry {
@@ -357,8 +360,8 @@ fn f5_partial_parents_rejected_before_seq() {
 // Mesh served-cert verification tests
 // =========================================================================
 
-use bolina::transport::verify::{MeshError, MeshContext, SessionKeys, verify_served_cert_then};
-use ed25519_dalek::{SigningKey, Signer};
+use bolina::transport::verify::{verify_served_cert_then, MeshContext, MeshError, SessionKeys};
+use ed25519_dalek::{Signer, SigningKey};
 
 /// Build a served cert: sig_pubkey(32) || expiry_ms(8) || sig(64)
 fn build_served_cert(sk: &SigningKey, expiry_ms: u64) -> Vec<u8> {
@@ -386,9 +389,7 @@ fn mesh_served_cert_ok_happy_path() {
         now_ms: 1_000_000,
         is_revoked: &is_revoked,
     };
-    let result = verify_served_cert_then(&cert, &ctx, |verified_pk| {
-        *verified_pk == pk
-    });
+    let result = verify_served_cert_then(&cert, &ctx, |verified_pk| *verified_pk == pk);
     assert!(result.is_ok());
     assert!(result.unwrap());
 }

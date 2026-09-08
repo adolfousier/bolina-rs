@@ -5,8 +5,8 @@
 //! X25519, so a flood costs one hash, not a curve operation.
 //! Port of src/mac.zig mac1Key/computeMac1/verifyMac1 (labels verbatim).
 
-use blake2::digest::{KeyInit, Mac};
 use blake2::digest::consts::U16;
+use blake2::digest::{KeyInit, Mac};
 use blake2::{Blake2s256, Blake2sMac, Digest};
 
 pub const MAC_BYTES: usize = 16;
@@ -24,8 +24,8 @@ fn mac1_key(responder_sig_pubkey: &[u8; 32]) -> [u8; 32] {
 pub fn compute_mac1(responder_sig_pubkey: &[u8; 32], msg_preceding: &[u8]) -> [u8; MAC_BYTES] {
     use blake2::digest::Update;
     let key = mac1_key(responder_sig_pubkey);
-    let mut mac = <Blake2sMac<U16> as KeyInit>::new_from_slice(&key)
-        .expect("BLAKE2s accepts 32-byte keys");
+    let mut mac =
+        <Blake2sMac<U16> as KeyInit>::new_from_slice(&key).expect("BLAKE2s accepts 32-byte keys");
     Update::update(&mut mac, msg_preceding);
     let tag = mac.finalize().into_bytes();
     let mut out = [0u8; MAC_BYTES];
@@ -60,7 +60,10 @@ pub struct CookieSecret {
 
 impl CookieSecret {
     pub fn new(initial_secret: [u8; KEY_BYTES], now_ms: u64) -> Self {
-        Self { secret: initial_secret, created_ms: now_ms }
+        Self {
+            secret: initial_secret,
+            created_ms: now_ms,
+        }
     }
 
     /// True once the secret is COOKIE_ROTATE_MS old.

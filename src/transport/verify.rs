@@ -8,14 +8,11 @@
 //! The routine does NOT hand back a capability: it runs the checks, commits the
 //! ledger (check 11), and invokes the effect itself inside its own frame
 //! (verify.zig:21-22, BE-GRANT-03b round 4 restatement).
-#![allow(dead_code)]
 
 use crate::codec::{
-    self, verify_signed, Cert, Envelope, Grant, Refusal,
-    BODY_GRANT, BODY_INTENT, BODY_REFUSAL, BODY_EFFECT, BODY_CONTROL,
-    DOMAIN_GRANT, DOMAIN_ENVELOPE, DOMAIN_REFUSAL,
-    LEN_ACTION_DIGEST, LEN_INTENT_ID, LEN_PUBKEY, LEN_SCOPE_ID,
-    ROLE_AGENT, ROLE_APPROVER, ROLE_EXECUTOR,
+    self, verify_signed, Cert, Envelope, Grant, Refusal, BODY_CONTROL, BODY_EFFECT, BODY_GRANT,
+    BODY_INTENT, BODY_REFUSAL, DOMAIN_ENVELOPE, DOMAIN_GRANT, DOMAIN_REFUSAL, LEN_ACTION_DIGEST,
+    LEN_INTENT_ID, LEN_PUBKEY, LEN_SCOPE_ID, ROLE_AGENT, ROLE_APPROVER, ROLE_EXECUTOR,
 };
 use crate::state::intent;
 use blake2::Blake2s256;
@@ -47,11 +44,11 @@ pub enum VerifyError {
     Expired,              // BE-GRANT-05 / check 10: any of the three expiry conditions
     AlreadyConsumed,      // BE-GRANT-01 / check 11: grant_id already in the ledger
     // Ledger slice admission errors (BE-ENV-03/04/05, BE-LEDGER-01).
-    WrongBodyType,        // BE-ENV-03: body_type not allowed for sender's role
-    SeqWindowStale,       // BE-ENV-04: seq below sliding window or duplicate
-    Equivocation,         // BE-ENV-05: same (sender, channel, seq) with different hash
-    UnknownParents,       // BE-LEDGER-01: parents not in ledger
-    BadControlBody,       // F6: Control body malformed
+    WrongBodyType,  // BE-ENV-03: body_type not allowed for sender's role
+    SeqWindowStale, // BE-ENV-04: seq below sliding window or duplicate
+    Equivocation,   // BE-ENV-05: same (sender, channel, seq) with different hash
+    UnknownParents, // BE-LEDGER-01: parents not in ledger
+    BadControlBody, // F6: Control body malformed
 }
 
 // ---------------------------------------------------------------------------
@@ -60,7 +57,12 @@ pub enum VerifyError {
 
 /// Verify `sig` over (domain_tag || tbs) against `pubkey`.
 /// Returns Ok(()) on success, VerifyError on failure.
-pub fn verify_signed_err(tag: u8, tbs: &[u8], sig: &[u8], pubkey: &[u8]) -> Result<(), VerifyError> {
+pub fn verify_signed_err(
+    tag: u8,
+    tbs: &[u8],
+    sig: &[u8],
+    pubkey: &[u8],
+) -> Result<(), VerifyError> {
     if pubkey.len() != LEN_PUBKEY {
         return Err(VerifyError::MalformedKey);
     }
@@ -145,7 +147,9 @@ pub struct SenderTable {
 
 impl SenderTable {
     pub fn new() -> Self {
-        Self { entries: Vec::new() }
+        Self {
+            entries: Vec::new(),
+        }
     }
 
     pub fn lookup(&self, intent_id: &[u8]) -> Option<&SenderEntry> {
@@ -173,7 +177,7 @@ pub struct GrantContext<'a> {
     pub now_ms: u64,
     pub first_receipt_ms: u64,
     pub t_max_s: u64,  // default 3600
-    pub t_recv_s: u64,  // default 300
+    pub t_recv_s: u64, // default 300
     /// Check 11: the consumed-grant ledger hook. Returns true if ALREADY consumed.
     pub already_consumed: &'a dyn Fn(&[u8], u64, u64) -> bool,
     /// Checks 3/4: the durable revocation hook.
@@ -213,12 +217,18 @@ where
     }
 
     // F13: look up the intent and sender record by grant.intent_id.
-    let intent_id_arr: [u8; LEN_INTENT_ID] = grant.intent_id.try_into()
+    let intent_id_arr: [u8; LEN_INTENT_ID] = grant
+        .intent_id
+        .try_into()
         .map_err(|_| VerifyError::BadEnvelopeBinding)?;
-    let intent_idx = ctx.intent_table.match_for_grant(&intent_id_arr)
+    let intent_idx = ctx
+        .intent_table
+        .match_for_grant(&intent_id_arr)
         .ok_or(VerifyError::NoMatchingIntent)?;
     let intent_entry = &ctx.intent_table.entries[intent_idx];
-    let sender_entry = ctx.sender_table.lookup(grant.intent_id)
+    let sender_entry = ctx
+        .sender_table
+        .lookup(grant.intent_id)
         .ok_or(VerifyError::NoMatchingIntent)?;
 
     // 1. The grant arrived as a body_type=3 envelope whose sender is the approver.
@@ -298,7 +308,13 @@ where
     }
 
     // 10. Expiry passes all three conditions of BE-GRANT-05.
-    check_expiry(grant.not_after, ctx.now_ms, ctx.first_receipt_ms, ctx.t_max_s, ctx.t_recv_s)?;
+    check_expiry(
+        grant.not_after,
+        ctx.now_ms,
+        ctx.first_receipt_ms,
+        ctx.t_max_s,
+        ctx.t_recv_s,
+    )?;
 
     // 11. grant_id is not already consumed (BE-GRANT-01).
     if (ctx.already_consumed)(grant.grant_id, grant.not_after, ctx.now_ms) {
@@ -396,7 +412,9 @@ where
 
     // BE-GRANT-09 state transition: a verified Refusal whose intent_id names a
     // PENDING intent moves it to REJECTED and releases the lock.
-    let intent_id_arr: [u8; LEN_INTENT_ID] = refusal.intent_id.try_into()
+    let intent_id_arr: [u8; LEN_INTENT_ID] = refusal
+        .intent_id
+        .try_into()
         .map_err(|_| VerifyError::BadEnvelopeBinding)?;
     if ctx.intent_table.apply_refusal(&intent_id_arr) == intent::RefusalOutcome::Rejected {
         on_rejected(refusal.intent_id);
@@ -410,14 +428,14 @@ where
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ChannelError {
-    BadMatchRule,      // BE-GEN-04: match_rule != 1
-    BadChannelId,      // channel_id != BLAKE2s(name || ca_key_0)
-    DuplicateGenesis,  // BE-GEN-01: second genesis for existing channel_id
-    GenesisNotAdmin,   // BE-GEN-03: genesis not signed by admin_group cert
-    BadActionType,     // BE-CTRL-01: action_type not in {1, 2}
-    RevokeNotAdmin,    // BE-CTRL-02: Revoke sender lacks admin_group
-    SubjectRevoked,    // BE-CHAN-02/03: subject in grow-only revoked set
-    NotMember,         // BE-CHAN-01/03: cert does not carry member_group
+    BadMatchRule,     // BE-GEN-04: match_rule != 1
+    BadChannelId,     // channel_id != BLAKE2s(name || ca_key_0)
+    DuplicateGenesis, // BE-GEN-01: second genesis for existing channel_id
+    GenesisNotAdmin,  // BE-GEN-03: genesis not signed by admin_group cert
+    BadActionType,    // BE-CTRL-01: action_type not in {1, 2}
+    RevokeNotAdmin,   // BE-CTRL-02: Revoke sender lacks admin_group
+    SubjectRevoked,   // BE-CHAN-02/03: subject in grow-only revoked set
+    NotMember,        // BE-CHAN-01/03: cert does not carry member_group
 }
 
 pub struct ChannelContext<'a> {
@@ -684,7 +702,6 @@ pub fn verify_envelope_admission(
     Ok(())
 }
 
-
 #[cfg(test)]
 mod boundary_tests {
     use super::*;
@@ -708,7 +725,10 @@ mod boundary_tests {
         let not_after = 1_000_000;
         let first = 0;
         let t_recv_s = 10;
-        assert_eq!(check_expiry(not_after, 10_000, first, 3600, t_recv_s), Ok(()));
+        assert_eq!(
+            check_expiry(not_after, 10_000, first, 3600, t_recv_s),
+            Ok(())
+        );
         assert_eq!(
             check_expiry(not_after, 10_001, first, 3600, t_recv_s),
             Err(VerifyError::Expired)

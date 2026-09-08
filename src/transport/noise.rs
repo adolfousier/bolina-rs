@@ -134,7 +134,13 @@ impl SymmetricState {
         let mut hasher = Blake2s256::new();
         Digest::update(&mut hasher, PROTOCOL_NAME);
         h.copy_from_slice(&hasher.finalize());
-        SymmetricState { h, ck: h, k: [0u8; KEYLEN], n: 0, has_key: false }
+        SymmetricState {
+            h,
+            ck: h,
+            k: [0u8; KEYLEN],
+            n: 0,
+            has_key: false,
+        }
     }
 
     /// h = BLAKE2s(h || data).
@@ -162,9 +168,16 @@ impl SymmetricState {
             let (ct, tag_out) = out.split_at_mut(pt.len());
             ct.copy_from_slice(pt);
             let cipher = ChaCha20Poly1305::new((&self.k).into());
-            let payload = Payload { msg: pt, aad: &self.h };
+            let payload = Payload {
+                msg: pt,
+                aad: &self.h,
+            };
             let tag = cipher
-                .encrypt_in_place_detached(Nonce::from_slice(&transport_nonce(self.n)), payload.aad, ct)
+                .encrypt_in_place_detached(
+                    Nonce::from_slice(&transport_nonce(self.n)),
+                    payload.aad,
+                    ct,
+                )
                 .expect("in-place encrypt of sized buffer");
             tag_out.copy_from_slice(&tag);
             self.n += 1;
@@ -185,9 +198,17 @@ impl SymmetricState {
             let (body, tag) = ct.split_at(pt_len);
             let mut buf = body.to_vec();
             let cipher = ChaCha20Poly1305::new((&self.k).into());
-            let payload = Payload { msg: &[], aad: &self.h };
+            let payload = Payload {
+                msg: &[],
+                aad: &self.h,
+            };
             cipher
-                .decrypt_in_place_detached(Nonce::from_slice(&transport_nonce(self.n)), payload.aad, &mut buf, tag.into())
+                .decrypt_in_place_detached(
+                    Nonce::from_slice(&transport_nonce(self.n)),
+                    payload.aad,
+                    &mut buf,
+                    tag.into(),
+                )
                 .map_err(|_| Error::DecryptFailed)?;
             out[..pt_len].copy_from_slice(&buf);
             self.n += 1;
@@ -213,7 +234,10 @@ pub struct KeyPair {
 
 impl KeyPair {
     pub fn from_secret(secret: [u8; DHLEN]) -> Self {
-        KeyPair { secret, public: x25519(secret, X25519_BASEPOINT_BYTES) }
+        KeyPair {
+            secret,
+            public: x25519(secret, X25519_BASEPOINT_BYTES),
+        }
     }
 }
 
@@ -233,7 +257,13 @@ impl Initiator {
         // message 1 onward - invisible to Rust-Rust roundtrips, fatal live.
         let mut sym = SymmetricState::init();
         sym.mix_hash(&responder_static_pub);
-        Initiator { eph_kp: KeyPair::from_secret([0; 32]), static_kp, re: [0; 32], responder_static_pub, sym }
+        Initiator {
+            eph_kp: KeyPair::from_secret([0; 32]),
+            static_kp,
+            re: [0; 32],
+            responder_static_pub,
+            sym,
+        }
     }
 
     /// Write the 144-byte initiation. mac2_cookie is zeros when none is held.
@@ -300,7 +330,9 @@ impl Initiator {
         }
 
         // e: responder ephemeral, hashed.
-        let eph_r: [u8; DHLEN] = msg2[OFF2_EPHEMERAL..OFF2_EPHEMERAL + DHLEN].try_into().unwrap();
+        let eph_r: [u8; DHLEN] = msg2[OFF2_EPHEMERAL..OFF2_EPHEMERAL + DHLEN]
+            .try_into()
+            .unwrap();
         self.re = eph_r;
         self.sym.mix_hash(&eph_r);
 
@@ -314,13 +346,20 @@ impl Initiator {
 
         // Empty encrypted payload: tag-only.
         let mut nothing = [0u8; TAGLEN];
-        self.sym.decrypt_and_hash(&mut nothing, &msg2[OFF2_ENC_NOTHING..OFF2_ENC_NOTHING + TAGLEN])
+        self.sym.decrypt_and_hash(
+            &mut nothing,
+            &msg2[OFF2_ENC_NOTHING..OFF2_ENC_NOTHING + TAGLEN],
+        )
     }
 
     /// Split: the initiator sends under c1 and receives under c2.
     pub fn finalize(self) -> HandshakeResult {
         let (c1, c2) = self.sym.split();
-        HandshakeResult { send_key: c1, recv_key: c2, handshake_hash: self.sym.h }
+        HandshakeResult {
+            send_key: c1,
+            recv_key: c2,
+            handshake_hash: self.sym.h,
+        }
     }
 }
 
@@ -347,7 +386,13 @@ impl Responder {
         // Pre-message: the responder mixes its OWN static public (IK pattern).
         let mut sym = SymmetricState::init();
         sym.mix_hash(&static_kp.public);
-        Responder { static_kp, eph_kp: KeyPair::from_secret([0; 32]), re: [0; 32], remote_static_pub: [0; 32], sym }
+        Responder {
+            static_kp,
+            eph_kp: KeyPair::from_secret([0; 32]),
+            re: [0; 32],
+            remote_static_pub: [0; 32],
+            sym,
+        }
     }
 
     /// Read the 144-byte initiation: mac1 FIRST, then e, es, s, ss, timestamp.
@@ -362,7 +407,9 @@ impl Responder {
         }
 
         // e: hashed; captured for es.
-        let eph_i: [u8; DHLEN] = msg1[OFF1_EPHEMERAL..OFF1_EPHEMERAL + DHLEN].try_into().unwrap();
+        let eph_i: [u8; DHLEN] = msg1[OFF1_EPHEMERAL..OFF1_EPHEMERAL + DHLEN]
+            .try_into()
+            .unwrap();
         self.re = eph_i;
         self.sym.mix_hash(&eph_i);
 
@@ -372,7 +419,10 @@ impl Responder {
 
         // s: initiator static, decrypted; captured for ss.
         let mut static_i = [0u8; DHLEN];
-        self.sym.decrypt_and_hash(&mut static_i, &msg1[OFF1_ENC_STATIC..OFF1_ENC_STATIC + DHLEN + TAGLEN])?;
+        self.sym.decrypt_and_hash(
+            &mut static_i,
+            &msg1[OFF1_ENC_STATIC..OFF1_ENC_STATIC + DHLEN + TAGLEN],
+        )?;
         self.remote_static_pub = static_i;
 
         // ss: DH(s_R, s_I).
@@ -381,11 +431,22 @@ impl Responder {
 
         // Encrypted timestamp: decrypted into the transcript.
         let mut ts = [0u8; 8];
-        self.sym.decrypt_and_hash(&mut ts, &msg1[OFF1_ENC_TIMESTAMP..OFF1_ENC_TIMESTAMP + 8 + TAGLEN])?;
+        self.sym.decrypt_and_hash(
+            &mut ts,
+            &msg1[OFF1_ENC_TIMESTAMP..OFF1_ENC_TIMESTAMP + 8 + TAGLEN],
+        )?;
         let timestamp_ms = u64::from_be_bytes(ts);
 
-        let sender_index = u32::from_be_bytes(msg1[OFF1_SENDER_INDEX..OFF1_SENDER_INDEX + 4].try_into().unwrap());
-        Ok(InitiationInfo { sender_index, initiator_static_pub: static_i, timestamp_ms })
+        let sender_index = u32::from_be_bytes(
+            msg1[OFF1_SENDER_INDEX..OFF1_SENDER_INDEX + 4]
+                .try_into()
+                .unwrap(),
+        );
+        Ok(InitiationInfo {
+            sender_index,
+            initiator_static_pub: static_i,
+            timestamp_ms,
+        })
     }
 
     /// Write the 92-byte response: e, ee, se, empty encrypted payload. The
@@ -409,7 +470,8 @@ impl Responder {
         out[0] = 2;
         out[1..OFF2_SENDER_INDEX].fill(0);
         out[OFF2_SENDER_INDEX..OFF2_SENDER_INDEX + 4].copy_from_slice(&sender_index.to_be_bytes());
-        out[OFF2_RECEIVER_INDEX..OFF2_RECEIVER_INDEX + 4].copy_from_slice(&receiver_index.to_be_bytes());
+        out[OFF2_RECEIVER_INDEX..OFF2_RECEIVER_INDEX + 4]
+            .copy_from_slice(&receiver_index.to_be_bytes());
         out[OFF2_EPHEMERAL..OFF2_EPHEMERAL + DHLEN].copy_from_slice(&self.eph_kp.public);
         self.sym.mix_hash(&self.eph_kp.public);
 
@@ -437,7 +499,10 @@ impl Responder {
     /// the initiator's pair).
     pub fn finalize(self) -> HandshakeResult {
         let (c1, c2) = self.sym.split();
-        HandshakeResult { send_key: c2, recv_key: c1, handshake_hash: self.sym.h }
+        HandshakeResult {
+            send_key: c2,
+            recv_key: c1,
+            handshake_hash: self.sym.h,
+        }
     }
-
 }

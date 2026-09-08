@@ -3,7 +3,6 @@
 //! Port of src/ca_material.zig (297 lines) + ca_cli.zig (187 lines).
 //! Commands: init, issue, list, show, revoke.
 //!
-#![allow(dead_code)]
 //! F15 heritage: version = 3 ALWAYS (v3-with-empty-scopes = deny-all D-085 R4).
 //! BE-CTRL-03: revoke body carries SUBJECT expiry, never admin's.
 
@@ -102,9 +101,11 @@ pub fn ca_issue(ca_dir: &Path, req: &IssueReq) -> Result<IssueResult> {
     };
 
     // Validate TTL
-    if req.ttl_ms == 0 { return Err(CaError::BadTtl); }
+    if req.ttl_ms == 0 {
+        return Err(CaError::BadTtl);
+    }
     if role_byte == 0x03 || role_byte == 0x02 {
-    if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {
+        if req.ttl_ms > MAX_PRIVILEGED_LIFETIME_MS {
             return Err(CaError::TtlOverCap);
         }
     }
@@ -200,7 +201,10 @@ pub fn ca_list(ca_dir: &Path) -> Result<Vec<String>> {
 // --- ca show ---
 
 pub fn ca_show(ca_dir: &Path, serial: &str) -> Result<Vec<u8>> {
-    let cert_path = ca_dir.join("ca").join("issued").join(format!("{}.bin", serial));
+    let cert_path = ca_dir
+        .join("ca")
+        .join("issued")
+        .join(format!("{}.bin", serial));
     fs::read(&cert_path).map_err(|_| CaError::CertUnreadable)
 }
 

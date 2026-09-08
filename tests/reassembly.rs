@@ -52,7 +52,10 @@ fn exceeding_memory_budget_drops_message_not_session() {
         assert_eq!(r.ingest(1000, 1, i, 12, 100_000), PeerEvent::Partial);
     }
     // 11th fragment exceeds MAX_MESSAGE
-    assert_eq!(r.ingest(1000, 1, 10, 12, 100_000), PeerEvent::MessageDropped);
+    assert_eq!(
+        r.ingest(1000, 1, 10, 12, 100_000),
+        PeerEvent::MessageDropped
+    );
 }
 
 #[test]
@@ -91,13 +94,18 @@ fn node_capacity_memory_gate() {
 fn exact_max_fragments_total_must_be_accepted() {
     // Code: total > MAX_FRAGMENTS is malformed; total == MAX_FRAGMENTS is legal.
     // Mutant >= would drop the boundary message.
-    use bolina::transport::reassembly::{PeerReassembler, PeerEvent};
+    use bolina::transport::reassembly::{PeerEvent, PeerReassembler};
     let mut r: PeerReassembler<8, 64> = PeerReassembler::new();
     let ev = r.ingest(0, 1, 0, 64, 100);
-    assert!(!matches!(ev, PeerEvent::MessageDropped),
-        "total == MAX_FRAGMENTS (64) must be accepted, got {:?}", ev);
+    assert!(
+        !matches!(ev, PeerEvent::MessageDropped),
+        "total == MAX_FRAGMENTS (64) must be accepted, got {:?}",
+        ev
+    );
     // total == MAX_FRAGMENTS+1 must be dropped in both variants
     let ev = r.ingest(0, 2, 0, 65, 100);
-    assert!(matches!(ev, PeerEvent::MessageDropped),
-        "total == MAX_FRAGMENTS+1 must be dropped");
+    assert!(
+        matches!(ev, PeerEvent::MessageDropped),
+        "total == MAX_FRAGMENTS+1 must be dropped"
+    );
 }

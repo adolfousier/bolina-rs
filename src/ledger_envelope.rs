@@ -4,7 +4,6 @@
 //! windows (BE-ENV-03/04), anchor table (BE-HIST-02), revocation table (BE-HIST-04).
 //! Pure slice, no I/O; the DURABLE log is state/ledger.rs (separate module).
 //! Powers admission checks in verify.rs (allParentsPresent precedes seq/insert: F5).
-#![allow(dead_code)]
 
 use crate::transport::replay::ReplayWindow;
 
@@ -84,10 +83,32 @@ impl Ledger {
         }
     }
 
-    pub fn envelope_count(&self) -> usize { self.envelopes.len() }
-    pub fn seq_window_count(&self) -> usize { self.seq_windows.len() }
-    pub fn anchor_count(&self) -> usize { self.anchors.len() }
-    pub fn revocation_count(&self) -> usize { self.revocations.len() }
+    pub fn envelope_count(&self) -> usize {
+        self.envelopes.len()
+    }
+    pub fn seq_window_count(&self) -> usize {
+        self.seq_windows.len()
+    }
+    pub fn anchor_count(&self) -> usize {
+        self.anchors.len()
+    }
+    pub fn revocation_count(&self) -> usize {
+        self.revocations.len()
+    }
+
+    /// Stored hash for (sender, channel, seq), if any. Caller decides
+    /// idempotent (same hash) vs divergence (different hash).
+    pub fn find_envelope(
+        &self,
+        sender: &[u8; LEN_SIG_PUBKEY],
+        channel: &[u8; LEN_CHANNEL_ID],
+        seq: u64,
+    ) -> Option<&[u8; HASH_BYTES]> {
+        self.envelopes
+            .iter()
+            .find(|e| e.sender == *sender && e.channel == *channel && e.seq == seq)
+            .map(|e| &e.hash)
+    }
 
     /// Insert an envelope entry by hash.
     ///
@@ -121,7 +142,9 @@ impl Ledger {
     /// Check that every parent hash is present in the store (BE-LEDGER-01).
     /// In-memory check only; caller owns fetch budget.
     pub fn all_parents_present(&self, parents: &[[u8; HASH_BYTES]]) -> bool {
-        parents.iter().all(|p| self.envelopes.iter().any(|e| &e.hash == p))
+        parents
+            .iter()
+            .all(|p| self.envelopes.iter().any(|e| &e.hash == p))
     }
 
     /// Check and advance the seq window for (sender, channel).
@@ -135,9 +158,10 @@ impl Ledger {
         seq: u64,
     ) -> Result<()> {
         // Find existing window.
-        let idx = self.seq_windows.iter().position(|w| {
-            w.sender == *sender && w.channel == *channel
-        });
+        let idx = self
+            .seq_windows
+            .iter()
+            .position(|w| w.sender == *sender && w.channel == *channel);
 
         match idx {
             Some(i) => {
@@ -197,7 +221,10 @@ impl Ledger {
 
     /// Get the anchor hash for a pubkey. None if no anchor set.
     pub fn get_anchor(&self, pubkey: &[u8; LEN_SIG_PUBKEY]) -> Option<&[u8; HASH_BYTES]> {
-        self.anchors.iter().find(|a| a.pubkey == *pubkey).map(|a| &a.hash)
+        self.anchors
+            .iter()
+            .find(|a| a.pubkey == *pubkey)
+            .map(|a| &a.hash)
     }
 
     /// Set a revocation record.
@@ -252,7 +279,10 @@ impl Ledger {
 
     /// Get the revocation hash for a pubkey.
     pub fn get_revoke_hash(&self, pubkey: &[u8; LEN_SIG_PUBKEY]) -> Option<&[u8; HASH_BYTES]> {
-        self.revocations.iter().find(|r| r.pubkey == *pubkey).map(|r| &r.revoke_hash)
+        self.revocations
+            .iter()
+            .find(|r| r.pubkey == *pubkey)
+            .map(|r| &r.revoke_hash)
     }
 }
 

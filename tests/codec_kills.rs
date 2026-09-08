@@ -20,9 +20,12 @@ fn exact_max_parents_must_be_accepted() {
     buf.extend_from_slice(&10u32.to_be_bytes()); // body_len
     buf.extend_from_slice(&[0u8; 10]); // body
     buf.extend_from_slice(&[0u8; 64]); // sig (64 bytes)
-    
+
     let parsed = parse_envelope(&buf);
-    assert!(parsed.is_ok(), "envelope with exactly MAX_PARENTS parents must parse");
+    assert!(
+        parsed.is_ok(),
+        "envelope with exactly MAX_PARENTS parents must parse"
+    );
     assert_eq!(parsed.unwrap().parent_count, MAX_PARENTS);
 }
 
@@ -44,9 +47,12 @@ fn max_parents_plus_one_must_be_rejected() {
     buf.extend_from_slice(&10u32.to_be_bytes()); // body_len
     buf.extend_from_slice(&[0u8; 10]); // body
     buf.extend_from_slice(&[0u8; 64]); // sig
-    
+
     let parsed = parse_envelope(&buf);
-    assert!(parsed.is_err(), "envelope with MAX_PARENTS+1 parents must be rejected");
+    assert!(
+        parsed.is_err(),
+        "envelope with MAX_PARENTS+1 parents must be rejected"
+    );
 }
 
 #[test]
@@ -65,7 +71,7 @@ fn exact_max_body_must_be_accepted() {
     buf.extend_from_slice(&MAX_BODY.to_be_bytes()); // body_len = MAX_BODY
     buf.extend_from_slice(&body); // body
     buf.extend_from_slice(&[0u8; 64]); // sig
-    
+
     let parsed = parse_envelope(&buf);
     assert!(parsed.is_ok(), "envelope with exactly MAX_BODY must parse");
     assert_eq!(parsed.unwrap().body.len(), MAX_BODY as usize);
@@ -103,7 +109,7 @@ fn envelope_roundtrip_preserves_parent_count() {
     for i in 0..3 {
         parents.extend_from_slice(&[i; 32]);
     }
-    
+
     let e = Envelope {
         version: 0x01,
         channel_id: &[0u8; 32],
@@ -117,7 +123,7 @@ fn envelope_roundtrip_preserves_parent_count() {
         tbs: &[],
         sig: &[0u8; 64],
     };
-    
+
     let wire = encode_envelope(&e);
     let parsed = parse_envelope(&wire).unwrap();
     assert_eq!(parsed.parent_count, 3);
@@ -142,7 +148,7 @@ fn envelope_roundtrip_preserves_body_length() {
         tbs: &[],
         sig: &[0u8; 64],
     };
-    
+
     let wire = encode_envelope(&e);
     let parsed = parse_envelope(&wire).unwrap();
     assert_eq!(parsed.body.len(), 100);
@@ -158,7 +164,7 @@ fn intent_roundtrip_preserves_fields() {
         action: b"action",
         rationale: b"rationale",
     };
-    
+
     let wire = encode_intent(&i);
     let parsed = parse_intent(&wire).unwrap();
     assert_eq!(parsed.intent_id, &[0x01; 16]);

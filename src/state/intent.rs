@@ -54,7 +54,9 @@ impl Default for Table {
 impl Table {
     /// BE-GRANT_04: a fresh table holds nothing (restart collapse).
     pub fn new() -> Self {
-        Self { entries: Vec::new() }
+        Self {
+            entries: Vec::new(),
+        }
     }
 
     pub fn len(&self) -> usize {
@@ -75,7 +77,11 @@ impl Table {
         now_ms: u64,
     ) -> Result<(), IntentError> {
         debug_assert!(resource_len <= MAX_RESOURCE);
-        if self.entries.iter().any(|e| e.state == State::Pending && e.intent_id == *intent_id) {
+        if self
+            .entries
+            .iter()
+            .any(|e| e.state == State::Pending && e.intent_id == *intent_id)
+        {
             return Err(IntentError::DuplicateIntentId);
         }
         if self.entries.iter().any(|e| {
@@ -119,7 +125,11 @@ impl Table {
     /// BE-GRANT_09: matched PENDING -> REJECTED (lock released); unmatched
     /// dropped. Outcome enum records which happened either way.
     pub fn apply_refusal(&mut self, intent_id: &[u8; LEN_INTENT_ID]) -> RefusalOutcome {
-        match self.entries.iter().position(|e| e.state == State::Pending && e.intent_id == *intent_id) {
+        match self
+            .entries
+            .iter()
+            .position(|e| e.state == State::Pending && e.intent_id == *intent_id)
+        {
             Some(idx) => {
                 self.entries[idx].state = State::Rejected;
                 self.compact();
@@ -149,6 +159,7 @@ impl Table {
     /// MD4: dead slots hold no lock but held array capacity. Shift live
     /// survivors (PENDING/EXECUTING) to the front, preserving order.
     fn compact(&mut self) {
-        self.entries.retain(|e| e.state == State::Pending || e.state == State::Executing);
+        self.entries
+            .retain(|e| e.state == State::Pending || e.state == State::Executing);
     }
 }

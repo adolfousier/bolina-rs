@@ -3,7 +3,6 @@
 //! Relay role service: classifier + forwarder + store-and-forward post office
 //! for relay traffic, sitting beside the handshake server on the SAME socket fd.
 //! BE-EXEC-04: sender gate (established session) precedes ALL service.
-#![allow(dead_code)]
 
 use crate::transport::relay_store;
 
@@ -118,9 +117,7 @@ pub fn classify_datagram(dgram: &[u8]) -> ServeResult {
         return ServeResult::Dropped;
     }
     match dgram[0] {
-        MSG_HANDSHAKE_INIT | MSG_HANDSHAKE_RESP | MSG_HANDSHAKE_DATA => {
-            ServeResult::ToHandshake
-        }
+        MSG_HANDSHAKE_INIT | MSG_HANDSHAKE_RESP | MSG_HANDSHAKE_DATA => ServeResult::ToHandshake,
         MSG_RELAY_ROUTE => {
             // Route messages go to live forward if recipient registered,
             // or stored for later drain if not. The caller decides which

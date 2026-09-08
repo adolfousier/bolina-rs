@@ -16,9 +16,17 @@ fn hex64(b: u8) -> String {
 fn setup() -> (Resolver, intent::Table, Metrics, EventRing) {
     let key = [5u8; 32];
     let mut r = Resolver::new(&key);
-    let canonical = format!("bol:{}/ns/dev/x", std::str::from_utf8(&executor_fp(&key)).unwrap());
+    let canonical = format!(
+        "bol:{}/ns/dev/x",
+        std::str::from_utf8(&executor_fp(&key)).unwrap()
+    );
     r.add(canonical.as_bytes()).expect("add canonical");
-    (r, intent::Table::new(), Metrics { admitted_total: 0 }, EventRing::new())
+    (
+        r,
+        intent::Table::new(),
+        Metrics { admitted_total: 0 },
+        EventRing::new(),
+    )
 }
 
 fn body(id: &str, resource: &str, subject: &str) -> String {
@@ -34,8 +42,18 @@ fn ctrl_api_happy_admit_202_counter_one() {
     let (mut r, mut t, mut m, mut ring) = setup();
     let id = hex64(0xab);
     let key = [5u8; 32];
-    let canonical = format!("bol:{}/ns/dev/x", std::str::from_utf8(&executor_fp(&key)).unwrap());
-    let out = post_intent(&body(&id, &canonical, &hex64(0x11)), &mut r, &mut t, &mut m, &mut ring, 0);
+    let canonical = format!(
+        "bol:{}/ns/dev/x",
+        std::str::from_utf8(&executor_fp(&key)).unwrap()
+    );
+    let out = post_intent(
+        &body(&id, &canonical, &hex64(0x11)),
+        &mut r,
+        &mut t,
+        &mut m,
+        &mut ring,
+        0,
+    );
     assert_eq!(out, Ok(IntentOutcome::Accepted));
     assert_eq!(m.admitted_total, 1);
     assert_eq!(ring.events.len(), 1);
@@ -47,9 +65,15 @@ fn ctrl_api_duplicate_id_202_idempotent_counter_frozen() {
     let (mut r, mut t, mut m, mut ring) = setup();
     let id = hex64(0xcd);
     let key = [5u8; 32];
-    let canonical = format!("bol:{}/ns/dev/x", std::str::from_utf8(&executor_fp(&key)).unwrap());
+    let canonical = format!(
+        "bol:{}/ns/dev/x",
+        std::str::from_utf8(&executor_fp(&key)).unwrap()
+    );
     let b = body(&id, &canonical, &hex64(0x22));
-    assert_eq!(post_intent(&b, &mut r, &mut t, &mut m, &mut ring, 0), Ok(IntentOutcome::Accepted));
+    assert_eq!(
+        post_intent(&b, &mut r, &mut t, &mut m, &mut ring, 0),
+        Ok(IntentOutcome::Accepted)
+    );
     assert_eq!(
         post_intent(&b, &mut r, &mut t, &mut m, &mut ring, 1),
         Ok(IntentOutcome::AcceptedIdempotent)
@@ -63,13 +87,33 @@ fn ctrl_api_duplicate_id_202_idempotent_counter_frozen() {
 fn ctrl_api_resource_held_409() {
     let (mut r, mut t, mut m, mut ring) = setup();
     let key = [5u8; 32];
-    let canonical = format!("bol:{}/ns/dev/x", std::str::from_utf8(&executor_fp(&key)).unwrap());
+    let canonical = format!(
+        "bol:{}/ns/dev/x",
+        std::str::from_utf8(&executor_fp(&key)).unwrap()
+    );
     assert_eq!(
-        post_intent(&body(&hex64(1), &canonical, &hex64(3)), &mut r, &mut t, &mut m, &mut ring, 0),
+        post_intent(
+            &body(&hex64(1), &canonical, &hex64(3)),
+            &mut r,
+            &mut t,
+            &mut m,
+            &mut ring,
+            0
+        ),
         Ok(IntentOutcome::Accepted)
     );
-    let err = post_intent(&body(&hex64(2), &canonical, &hex64(3)), &mut r, &mut t, &mut m, &mut ring, 1);
-    assert!(matches!(err, Err(ApiError::Intent(intent::IntentError::ResourceHeld))));
+    let err = post_intent(
+        &body(&hex64(2), &canonical, &hex64(3)),
+        &mut r,
+        &mut t,
+        &mut m,
+        &mut ring,
+        1,
+    );
+    assert!(matches!(
+        err,
+        Err(ApiError::Intent(intent::IntentError::ResourceHeld))
+    ));
     assert_eq!(err.unwrap_err().status(), 409);
     assert_eq!(m.admitted_total, 1);
 }
@@ -78,7 +122,14 @@ fn ctrl_api_resource_held_409() {
 #[test]
 fn ctrl_api_unknown_resource_422() {
     let (mut r, mut t, mut m, mut ring) = setup();
-    let err = post_intent(&body(&hex64(9), "bol:unknown/ns/y", &hex64(4)), &mut r, &mut t, &mut m, &mut ring, 0);
+    let err = post_intent(
+        &body(&hex64(9), "bol:unknown/ns/y", &hex64(4)),
+        &mut r,
+        &mut t,
+        &mut m,
+        &mut ring,
+        0,
+    );
     assert!(matches!(err, Err(ApiError::Resolve(_))));
     assert_eq!(err.unwrap_err().status(), 422);
 }
@@ -88,16 +139,33 @@ fn ctrl_api_unknown_resource_422() {
 fn ctrl_api_malformed_400_set() {
     let (mut r, mut t, mut m, mut ring) = setup();
     let key = [5u8; 32];
-    let canonical = format!("bol:{}/ns/dev/x", std::str::from_utf8(&executor_fp(&key)).unwrap());
+    let canonical = format!(
+        "bol:{}/ns/dev/x",
+        std::str::from_utf8(&executor_fp(&key)).unwrap()
+    );
     // id wrong length
     assert_eq!(
-        post_intent(&body("abcd", &canonical, &hex64(6)), &mut r, &mut t, &mut m, &mut ring, 0),
+        post_intent(
+            &body("abcd", &canonical, &hex64(6)),
+            &mut r,
+            &mut t,
+            &mut m,
+            &mut ring,
+            0
+        ),
         Err(ApiError::BadRequest)
     );
     // subject wrong length (F16)
     let short_subj = "a".repeat(SUBJ_HEX_LEN - 1);
     assert_eq!(
-        post_intent(&body(&hex64(7), &canonical, &short_subj), &mut r, &mut t, &mut m, &mut ring, 0),
+        post_intent(
+            &body(&hex64(7), &canonical, &short_subj),
+            &mut r,
+            &mut t,
+            &mut m,
+            &mut ring,
+            0
+        ),
         Err(ApiError::BadRequest)
     );
     // missing rationale
@@ -119,8 +187,19 @@ fn ctrl_api_malformed_400_set() {
 fn ctrl_api_get_intent_state_pending() {
     let (mut r, mut t, mut m, mut ring) = setup();
     let key = [5u8; 32];
-    let canonical = format!("bol:{}/ns/dev/x", std::str::from_utf8(&executor_fp(&key)).unwrap());
-    post_intent(&body(&hex64(2), &canonical, &hex64(5)), &mut r, &mut t, &mut m, &mut ring, 0).unwrap();
+    let canonical = format!(
+        "bol:{}/ns/dev/x",
+        std::str::from_utf8(&executor_fp(&key)).unwrap()
+    );
+    post_intent(
+        &body(&hex64(2), &canonical, &hex64(5)),
+        &mut r,
+        &mut t,
+        &mut m,
+        &mut ring,
+        0,
+    )
+    .unwrap();
     let id_bytes = {
         let hex = hex64(2);
         let mut out = [0u8; 32];
@@ -177,7 +256,10 @@ fn ctrl_api_id_hex_len_const() {
 fn ctrl_api_body_max_boundary_exact_ok_over_refused() {
     let (mut r, mut t, mut m, mut ring) = setup();
     let key = [5u8; 32];
-    let canonical = format!("bol:{}/ns/dev/x", std::str::from_utf8(&executor_fp(&key)).unwrap());
+    let canonical = format!(
+        "bol:{}/ns/dev/x",
+        std::str::from_utf8(&executor_fp(&key)).unwrap()
+    );
 
     // exact-4096 body: pad the rationale so the total length is BODY_MAX
     let id = hex64(0x33);
@@ -185,12 +267,21 @@ fn ctrl_api_body_max_boundary_exact_ok_over_refused() {
     // the base's 1-char rationale gets REPLACED by the pad, hence +1
     let rationale_pad = " ".repeat(BODY_MAX - base.len() + 1);
     let padded = body_padded(&id, &canonical, &hex64(0x44), &rationale_pad);
-    assert_eq!(padded.len(), BODY_MAX, "constructed body must be exactly BODY_MAX");
+    assert_eq!(
+        padded.len(),
+        BODY_MAX,
+        "constructed body must be exactly BODY_MAX"
+    );
     let out = post_intent(&padded, &mut r, &mut t, &mut m, &mut ring, 0);
     assert_eq!(out, Ok(IntentOutcome::Accepted));
 
     // one byte over: 400 (rationale one char longer than the exact body's)
-    let over = body_padded(&hex64(0x55), &canonical, &hex64(0x66), &format!("{} ", rationale_pad));
+    let over = body_padded(
+        &hex64(0x55),
+        &canonical,
+        &hex64(0x66),
+        &format!("{} ", rationale_pad),
+    );
     assert_eq!(over.len(), BODY_MAX + 1);
     assert_eq!(
         post_intent(&over, &mut r, &mut t, &mut m, &mut ring, 0),

@@ -1,14 +1,13 @@
 //! W8 tests: dag + evidence + historical + grant_trace.
 
-use bolina::transport::dag::{Dag, DagError, node_from_slice, NODE_BYTES, MAX_NODES};
+use bolina::transport::dag::{node_from_slice, Dag, DagError, MAX_NODES, NODE_BYTES};
 use bolina::transport::evidence::{
-    EvidenceClass, ClaimState, ResolutionRecord, Supported,
-    class_of, ceiling_q8, is_volatile, effective_confidence, check_bounds,
-    resolve_claim, Claim, ResolveContext, Role, OriginState,
+    ceiling_q8, check_bounds, class_of, effective_confidence, is_volatile, resolve_claim, Claim,
+    ClaimState, EvidenceClass, OriginState, ResolutionRecord, ResolveContext, Role, Supported,
     MAX_UTTERANCE_CLAIMS, MAX_UTTERANCE_SPANS,
 };
-use bolina::transport::historical::{HistoricalError, historical_validity, AuditContext};
-use bolina::transport::grant_trace::{TraceRing, Tag, fingerprint, NO_PC, CAP};
+use bolina::transport::grant_trace::{fingerprint, Tag, TraceRing, CAP, NO_PC};
+use bolina::transport::historical::{historical_validity, AuditContext, HistoricalError};
 
 // ---------------------------------------------------------------------------
 // DAG tests (BE-EVID-05/05a)
@@ -82,7 +81,11 @@ fn dag_deep_chain_no_recursion() {
         prev = cur;
     }
     let root = [0u8; NODE_BYTES];
-    let leaf = { let mut x = [0u8; NODE_BYTES]; x[0] = 99; x };
+    let leaf = {
+        let mut x = [0u8; NODE_BYTES];
+        x[0] = 99;
+        x
+    };
     assert!(d.is_ancestor(&root, &leaf));
 }
 

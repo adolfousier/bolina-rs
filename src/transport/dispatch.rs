@@ -4,21 +4,17 @@
 //! ordered exactly here: admission routes through resolveAndAdmit (same path
 //! wire uses), grants execute through verifyGrantThen, durable consumed-grant
 //! ledger owns replay refusal, effects fire EXACTLY ONCE inside the verify call.
-#![allow(dead_code)]
 
 use crate::codec::{
-    parse_envelope, parse_grant, parse_intent, parse_refusal,
-    Cert, Envelope, Grant,
-    BODY_INTENT, BODY_GRANT, BODY_REFUSAL, BODY_UTTERANCE,
-    BODY_EFFECT, BODY_CONTROL,
+    parse_envelope, parse_grant, parse_intent, parse_refusal, Cert, Envelope, Grant, BODY_CONTROL,
+    BODY_EFFECT, BODY_GRANT, BODY_INTENT, BODY_REFUSAL, BODY_UTTERANCE,
 };
 use crate::state::intent;
+use crate::transport::resolver::{ResolveError, Resolver};
 use crate::transport::verify::{
-    verify_envelope, verify_grant_then, verify_refusal_then,
-    GrantContext, RefusalContext, SenderTable, SenderEntry,
-    EffectOutcome, VerifyError, SENDER_MAX_ACTION,
+    verify_envelope, verify_grant_then, verify_refusal_then, EffectOutcome, GrantContext,
+    RefusalContext, SenderEntry, SenderTable, VerifyError, SENDER_MAX_ACTION,
 };
-use crate::transport::resolver::{Resolver, ResolveError};
 
 pub const T_MAX_S_DEFAULT: u64 = 3600;
 pub const T_RECV_S_DEFAULT: u64 = 300;
@@ -42,11 +38,15 @@ pub enum DispatchError {
 }
 
 impl From<VerifyError> for DispatchError {
-    fn from(e: VerifyError) -> Self { DispatchError::Verify(e) }
+    fn from(e: VerifyError) -> Self {
+        DispatchError::Verify(e)
+    }
 }
 
 impl From<ResolveError> for DispatchError {
-    fn from(e: ResolveError) -> Self { DispatchError::Resolve(e) }
+    fn from(e: ResolveError) -> Self {
+        DispatchError::Resolve(e)
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -57,7 +57,7 @@ impl From<ResolveError> for DispatchError {
 pub enum Outcome {
     IntentAdmitted,
     GrantExecuted,
-    EffectRefused,   // unpublished orphan (BE-GRANT-01a)
+    EffectRefused, // unpublished orphan (BE-GRANT-01a)
     RefusalApplied,
     Utterance,
     Control,
@@ -122,7 +122,9 @@ impl<'a> Dispatch<'a> {
         let intent = parse_intent(env.body).map_err(|_| DispatchError::BadBody)?;
 
         // Resolve resource to canonical form BEFORE admitting (BE-RES-01)
-        let intent_id_arr: [u8; intent::LEN_INTENT_ID] = intent.intent_id.try_into()
+        let intent_id_arr: [u8; intent::LEN_INTENT_ID] = intent
+            .intent_id
+            .try_into()
             .map_err(|_| DispatchError::BadBody)?;
 
         self.resolver.resolve_and_admit(
@@ -163,8 +165,8 @@ impl<'a> Dispatch<'a> {
         let grant = parse_grant(env.body).map_err(|_| DispatchError::BadBody)?;
 
         // Look up sender cert for cert chain validation
-        let sender_cert = (hooks.cert_for_sender)(env.sender)
-            .ok_or(DispatchError::UnknownSender)?;
+        let sender_cert =
+            (hooks.cert_for_sender)(env.sender).ok_or(DispatchError::UnknownSender)?;
 
         // Build grant context with all verification inputs
         // Note: in a full implementation, approver_cert and subject_cert would
@@ -200,8 +202,8 @@ impl<'a> Dispatch<'a> {
     ) -> Result<Outcome, DispatchError> {
         let refusal = parse_refusal(env.body).map_err(|_| DispatchError::BadBody)?;
 
-        let approver_cert = (hooks.cert_for_sender)(env.sender)
-            .ok_or(DispatchError::UnknownSender)?;
+        let approver_cert =
+            (hooks.cert_for_sender)(env.sender).ok_or(DispatchError::UnknownSender)?;
 
         let mut ctx = RefusalContext {
             trusted_ca_keys: self.trusted_ca_keys,

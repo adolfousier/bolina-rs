@@ -11,9 +11,8 @@
 //!
 //! The Zig processDatagram takes now_ms and ignores it (timestamp replay is
 //! session-layer policy, SPEC 2.2); the Rust head drops the param.
-#![allow(dead_code)]
 
-use super::noise::{KeyPair, MSG1_SIZE, MSG2_SIZE, Responder};
+use super::noise::{KeyPair, Responder, MSG1_SIZE, MSG2_SIZE};
 use x25519_dalek::{x25519, X25519_BASEPOINT_BYTES};
 
 /// handshake.zig:25 - the RESPONDER accept table (distinct from the session
@@ -53,7 +52,9 @@ impl Default for Table {
 
 impl Table {
     pub fn new() -> Self {
-        Self { slots: Default::default() }
+        Self {
+            slots: Default::default(),
+        }
     }
 
     pub fn has_free(&self) -> bool {
@@ -61,7 +62,11 @@ impl Table {
     }
 
     fn commit(&mut self, session: Session) -> usize {
-        let slot = self.slots.iter().position(|s| s.is_none()).expect("capacity checked before");
+        let slot = self
+            .slots
+            .iter()
+            .position(|s| s.is_none())
+            .expect("capacity checked before");
         self.slots[slot] = Some(session);
         slot
     }
@@ -89,14 +94,37 @@ pub fn process_datagram(
         return Err(HandshakeError::TableFull);
     }
     // 3. full Noise verify: mac1 + decrypt (readInitiation)
-    let mut responder = Responder::new(KeyPair { secret: own_dh_secret, public: x25519(own_dh_secret, X25519_BASEPOINT_BYTES) });
-    let msg1: [u8; MSG1_SIZE] = datagram.try_into().map_err(|_| HandshakeError::NotInitiation)?;
-    let info = responder.read_initiation(&msg1, own_sig_pub).map_err(|_| HandshakeError::Refused)?;
+    let mut responder = Responder::new(KeyPair {
+        secret: own_dh_secret,
+        public: x25519(own_dh_secret, X25519_BASEPOINT_BYTES),
+    });
+    let msg1: [u8; MSG1_SIZE] = datagram
+        .try_into()
+        .map_err(|_| HandshakeError::NotInitiation)?;
+    let info = responder
+        .read_initiation(&msg1, own_sig_pub)
+        .map_err(|_| HandshakeError::Refused)?;
 
     // 4. build response (zero cookie, phase C)
+    // Responder sender_index = the slot this handshake will commit to
+    // (Zig handshake.zig:61 passes session_count, the next free slot).
+    // We find the free position before write_response so the peer reads
+    // the correct index from msg2; commit() below re-derives the same
+    // position (first None), so they agree.
+    let responder_index = table
+        .slots
+        .iter()
+        .position(|s| s.is_none())
+        .expect("capacity checked before");
     let mut out = [0u8; MSG2_SIZE];
     responder
-        .write_response(&mut out, 0, info.sender_index, own_sig_pub, &[0u8; 16])
+        .write_response(
+            &mut out,
+            responder_index as u32,
+            info.sender_index,
+            own_sig_pub,
+            &[0u8; 16],
+        )
         .map_err(|_| HandshakeError::Refused)?;
 
     // 5. send exact-length; failure aborts BEFORE finalize/commit
@@ -117,8 +145,12 @@ pub fn process_datagram(
 mod tests {
     use super::*;
 
-    fn ok_send(_: &[u8]) -> Result<(), ()> { Ok(()) }
-    fn fail_send(_: &[u8]) -> Result<(), ()> { Err(()) }
+    fn ok_send(_: &[u8]) -> Result<(), ()> {
+        Ok(())
+    }
+    fn fail_send(_: &[u8]) -> Result<(), ()> {
+        Err(())
+    }
 
     /// wrong type byte AND wrong length both refuse as NotInitiation, before
     /// any capacity/crypto work.
@@ -141,7 +173,12 @@ mod tests {
     fn se_02_table_full_before_crypto() {
         let mut t = Table::new();
         for s in t.slots.iter_mut() {
-            *s = Some(Session { send_key: [0; 32], recv_key: [0; 32], handshake_hash: [0; 32], peer_static: [0; 32] });
+            *s = Some(Session {
+                send_key: [0; 32],
+                recv_key: [0; 32],
+                handshake_hash: [0; 32],
+                peer_static: [0; 32],
+            });
         }
         assert_eq!(
             process_datagram(&mut t, &[1u8; MSG1_SIZE], [1; 32], &[2; 32], ok_send),
@@ -162,9 +199,16 @@ mod tests {
         OsRng.fill_bytes(&mut isec);
         let rsec = [7u8; 32];
         let rpub = x25519(rsec, X25519_BASEPOINT_BYTES);
-        let mut init = Initiator::new(NKeyPair { secret: isec, public: x25519(isec, X25519_BASEPOINT_BYTES) }, rpub);
+        let mut init = Initiator::new(
+            NKeyPair {
+                secret: isec,
+                public: x25519(isec, X25519_BASEPOINT_BYTES),
+            },
+            rpub,
+        );
         let mut msg1 = [0u8; MSG1_SIZE];
-        init.write_initiation(&mut msg1, 1, 12345, &[2; 32], &[0u8; 16]).unwrap();
+        init.write_initiation(&mut msg1, 1, 12345, &[2; 32], &[0u8; 16])
+            .unwrap();
 
         let mut t = Table::new();
         assert_eq!(
@@ -186,9 +230,16 @@ mod tests {
         OsRng.fill_bytes(&mut isec);
         let rsec = [9u8; 32];
         let rpub = x25519(rsec, X25519_BASEPOINT_BYTES);
-        let mut init = Initiator::new(NKeyPair { secret: isec, public: x25519(isec, X25519_BASEPOINT_BYTES) }, rpub);
+        let mut init = Initiator::new(
+            NKeyPair {
+                secret: isec,
+                public: x25519(isec, X25519_BASEPOINT_BYTES),
+            },
+            rpub,
+        );
         let mut msg1 = [0u8; MSG1_SIZE];
-        init.write_initiation(&mut msg1, 3, 77, &[4; 32], &[0u8; 16]).unwrap();
+        init.write_initiation(&mut msg1, 3, 77, &[4; 32], &[0u8; 16])
+            .unwrap();
 
         let mut t = Table::new();
         let slot = process_datagram(&mut t, &msg1, rsec, &[4; 32], ok_send).unwrap();

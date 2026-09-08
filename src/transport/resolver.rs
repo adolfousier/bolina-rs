@@ -4,7 +4,6 @@
 //! resource_id byte string and returns the canonical form drawn from the
 //! operator-declared set. The requester proposes, the executor resolves
 //! (BE-RES-01).
-#![allow(dead_code)]
 
 use crate::state::intent;
 use blake2::{Blake2s256, Digest};
@@ -171,13 +170,20 @@ pub struct Resolver {
 
 impl Default for Entry {
     fn default() -> Self {
-        Self { canonical: [0u8; ID_MAX], len: 0 }
+        Self {
+            canonical: [0u8; ID_MAX],
+            len: 0,
+        }
     }
 }
 
 impl Default for Alias {
     fn default() -> Self {
-        Self { bytes: [0u8; ID_MAX], len: 0, entry: 0 }
+        Self {
+            bytes: [0u8; ID_MAX],
+            len: 0,
+            entry: 0,
+        }
     }
 }
 
@@ -216,7 +222,9 @@ impl Resolver {
         if alias.is_empty() || alias.len() > ID_MAX {
             return Err(ResolveError::MalformedCanonical);
         }
-        let idx = self.find_entry(canonical).ok_or(ResolveError::UnknownResource)?;
+        let idx = self
+            .find_entry(canonical)
+            .ok_or(ResolveError::UnknownResource)?;
         if self.alias_count == MAX_ALIASES {
             return Err(ResolveError::AliasPoolFull);
         }
@@ -317,7 +325,8 @@ impl Resolver {
             return Err(ResolveError::MalformedCanonical);
         }
         canonical_buf[..canonical.len()].copy_from_slice(canonical);
-        table.admit(intent_id, &canonical_buf, canonical.len(), now_ms)
+        table
+            .admit(intent_id, &canonical_buf, canonical.len(), now_ms)
             .map_err(ResolveError::Intent)
     }
 

@@ -3,7 +3,6 @@
 //! Port of `src/parser/channel.zig` + `src/parser/session.zig` (cert) +
 //! `verify.verifySigned`. Zero-alloc parsers: every returned slice aliases the
 //! caller buffer, one central `Cursor::need` exit (BE-WIRE-02 as construction).
-#![allow(dead_code)]
 //! Big-endian everywhere; version parsed, never rejected (SPEC 2.2).
 //!
 //! Invariants inherited from the Zig reference (specs/*.md sheets):
@@ -462,7 +461,10 @@ pub fn verify_signed(domain_tag: u8, tbs: &[u8], sig: &[u8], signer: &[u8]) -> b
     let Ok(key_bytes) = <&[u8; 32]>::try_from(signer) else {
         return false;
     };
-    let (Ok(key), Ok(sig)) = (VerifyingKey::from_bytes(key_bytes), Signature::from_slice(sig)) else {
+    let (Ok(key), Ok(sig)) = (
+        VerifyingKey::from_bytes(key_bytes),
+        Signature::from_slice(sig),
+    ) else {
         return false;
     };
     let mut input = Vec::with_capacity(1 + tbs.len());

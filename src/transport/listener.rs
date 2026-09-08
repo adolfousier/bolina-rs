@@ -2,7 +2,6 @@
 //!
 //! BE-EXEC-02: one listener per (address, port).
 //! BE-EXEC-03: one address family per socket.
-#![allow(dead_code)]
 
 pub const MAX_ENDPOINTS: usize = 8;
 
@@ -29,7 +28,11 @@ pub struct Endpoint {
 
 impl Default for Endpoint {
     fn default() -> Self {
-        Self { addr: [0u8; 16], addr_len: 0, port: 0 }
+        Self {
+            addr: [0u8; 16],
+            addr_len: 0,
+            port: 0,
+        }
     }
 }
 
@@ -133,8 +136,7 @@ impl Listener {
             Family::Ipv6 => format!("[{}]:{}", addr, port),
         };
 
-        let socket = UdpSocket::bind(&bind_addr)
-            .map_err(|_| ListenError::BindRefused)?;
+        let socket = UdpSocket::bind(&bind_addr).map_err(|_| ListenError::BindRefused)?;
 
         Ok(Self { socket, family })
     }
@@ -148,14 +150,17 @@ impl Listener {
     /// Receive data and the source address.
     /// Returns (bytes_received, source_addr_string).
     pub fn recv_from(&self, buf: &mut [u8]) -> Result<(usize, String), ListenError> {
-        let (n, addr) = self.socket.recv_from(buf)
+        let (n, addr) = self
+            .socket
+            .recv_from(buf)
             .map_err(|_| ListenError::RecvFailed)?;
         Ok((n, addr.to_string()))
     }
 
     /// Get the local address this listener is bound to.
     pub fn local_addr(&self) -> Result<std::net::SocketAddr, ListenError> {
-        self.socket.local_addr()
+        self.socket
+            .local_addr()
             .map_err(|_| ListenError::SocketFailed)
     }
 

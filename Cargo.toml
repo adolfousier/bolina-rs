@@ -34,3 +34,5 @@ serde_json = "=1.0.140"
 ctrlc = "3"
 tempfile = "3.27.0"
 ntest = "0.9"  # test timeout global (kills 159 hung tests)
+# w12_daemon rig: seeded client identity, mirrors tools/integration-client pins
+rand_chacha = "0.3"

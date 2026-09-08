@@ -31,10 +31,10 @@ pub const SIG_PUBKEY_LEN: usize = 32;
 /// Closed set; ORDER matters, mirrors Zig GrantLedgerError (line 86).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LedgerError {
-    BadLog,             // committed record failed parse outside trailing partial
-    ResourceExhausted,  // live cap reached, prune did not free enough
-    DiskError,          // I/O failure, or mutation through a read-only handle
-    Locked,             // MD3: another descriptor holds the exclusive lock
+    BadLog,            // committed record failed parse outside trailing partial
+    ResourceExhausted, // live cap reached, prune did not free enough
+    DiskError,         // I/O failure, or mutation through a read-only handle
+    Locked,            // MD3: another descriptor holds the exclusive lock
 }
 
 pub struct Recovery {
@@ -70,7 +70,11 @@ impl GrantLedger {
     /// Creates if absent; exclusive flock LOCK_EX|LOCK_NB -> Locked (MD3).
     /// Stale prune temp files are cleaned here (crash-during-prune, T8).
     pub fn open(path: &Path) -> Result<Self, LedgerError> {
-        let file = OpenOptions::new().read(true).write(true).create(true).open(path)
+        let file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .open(path)
             .map_err(|_| LedgerError::DiskError)?;
         if !ffi::flock_exclusive_nb(&file) {
             return Err(LedgerError::Locked); // file dropped: no lock leak
@@ -112,8 +116,10 @@ impl GrantLedger {
     pub fn recover(&mut self) -> Result<Recovery, LedgerError> {
         let mut buf = Vec::new();
         let f = self.handle()?;
-        f.seek(std::io::SeekFrom::Start(0)).map_err(|_| LedgerError::DiskError)?;
-        f.read_to_end(&mut buf).map_err(|_| LedgerError::DiskError)?;
+        f.seek(std::io::SeekFrom::Start(0))
+            .map_err(|_| LedgerError::DiskError)?;
+        f.read_to_end(&mut buf)
+            .map_err(|_| LedgerError::DiskError)?;
         // Full replay: the log is THE state; caches reset before rebuild.
         self.consumed.clear();
         self.consumed_order.clear();
@@ -159,7 +165,9 @@ impl GrantLedger {
                     // TAG_FIRST_RECEIPT: the anchor never moves (F4)
                     let mut id = [0u8; GRANT_ID_LEN];
                     id.copy_from_slice(&rec[1..1 + GRANT_ID_LEN]);
-                    self.first_receipts.entry(id).or_insert(be64(&rec[1 + GRANT_ID_LEN..]));
+                    self.first_receipts
+                        .entry(id)
+                        .or_insert(be64(&rec[1 + GRANT_ID_LEN..]));
                 }
             }
             off += need;
@@ -238,7 +246,11 @@ impl GrantLedger {
     }
 
     /// F4: T_recv anchor, first sighting wins, survives restart (T10).
-    pub fn record_first_receipt(&mut self, grant_id: &[u8; GRANT_ID_LEN], time_ms: u64) -> Result<(), LedgerError> {
+    pub fn record_first_receipt(
+        &mut self,
+        grant_id: &[u8; GRANT_ID_LEN],
+        time_ms: u64,
+    ) -> Result<(), LedgerError> {
         if self.first_receipts.contains_key(grant_id) {
             return Ok(());
         }
@@ -284,7 +296,8 @@ impl GrantLedger {
         for id in &expired {
             self.consumed.remove(id);
         }
-        self.consumed_order.retain(|id| self.consumed.contains_key(id));
+        self.consumed_order
+            .retain(|id| self.consumed.contains_key(id));
 
         // Rebuild the canonical image: live commits + revocations + anchors.
         let mut image = Vec::new();
@@ -318,7 +331,10 @@ impl GrantLedger {
         }
         // Reopen the new inode and re-take the exclusive lock (MD3).
         self.file = None;
-        let file = OpenOptions::new().read(true).write(true).open(&self.path)
+        let file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(&self.path)
             .map_err(|_| LedgerError::DiskError)?;
         if !ffi::flock_exclusive_nb(&file) {
             return Err(LedgerError::Locked);

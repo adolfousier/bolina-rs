@@ -9,10 +9,9 @@
 //! spelling and Prometheus counter names follow the sheet's descriptions and
 //! are PINNED by tests in tests/w10_control_api.rs; first reach of the Zig
 //! tree must byte-compare both (audit item, inventory).
-#![allow(dead_code)]
 
 use crate::state::intent::{self, IntentError, State as IntentState};
-use crate::transport::resolver::{Resolver, ResolveError};
+use crate::transport::resolver::{ResolveError, Resolver};
 
 pub const RING_CAP: usize = 256; // control_api.zig:21
 pub const ID_HEX_LEN: usize = 64; // control_api.zig:22 (32 bytes hex)
@@ -62,7 +61,10 @@ impl Default for EventRing {
 
 impl EventRing {
     pub fn new() -> Self {
-        Self { events: Vec::with_capacity(RING_CAP), next_seq: 1 }
+        Self {
+            events: Vec::with_capacity(RING_CAP),
+            next_seq: 1,
+        }
     }
 
     pub fn publish(&mut self, tag: EventTag) {
@@ -112,7 +114,9 @@ impl From<ResolveError> for ApiError {
 }
 
 impl From<IntentError> for ApiError {
-    fn from(e: IntentError) -> Self { ApiError::Intent(e) }
+    fn from(e: IntentError) -> Self {
+        ApiError::Intent(e)
+    }
 }
 
 impl ApiError {
@@ -159,7 +163,8 @@ fn flat_json_get<'a>(body: &'a str, key: &str) -> Option<&'a str> {
 
 fn is_hex(s: &str) -> bool {
     !s.is_empty()
-        && s.bytes().all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b) || (b'A'..=b'F').contains(&b))
+        && s.bytes()
+            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b) || (b'A'..=b'F').contains(&b))
 }
 
 /// parseIdHex :298 - exactly ID_HEX_LEN hex chars -> 32 bytes.
@@ -169,8 +174,8 @@ pub fn parse_id_hex(hex: &str) -> Result<[u8; 32], ApiError> {
     }
     let mut out = [0u8; 32];
     for i in 0..32 {
-        out[i] = u8::from_str_radix(&hex[2 * i..2 * i + 2], 16)
-            .map_err(|_| ApiError::BadRequest)?;
+        out[i] =
+            u8::from_str_radix(&hex[2 * i..2 * i + 2], 16).map_err(|_| ApiError::BadRequest)?;
     }
     Ok(out)
 }
@@ -216,8 +221,9 @@ pub fn post_intent(
     }
 
     let id_bytes = parse_id_hex(id)?;
-    let intent_id: [u8; intent::LEN_INTENT_ID] =
-        id_bytes[..intent::LEN_INTENT_ID].try_into().map_err(|_| ApiError::BadRequest)?;
+    let intent_id: [u8; intent::LEN_INTENT_ID] = id_bytes[..intent::LEN_INTENT_ID]
+        .try_into()
+        .map_err(|_| ApiError::BadRequest)?;
 
     match resolver.resolve_and_admit(intent_table, &intent_id, resource.as_bytes(), now_ms) {
         Ok(()) => {
@@ -238,8 +244,9 @@ pub fn get_intent_state(
     id_bytes: &[u8; 32],
     intent_table: &intent::Table,
 ) -> Result<&'static str, ApiError> {
-    let id16: [u8; intent::LEN_INTENT_ID] =
-        id_bytes[..intent::LEN_INTENT_ID].try_into().map_err(|_| ApiError::BadRequest)?;
+    let id16: [u8; intent::LEN_INTENT_ID] = id_bytes[..intent::LEN_INTENT_ID]
+        .try_into()
+        .map_err(|_| ApiError::BadRequest)?;
     let entry = intent_table
         .entries
         .iter()
@@ -361,7 +368,10 @@ mod tests {
             "event: intent_admitted\ndata: 1\n\nevent: grant_executed\ndata: 2\n\n"
         );
         // cursor pagination: since=1 shows only the second
-        assert_eq!(events_sse_body(&ring, 1), "event: grant_executed\ndata: 2\n\n");
+        assert_eq!(
+            events_sse_body(&ring, 1),
+            "event: grant_executed\ndata: 2\n\n"
+        );
         // honest empty
         assert_eq!(events_sse_body(&ring, 99), "");
     }

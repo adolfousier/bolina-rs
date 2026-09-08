@@ -67,7 +67,9 @@ struct Negative {
 fn vectors() -> &'static Vectors {
     use std::sync::OnceLock;
     static V: OnceLock<Vectors> = OnceLock::new();
-    V.get_or_init(|| serde_json::from_str(include_str!("../test/vectors.json")).expect("vectors json"))
+    V.get_or_init(|| {
+        serde_json::from_str(include_str!("../test/vectors.json")).expect("vectors json")
+    })
 }
 
 fn hex_byte(s: &str) -> u8 {
@@ -79,8 +81,15 @@ fn cert_parses_reencodes_and_both_ca_sigs_verify() {
     let c = &vectors().structs.cert;
     let wire = unhex(c.wire_hex.as_deref().unwrap());
     let cert = codec::parse_cert(&wire).expect("cert parses");
-    assert_eq!(cert.tbs, unhex(c.tbs_hex.as_deref().unwrap()), "tbs byte-exact");
-    assert_eq!(hex_byte(c.domain_tag.as_deref().unwrap()), codec::DOMAIN_CERT);
+    assert_eq!(
+        cert.tbs,
+        unhex(c.tbs_hex.as_deref().unwrap()),
+        "tbs byte-exact"
+    );
+    assert_eq!(
+        hex_byte(c.domain_tag.as_deref().unwrap()),
+        codec::DOMAIN_CERT
+    );
     assert_eq!(cert.version, 3, "F15 heritage: tool issues v3 always");
     // Both CA signatures verify over DOMAIN_CERT || tbs.
     let sigs = c.ca_sigs.as_ref().unwrap();
@@ -90,7 +99,12 @@ fn cert_parses_reencodes_and_both_ca_sigs_verify() {
         let key = &cert.ca_sigs[off..off + codec::LEN_CA_KEY];
         assert_eq!(key, &unhex(&ca.ca_key)[..], "ca key in canonical order");
         assert!(
-            codec::verify_signed(codec::DOMAIN_CERT, cert.tbs, &unhex(&ca.sig), &unhex(&ca.ca_key)),
+            codec::verify_signed(
+                codec::DOMAIN_CERT,
+                cert.tbs,
+                &unhex(&ca.sig),
+                &unhex(&ca.ca_key)
+            ),
             "ca sig {i} verifies"
         );
     }
@@ -104,12 +118,23 @@ fn envelope_intent_parses_reencodes_sig_verifies_and_body_slices() {
     let e = &v.structs.envelope_intent;
     let wire = unhex(e.wire_hex.as_deref().unwrap());
     let env = codec::parse_envelope(&wire).expect("envelope parses");
-    assert_eq!(env.tbs, unhex(e.tbs_hex.as_deref().unwrap()), "tbs byte-exact");
-    assert_eq!(hex_byte(e.domain_tag.as_deref().unwrap()), codec::DOMAIN_ENVELOPE);
+    assert_eq!(
+        env.tbs,
+        unhex(e.tbs_hex.as_deref().unwrap()),
+        "tbs byte-exact"
+    );
+    assert_eq!(
+        hex_byte(e.domain_tag.as_deref().unwrap()),
+        codec::DOMAIN_ENVELOPE
+    );
     // BE-SIG-01 composition, vector-pinned: signature input = domain_tag || tbs.
     let mut sig_in = vec![hex_byte(e.domain_tag.as_deref().unwrap())];
     sig_in.extend_from_slice(&unhex(e.tbs_hex.as_deref().unwrap()));
-    assert_eq!(sig_in, unhex(e.sig_input_hex.as_deref().unwrap()), "sig input = tag || tbs");
+    assert_eq!(
+        sig_in,
+        unhex(e.sig_input_hex.as_deref().unwrap()),
+        "sig input = tag || tbs"
+    );
     let signer = unhex(e.signer_pubkey.as_deref().unwrap());
     assert!(
         codec::verify_signed(codec::DOMAIN_ENVELOPE, env.tbs, env.sig, &signer),
@@ -118,12 +143,32 @@ fn envelope_intent_parses_reencodes_sig_verifies_and_body_slices() {
     // Body slices as Intent with the vector's semantic fields.
     let f = e.fields.as_ref().unwrap();
     let intent = codec::parse_intent(env.body).expect("body parses as intent");
-    assert_eq!(intent.intent_id, unhex(f["body_intent_id"].as_str().unwrap()));
-    assert_eq!(intent.resource_id, f["body_resource_id"].as_str().unwrap().as_bytes());
-    assert_eq!(intent.action, f["body_action_utf8"].as_str().unwrap().as_bytes());
-    assert_eq!(intent.rationale, f["body_rationale_utf8"].as_str().unwrap().as_bytes());
-    assert_eq!(codec::encode_envelope(&env), wire, "re-encode byte-identical");
-    assert_eq!(codec::encode_intent(&intent), env.body, "body re-encode byte-identical");
+    assert_eq!(
+        intent.intent_id,
+        unhex(f["body_intent_id"].as_str().unwrap())
+    );
+    assert_eq!(
+        intent.resource_id,
+        f["body_resource_id"].as_str().unwrap().as_bytes()
+    );
+    assert_eq!(
+        intent.action,
+        f["body_action_utf8"].as_str().unwrap().as_bytes()
+    );
+    assert_eq!(
+        intent.rationale,
+        f["body_rationale_utf8"].as_str().unwrap().as_bytes()
+    );
+    assert_eq!(
+        codec::encode_envelope(&env),
+        wire,
+        "re-encode byte-identical"
+    );
+    assert_eq!(
+        codec::encode_intent(&intent),
+        env.body,
+        "body re-encode byte-identical"
+    );
 }
 
 #[test]
@@ -131,8 +176,15 @@ fn grant_parses_reencodes_sig_verifies_and_action_digest_recomputes() {
     let g = &vectors().structs.grant;
     let wire = unhex(g.wire_hex.as_deref().unwrap());
     let gr = codec::parse_grant(&wire).expect("grant parses");
-    assert_eq!(gr.tbs, unhex(g.tbs_hex.as_deref().unwrap()), "tbs byte-exact");
-    assert_eq!(hex_byte(g.domain_tag.as_deref().unwrap()), codec::DOMAIN_GRANT);
+    assert_eq!(
+        gr.tbs,
+        unhex(g.tbs_hex.as_deref().unwrap()),
+        "tbs byte-exact"
+    );
+    assert_eq!(
+        hex_byte(g.domain_tag.as_deref().unwrap()),
+        codec::DOMAIN_GRANT
+    );
     let signer = unhex(g.signer_pubkey.as_deref().unwrap());
     assert!(
         codec::verify_signed(codec::DOMAIN_GRANT, gr.tbs, gr.sig, &signer),
@@ -142,7 +194,10 @@ fn grant_parses_reencodes_sig_verifies_and_action_digest_recomputes() {
     let f = g.fields.as_ref().unwrap();
     let digest: [u8; 32] = Blake2s256::digest(f["action_utf8"].as_str().unwrap().as_bytes()).into();
     assert_eq!(gr.action_digest, &digest[..], "action digest recomputes");
-    assert_eq!(gr.resource_id, f["resource_id"].as_str().unwrap().as_bytes());
+    assert_eq!(
+        gr.resource_id,
+        f["resource_id"].as_str().unwrap().as_bytes()
+    );
     assert_eq!(gr.not_after, f["not_after"].as_u64().unwrap());
     assert_eq!(codec::encode_grant(&gr), wire, "re-encode byte-identical");
 }
@@ -152,8 +207,15 @@ fn refusal_parses_reencodes_sig_verifies_note_is_informational() {
     let r = &vectors().structs.refusal;
     let wire = unhex(r.wire_hex.as_deref().unwrap());
     let rf = codec::parse_refusal(&wire).expect("refusal parses");
-    assert_eq!(rf.tbs, unhex(r.tbs_hex.as_deref().unwrap()), "tbs byte-exact");
-    assert_eq!(hex_byte(r.domain_tag.as_deref().unwrap()), codec::DOMAIN_REFUSAL);
+    assert_eq!(
+        rf.tbs,
+        unhex(r.tbs_hex.as_deref().unwrap()),
+        "tbs byte-exact"
+    );
+    assert_eq!(
+        hex_byte(r.domain_tag.as_deref().unwrap()),
+        codec::DOMAIN_REFUSAL
+    );
     let signer = unhex(r.signer_pubkey.as_deref().unwrap());
     assert!(
         codec::verify_signed(codec::DOMAIN_REFUSAL, rf.tbs, rf.sig, &signer),
@@ -170,8 +232,15 @@ fn span_parses_reencodes_sig_verifies_fields_pinned() {
     let s = &vectors().structs.span;
     let wire = unhex(s.wire_hex.as_deref().unwrap());
     let sp = codec::parse_span(&wire).expect("span parses");
-    assert_eq!(sp.tbs, unhex(s.tbs_hex.as_deref().unwrap()), "tbs byte-exact");
-    assert_eq!(hex_byte(s.domain_tag.as_deref().unwrap()), codec::DOMAIN_SPAN);
+    assert_eq!(
+        sp.tbs,
+        unhex(s.tbs_hex.as_deref().unwrap()),
+        "tbs byte-exact"
+    );
+    assert_eq!(
+        hex_byte(s.domain_tag.as_deref().unwrap()),
+        codec::DOMAIN_SPAN
+    );
     let signer = unhex(s.signer_pubkey.as_deref().unwrap());
     assert!(
         codec::verify_signed(codec::DOMAIN_SPAN, sp.tbs, sp.sig, &signer),
@@ -185,7 +254,10 @@ fn span_parses_reencodes_sig_verifies_fields_pinned() {
     assert_eq!(sp.observed_at, 1_700_000_030_000);
     assert_eq!(sp.span_id.len(), 16);
     assert_eq!(sp.span_id, unhex(f["span_id"].as_str().unwrap()));
-    assert_eq!(sp.resource_id, f["resource_id"].as_str().unwrap().as_bytes());
+    assert_eq!(
+        sp.resource_id,
+        f["resource_id"].as_str().unwrap().as_bytes()
+    );
     assert_eq!(codec::encode_span(&sp), wire, "re-encode byte-identical");
 }
 
@@ -194,7 +266,11 @@ fn effect_envelope_parses_and_verifies_under_envelope_domain() {
     let e = &vectors().structs.effect;
     let wire = unhex(e.wire_hex.as_deref().unwrap());
     let env = codec::parse_envelope(&wire).expect("effect envelope parses");
-    assert_eq!(env.tbs, unhex(e.tbs_hex.as_deref().unwrap()), "tbs byte-exact");
+    assert_eq!(
+        env.tbs,
+        unhex(e.tbs_hex.as_deref().unwrap()),
+        "tbs byte-exact"
+    );
     let signer = unhex(e.signer_pubkey.as_deref().unwrap());
     assert!(
         codec::verify_signed(codec::DOMAIN_ENVELOPE, env.tbs, env.sig, &signer),
@@ -227,9 +303,17 @@ fn claim_body_wire_slices_text_subject_confidence_spans() {
     let f = c.fields.as_ref().unwrap();
     assert_eq!(text, f["text"].as_str().unwrap().as_bytes());
     assert_eq!(subject, f["subject"].as_str().unwrap().as_bytes());
-    assert_eq!(confidence, f["confidence_q8"].as_u64().unwrap() as u8, "confidence q8");
+    assert_eq!(
+        confidence,
+        f["confidence_q8"].as_u64().unwrap() as u8,
+        "confidence q8"
+    );
     assert_eq!(span_count, f["span_count"].as_u64().unwrap() as usize);
-    assert_eq!(span_ids, unhex(f["span_ids_0"].as_str().unwrap()), "span id 0");
+    assert_eq!(
+        span_ids,
+        unhex(f["span_ids_0"].as_str().unwrap()),
+        "span id 0"
+    );
     assert_eq!(pos, wire.len(), "claim body total");
 }
 

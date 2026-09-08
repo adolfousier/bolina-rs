@@ -8,7 +8,6 @@
 //! of revocation.
 //!
 //! BE-HIST-04: revocation is immediate for admission, causal-positioned for audit.
-#![allow(dead_code)]
 
 use crate::transport::dag::{Dag, Node};
 

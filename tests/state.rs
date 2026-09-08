@@ -4,7 +4,6 @@
 use bolina::state::intent::*;
 use bolina::state::ledger::*;
 
-
 // G3 run-2 follow-up: TempDir auto-cleanup. The two soak runs left 82,612
 // dirs (~269 MB) in tmpfs; tests must not leak. TempDir wipes on drop, even
 // during panic unwind -- the T3 dump below embeds evidence in the panic
@@ -49,7 +48,10 @@ fn duplicate_intent_id_refused_be_grant_06b() {
     let (r, rl) = res(1);
     let i = id(1);
     t.admit(&i, &r, rl, 100).unwrap();
-    assert_eq!(t.admit(&i, &r, rl, 101), Err(IntentError::DuplicateIntentId));
+    assert_eq!(
+        t.admit(&i, &r, rl, 101),
+        Err(IntentError::DuplicateIntentId)
+    );
 }
 
 #[test]
@@ -132,7 +134,10 @@ fn md4_churn_never_exhausts_the_table() {
             n += 1;
             t.admit(&i, &ri, 9, 1_000 + gen).unwrap();
         }
-        assert_eq!(t.expire_timeouts(1_000 + gen + T_PENDING_MS + 1), MAX_PENDING);
+        assert_eq!(
+            t.expire_timeouts(1_000 + gen + T_PENDING_MS + 1),
+            MAX_PENDING
+        );
     }
     t.admit(&id(99_999), &r, rl, 5_000).unwrap(); // table still admits
 }
@@ -303,7 +308,10 @@ fn read_only_handle_refuses_mutators_md3() {
     }
     let mut ro = GrantLedger::open_read_only(&p).unwrap();
     ro.recover().unwrap();
-    assert_eq!(ro.commit_consumed(&id(2), 9_999, 100), Err(LedgerError::DiskError));
+    assert_eq!(
+        ro.commit_consumed(&id(2), 9_999, 100),
+        Err(LedgerError::DiskError)
+    );
     assert_eq!(ro.prune_expired(10_000), Err(LedgerError::DiskError));
     assert!(ro.is_consumed(&id(1))); // reads still work
 }

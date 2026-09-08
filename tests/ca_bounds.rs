@@ -118,8 +118,13 @@ fn ca_revoke_requires_valid_serial() {
     };
     let result = ca_issue(dir.path(), &req).unwrap();
     let serial = std::str::from_utf8(&result.serial_hex).unwrap();
-    
-    assert!(ca_revoke(dir.path(), "0000000000000000000000000000000000000000000000000000000000000000", None).is_err());
+
+    assert!(ca_revoke(
+        dir.path(),
+        "0000000000000000000000000000000000000000000000000000000000000000",
+        None
+    )
+    .is_err());
     assert!(ca_revoke(dir.path(), &serial, None).is_ok());
     fs::remove_dir_all(dir.path()).ok();
 }
@@ -156,7 +161,10 @@ fn ca_ttl_boundary_exact_max_ok_one_over_refused() {
         scopes: vec![scope("prod")],
         ttl_ms: max_ttl,
     };
-    assert!(ca_issue(dir.path(), &req).is_ok(), "exact max TTL must be accepted");
+    assert!(
+        ca_issue(dir.path(), &req).is_ok(),
+        "exact max TTL must be accepted"
+    );
 
     let over = IssueReq {
         role: "approver".into(),
@@ -164,6 +172,9 @@ fn ca_ttl_boundary_exact_max_ok_one_over_refused() {
         scopes: vec![scope("prod")],
         ttl_ms: max_ttl + 1,
     };
-    assert!(ca_issue(dir.path(), &over).is_err(), "TTL above max must be refused");
+    assert!(
+        ca_issue(dir.path(), &over).is_err(),
+        "TTL above max must be refused"
+    );
     fs::remove_dir_all(dir.path()).ok();
 }

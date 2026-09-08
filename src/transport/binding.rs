@@ -2,7 +2,6 @@
 //!
 //! BE-ID-01..04: certificate validation against trust set + clock.
 //! BE-TR-01: post-handshake session binding via Ed25519 sig over Noise h.
-#![allow(dead_code)]
 
 use crate::codec::{verify_signed, DOMAIN_CERT};
 
@@ -63,9 +62,15 @@ pub fn check_role_constraints(role_bits: u8) -> Result<(), CertChainError> {
     let agent = (role_bits & ROLE_AGENT) != 0;
     let approver = (role_bits & ROLE_APPROVER) != 0;
     let executor = (role_bits & ROLE_EXECUTOR) != 0;
-    if agent && approver { return Err(CertChainError::RoleAgentApprover); }
-    if agent && executor { return Err(CertChainError::RoleAgentExecutor); }
-    if approver && executor { return Err(CertChainError::RoleApproverExecutor); }
+    if agent && approver {
+        return Err(CertChainError::RoleAgentApprover);
+    }
+    if agent && executor {
+        return Err(CertChainError::RoleAgentExecutor);
+    }
+    if approver && executor {
+        return Err(CertChainError::RoleApproverExecutor);
+    }
     Ok(())
 }
 
@@ -86,7 +91,10 @@ fn in_trust_set(ca_key: &[u8], trusted: &[&[u8]]) -> bool {
 }
 
 /// BE-ID-02/03/04: validate cert chain (structural, no clock).
-pub fn validate_cert_chain(cert: &CertView<'_>, trusted_ca_keys: &[&[u8]]) -> Result<(), CertChainError> {
+pub fn validate_cert_chain(
+    cert: &CertView<'_>,
+    trusted_ca_keys: &[&[u8]],
+) -> Result<(), CertChainError> {
     check_role_constraints(cert.role_bits)?;
 
     if (cert.role_bits & ROLE_APPROVER) != 0 && cert.ca_sig_count < APPROVER_QUORUM as usize {
@@ -119,12 +127,19 @@ pub fn validate_cert_chain(cert: &CertView<'_>, trusted_ca_keys: &[&[u8]]) -> Re
 }
 
 /// BE-HIST-01: no-clock validation (type system proves no clock check).
-pub fn validate_cert_no_clock(cert: &CertView<'_>, trusted_ca_keys: &[&[u8]]) -> Result<(), CertChainError> {
+pub fn validate_cert_no_clock(
+    cert: &CertView<'_>,
+    trusted_ca_keys: &[&[u8]],
+) -> Result<(), CertChainError> {
     validate_cert_chain(cert, trusted_ca_keys)
 }
 
 /// BE-ID-02: full cert validation with clock.
-pub fn validate_cert(cert: &CertView<'_>, trusted_ca_keys: &[&[u8]], now_ms: u64) -> Result<(), BindingError> {
+pub fn validate_cert(
+    cert: &CertView<'_>,
+    trusted_ca_keys: &[&[u8]],
+    now_ms: u64,
+) -> Result<(), BindingError> {
     validate_cert_chain(cert, trusted_ca_keys).map_err(|e| match e {
         CertChainError::MalformedKey => BindingError::MalformedKey,
         CertChainError::BadCaSignature => BindingError::BadCaSignature,
@@ -154,9 +169,7 @@ pub fn bind_session(
     validate_cert(cert, trusted_ca_keys, now_ms)?;
 
     // F1: cert kex_pubkey must equal remote static key from handshake
-    if cert.kex_pubkey.len() != remote_kex_pubkey.len()
-        || cert.kex_pubkey != remote_kex_pubkey
-    {
+    if cert.kex_pubkey.len() != remote_kex_pubkey.len() || cert.kex_pubkey != remote_kex_pubkey {
         return Err(BindingError::KexPubkeyMismatch);
     }
 

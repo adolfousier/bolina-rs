@@ -6,7 +6,6 @@
 //! line, no obs-fold, no space-before-colon, Content-Length framing ONLY
 //! (Transfer-Encoding is a hard refuse). Smuggling guards each get their
 //! own error (exhaustive enum, no catch-all - D-049 style).
-#![allow(dead_code)]
 
 pub const HEADER_CAP: usize = 8192;
 pub const BODY_CAP: usize = 64 * 1024;
@@ -77,7 +76,10 @@ pub fn parse(buf: &[u8]) -> Result<Request, ParseError> {
         None => head.len(),
     };
     let line = &head[..line_end];
-    let sp1 = line.iter().position(|&b| b == b' ').ok_or(ParseError::BadRequest(Bad::MalformedLine))?;
+    let sp1 = line
+        .iter()
+        .position(|&b| b == b' ')
+        .ok_or(ParseError::BadRequest(Bad::MalformedLine))?;
     // Strict grammar: EXACTLY two SPs in the request line. A third means a
     // spaced target smuggled past the split => DoubleSP.
     let sp_count = line.iter().filter(|&&b| b == b' ').count();
@@ -85,7 +87,10 @@ pub fn parse(buf: &[u8]) -> Result<Request, ParseError> {
         return Err(ParseError::BadRequest(Bad::DoubleSP));
     }
     let rest = &line[sp1 + 1..];
-    let sp2 = rest.iter().position(|&b| b == b' ').ok_or(ParseError::BadRequest(Bad::MalformedLine))?;
+    let sp2 = rest
+        .iter()
+        .position(|&b| b == b' ')
+        .ok_or(ParseError::BadRequest(Bad::MalformedLine))?;
     let target = &line[sp1 + 1..sp1 + 1 + sp2];
     let version = &rest[sp2 + 1..];
     if version != b"HTTP/1.1" {
@@ -103,7 +108,11 @@ pub fn parse(buf: &[u8]) -> Result<Request, ParseError> {
 
     // Headers: no obs-fold (line starting with SP/HTAB), no space-before-colon.
     // Zero-header case: line_end == head.len(), so the slice is empty.
-    let headers_raw = if line_end + 2 <= head.len() { &head[line_end + 2..] } else { &head[head.len()..] };
+    let headers_raw = if line_end + 2 <= head.len() {
+        &head[line_end + 2..]
+    } else {
+        &head[head.len()..]
+    };
     let mut content_length: Option<usize> = None;
     let mut h = 0usize;
     while h < headers_raw.len() {
@@ -120,7 +129,10 @@ pub fn parse(buf: &[u8]) -> Result<Request, ParseError> {
         if field[0] == b' ' || field[0] == b'\t' {
             return Err(ParseError::BadRequest(Bad::ObsFold));
         }
-        let colon = field.iter().position(|&b| b == b':').ok_or(ParseError::BadRequest(Bad::MalformedLine))?;
+        let colon = field
+            .iter()
+            .position(|&b| b == b':')
+            .ok_or(ParseError::BadRequest(Bad::MalformedLine))?;
         if colon > 0 && field[colon - 1] == b' ' {
             return Err(ParseError::BadRequest(Bad::SpaceBeforeColon));
         }
@@ -185,7 +197,10 @@ mod tests {
     fn body_exact_content_length() {
         let r = req("POST /x HTTP/1.1\r\nContent-Length: 4\r\n\r\nBODYTRAILING").unwrap();
         assert_eq!(r.content_length, 4);
-        assert_eq!(r.body_start, "POST /x HTTP/1.1\r\nContent-Length: 4\r\n\r\n".len());
+        assert_eq!(
+            r.body_start,
+            "POST /x HTTP/1.1\r\nContent-Length: 4\r\n\r\n".len()
+        );
         let buf = b"POST /x HTTP/1.1\r\nContent-Length: 4\r\n\r\nBODYTRAILING";
         assert_eq!(&buf[r.body_start..r.body_start + r.content_length], b"BODY");
     }
@@ -202,7 +217,9 @@ mod tests {
     /// :55 - duplicate Content-Length only when byte-equal; conflicting refused.
     #[test]
     fn duplicate_content_length_rules() {
-        assert!(req("POST / HTTP/1.1\r\nContent-Length: 3\r\nContent-Length: 3\r\n\r\nabc").is_ok());
+        assert!(
+            req("POST / HTTP/1.1\r\nContent-Length: 3\r\nContent-Length: 3\r\n\r\nabc").is_ok()
+        );
         assert_eq!(
             req("POST / HTTP/1.1\r\nContent-Length: 3\r\nContent-Length: 4\r\n\r\nabcd"),
             Err(ParseError::BadRequest(Bad::ConflictingLength))
@@ -251,7 +268,10 @@ mod tests {
     /// :83 - body cap at DECLARATION TIME.
     #[test]
     fn body_too_large_at_declaration() {
-        let m = format!("POST /x HTTP/1.1\r\nContent-Length: {}\r\n\r\n", BODY_CAP + 1);
+        let m = format!(
+            "POST /x HTTP/1.1\r\nContent-Length: {}\r\n\r\n",
+            BODY_CAP + 1
+        );
         assert_eq!(req(&m), Err(ParseError::BodyTooLarge));
     }
 

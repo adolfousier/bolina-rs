@@ -12,7 +12,7 @@ fn envelope_with_body_len(body_len: u32) -> Vec<u8> {
     buf.push(0); // parent_count
     buf.extend_from_slice(&[0u8; 8]); // ts
     buf.push(BODY_INTENT); // body_type
-    // body_len (4 bytes u32be)
+                           // body_len (4 bytes u32be)
     buf.push((body_len >> 24) as u8);
     buf.push((body_len >> 16) as u8);
     buf.push((body_len >> 8) as u8);

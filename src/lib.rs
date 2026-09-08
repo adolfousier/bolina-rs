@@ -6,7 +6,6 @@
 //! review); bytes are built explicitly field-by-field (no struct-to-bytes);
 //! every module lands WITH its stage-2 contract sheet first.
 #![deny(warnings)]
-#![allow(dead_code)] // W7-W11: public API not yet wired to daemon; remove post-parity
 #![deny(unsafe_code)] // ffi seam is the single opted-out module (state/ffi.rs)
 
 /// RFC KAT suite target (W1). D-096-A: audited crates, versions pinned.
@@ -28,8 +27,8 @@ pub mod daemon;
 pub mod ca;
 pub mod control;
 pub mod control_api;
-pub mod keys;
 pub mod http_parse;
+pub mod keys;
 
 /// In-memory evidence ledger: hash store, seq windows, anchors, revocations (W11).
 pub mod ledger_envelope;

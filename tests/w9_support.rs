@@ -1,18 +1,14 @@
 //! W9 tests: token + render + relay_store + replay + listener + binding.
 
-use bolina::transport::token::{self, TOKEN_BYTES, TOKEN_HEX_LEN};
-use bolina::transport::render::{self, RATIONALE_UNTRUSTED_LABEL, LEN_ACTION_DIGEST};
-use bolina::transport::relay_store::{
-    Store, StoreError, MAX_BODY, TTL_MS,
-};
-use bolina::transport::replay::{ReplayWindow, WINDOW_BITS};
-use bolina::transport::listener::{EndpointRegistry, ListenError, MAX_ENDPOINTS};
 use bolina::transport::binding::{
-    CertChainError,
-    ROLE_AGENT, ROLE_EXECUTOR, ROLE_APPROVER,
-    APPROVER_QUORUM, MAX_PRIVILEGED_LIFETIME_MS,
-    check_role_constraints, derive_overlay_addr,
+    check_role_constraints, derive_overlay_addr, CertChainError, APPROVER_QUORUM,
+    MAX_PRIVILEGED_LIFETIME_MS, ROLE_AGENT, ROLE_APPROVER, ROLE_EXECUTOR,
 };
+use bolina::transport::listener::{EndpointRegistry, ListenError, MAX_ENDPOINTS};
+use bolina::transport::relay_store::{Store, StoreError, MAX_BODY, TTL_MS};
+use bolina::transport::render::{self, LEN_ACTION_DIGEST, RATIONALE_UNTRUSTED_LABEL};
+use bolina::transport::replay::{ReplayWindow, WINDOW_BITS};
+use bolina::transport::token::{self, TOKEN_BYTES, TOKEN_HEX_LEN};
 
 // ---------------------------------------------------------------------------
 // Token tests
@@ -108,7 +104,10 @@ fn relay_store_basic_store_and_drain() {
 fn relay_store_body_too_large() {
     let mut store = Store::new();
     let big = vec![0u8; MAX_BODY + 1];
-    assert_eq!(store.store([1u8; 16], 0, &big, 0), Err(StoreError::BodyTooLarge));
+    assert_eq!(
+        store.store([1u8; 16], 0, &big, 0),
+        Err(StoreError::BodyTooLarge)
+    );
 }
 
 #[test]
@@ -131,10 +130,15 @@ fn relay_store_recipient_quota() {
     let addr = [3u8; 16];
     // Fill recipient to MAX_PER_RECIPIENT (64)
     for i in 0..64u32 {
-        store.store(addr, i, &[i as u8; 4], 1000 + i as u64).unwrap();
+        store
+            .store(addr, i, &[i as u8; 4], 1000 + i as u64)
+            .unwrap();
     }
     // 65th should refuse
-    assert_eq!(store.store(addr, 65, b"x", 2000), Err(StoreError::RecipientQuota));
+    assert_eq!(
+        store.store(addr, 65, b"x", 2000),
+        Err(StoreError::RecipientQuota)
+    );
     assert!(store.refused_quota > 0);
 }
 
@@ -177,8 +181,8 @@ fn replay_in_order_sequence() {
 fn replay_reordered_within_window() {
     let mut w = ReplayWindow::new();
     assert!(w.check(100));
-    assert!(w.check(99));  // reorder within window
-    assert!(w.check(50));  // still within window
+    assert!(w.check(99)); // reorder within window
+    assert!(w.check(50)); // still within window
 }
 
 #[test]
@@ -247,7 +251,10 @@ fn listener_registry_overflow_refuses() {
         let addr = [i as u8, 0, 0, 0];
         reg.claim(&addr, i as u16).unwrap();
     }
-    assert_eq!(reg.claim(&[99u8, 0, 0, 0], 9999), Err(ListenError::EndpointBusy));
+    assert_eq!(
+        reg.claim(&[99u8, 0, 0, 0], 9999),
+        Err(ListenError::EndpointBusy)
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -257,19 +264,28 @@ fn listener_registry_overflow_refuses() {
 #[test]
 fn binding_role_constraints_forbid_agent_approver() {
     // BE-ROLE-01: agent + approver forbidden
-    assert_eq!(check_role_constraints(ROLE_AGENT | ROLE_APPROVER), Err(CertChainError::RoleAgentApprover));
+    assert_eq!(
+        check_role_constraints(ROLE_AGENT | ROLE_APPROVER),
+        Err(CertChainError::RoleAgentApprover)
+    );
 }
 
 #[test]
 fn binding_role_constraints_forbid_agent_executor() {
     // BE-ROLE-02: agent + executor forbidden
-    assert_eq!(check_role_constraints(ROLE_AGENT | ROLE_EXECUTOR), Err(CertChainError::RoleAgentExecutor));
+    assert_eq!(
+        check_role_constraints(ROLE_AGENT | ROLE_EXECUTOR),
+        Err(CertChainError::RoleAgentExecutor)
+    );
 }
 
 #[test]
 fn binding_role_constraints_forbid_approver_executor() {
     // BE-ROLE-04: approver + executor forbidden
-    assert_eq!(check_role_constraints(ROLE_APPROVER | ROLE_EXECUTOR), Err(CertChainError::RoleApproverExecutor));
+    assert_eq!(
+        check_role_constraints(ROLE_APPROVER | ROLE_EXECUTOR),
+        Err(CertChainError::RoleApproverExecutor)
+    );
 }
 
 #[test]
@@ -311,7 +327,7 @@ fn binding_max_lifetime_30_days() {
 // Listener OS socket seam tests
 // =========================================================================
 
-use bolina::transport::listener::{Listener, Family};
+use bolina::transport::listener::{Family, Listener};
 
 #[test]
 fn listener_open_bind_ipv4_loopback() {
@@ -332,7 +348,7 @@ fn listener_bind_refused_on_occupied_port() {
     let result = Listener::open_bind("127.0.0.1", port, Family::Ipv4);
     assert!(result.is_err());
     match result {
-        Err(ListenError::BindRefused) => {},
+        Err(ListenError::BindRefused) => {}
         other => panic!("expected BindRefused, got {:?}", other),
     }
     l1.close();
@@ -413,7 +429,9 @@ fn token_save_permissions_0600() {
 // --- BE-ID-04: approver needs >= APPROVER_QUORUM CA signatures ---
 #[test]
 fn be_id_04_approver_quorum_enforced() {
-    use bolina::transport::binding::{validate_cert_chain, CertView, CertChainError, APPROVER_QUORUM, ROLE_APPROVER};
+    use bolina::transport::binding::{
+        validate_cert_chain, CertChainError, CertView, APPROVER_QUORUM, ROLE_APPROVER,
+    };
 
     // Approver with only 1 CA sig (below quorum of 2) → rejected
     let cert = CertView {
@@ -437,6 +455,9 @@ fn be_id_04_approver_quorum_enforced() {
         ..cert
     };
     let result = validate_cert_chain(&cert_ok, trusted);
-    assert_ne!(result, Err(CertChainError::ApproverNoQuorum),
-        "approver with quorum must NOT fail on quorum check");
+    assert_ne!(
+        result,
+        Err(CertChainError::ApproverNoQuorum),
+        "approver with quorum must NOT fail on quorum check"
+    );
 }

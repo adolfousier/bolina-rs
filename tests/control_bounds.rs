@@ -1,13 +1,15 @@
 //! Control plane boundary tests.
 
 use bolina::control::*;
+use ntest::timeout;
 use std::io::{Read, Write};
 use std::net::{SocketAddr, TcpStream};
-use std::time::Duration;
 use std::thread::sleep;
-use ntest::timeout;
+use std::time::Duration;
 
-fn bind_any() -> SocketAddr { "127.0.0.1:0".parse().unwrap() }
+fn bind_any() -> SocketAddr {
+    "127.0.0.1:0".parse().unwrap()
+}
 
 fn connect_to(addr: SocketAddr) -> TcpStream {
     let s = TcpStream::connect(addr).unwrap();
@@ -32,7 +34,9 @@ fn read_resp(s: &mut TcpStream) -> String {
 fn accept_one(cp: &mut ControlPlane) {
     for _ in 0..50 {
         let _ = cp.poll_tick();
-        if !cp.clients.is_empty() { return; }
+        if !cp.clients.is_empty() {
+            return;
+        }
         sleep(Duration::from_millis(20));
     }
     panic!("accept timeout");
@@ -41,7 +45,11 @@ fn accept_one(cp: &mut ControlPlane) {
 fn pump_writing(cp: &mut ControlPlane) {
     for _ in 0..50 {
         let _ = cp.poll_tick();
-        if cp.clients.first().map_or(false, |c| c.state == ConnState::Writing || c.state == ConnState::Closing) { return; }
+        if cp.clients.first().map_or(false, |c| {
+            c.state == ConnState::Writing || c.state == ConnState::Closing
+        }) {
+            return;
+        }
         sleep(Duration::from_millis(20));
     }
 }
@@ -75,7 +83,12 @@ fn all_status_codes_format_correctly() {
             conn.write_response(status, b"body").unwrap();
         }
         let resp = read_resp(&mut client);
-        assert!(resp.contains(&format!("{}", status)), "status {} not in: {}", status, resp);
+        assert!(
+            resp.contains(&format!("{}", status)),
+            "status {} not in: {}",
+            status,
+            resp
+        );
         assert!(resp.contains("Content-Length: 4"));
     }
 }
@@ -88,7 +101,9 @@ fn healthz_roundtrip() {
     let mut client = connect_to(addr);
     sleep(Duration::from_millis(30));
     accept_one(&mut cp);
-    client.write_all(b"GET /healthz HTTP/1.1\r\nHost: x\r\n\r\n").unwrap();
+    client
+        .write_all(b"GET /healthz HTTP/1.1\r\nHost: x\r\n\r\n")
+        .unwrap();
     pump_writing(&mut cp);
     if let Some(conn) = cp.clients.first_mut() {
         if conn.state == ConnState::Writing {
@@ -107,7 +122,9 @@ fn content_length_parsed() {
     let mut client = connect_to(addr);
     sleep(Duration::from_millis(30));
     accept_one(&mut cp);
-    client.write_all(b"POST / HTTP/1.1\r\nContent-Length: 13\r\n\r\n{\"key\":\"val\"}").unwrap();
+    client
+        .write_all(b"POST / HTTP/1.1\r\nContent-Length: 13\r\n\r\n{\"key\":\"val\"}")
+        .unwrap();
     pump_writing(&mut cp);
     assert_eq!(cp.clients.first().and_then(|c| c.content_length), Some(13));
 }
@@ -120,9 +137,14 @@ fn no_content_length_goes_to_writing() {
     let mut client = connect_to(addr);
     sleep(Duration::from_millis(30));
     accept_one(&mut cp);
-    client.write_all(b"GET / HTTP/1.1\r\nHost: x\r\n\r\n").unwrap();
+    client
+        .write_all(b"GET / HTTP/1.1\r\nHost: x\r\n\r\n")
+        .unwrap();
     pump_writing(&mut cp);
-    assert_eq!(cp.clients.first().map(|c| c.state), Some(ConnState::Writing));
+    assert_eq!(
+        cp.clients.first().map(|c| c.state),
+        Some(ConnState::Writing)
+    );
     assert_eq!(cp.clients.first().and_then(|c| c.content_length), None);
 }
 
@@ -139,7 +161,10 @@ fn deadline_exceeded_causes_cleanup() {
         conn.deadline = std::time::Instant::now() - Duration::from_secs(1);
     }
     let _ = cp.poll_tick();
-    assert!(cp.clients.is_empty(), "expired connection should be removed");
+    assert!(
+        cp.clients.is_empty(),
+        "expired connection should be removed"
+    );
 }
 
 #[test]
@@ -167,7 +192,10 @@ fn slowloris_guard() {
             _ => sleep(Duration::from_millis(10)),
         }
     }
-    assert!(got_slowloris, "slowloris should reject >=1024 bytes without newline");
+    assert!(
+        got_slowloris,
+        "slowloris should reject >=1024 bytes without newline"
+    );
 }
 
 #[test]
@@ -188,7 +216,11 @@ fn table_full_returns_503() {
     sleep(Duration::from_millis(20));
     let _ = cp.poll_tick();
     let resp = read_resp(&mut overflow);
-    assert!(resp.contains("503") || resp.contains("table full"), "got: {}", resp);
+    assert!(
+        resp.contains("503") || resp.contains("table full"),
+        "got: {}",
+        resp
+    );
 }
 
 #[test]
@@ -207,11 +239,20 @@ fn slowloris_guard_at_exactly_1024_bytes() {
     let mut rejected = false;
     for _ in 0..60 {
         let _ = cp.poll_tick();
-        if cp.clients.is_empty() { rejected = true; break; }
+        if cp.clients.is_empty() {
+            rejected = true;
+            break;
+        }
         if let Some(c) = cp.clients.first() {
-            if c.state == ConnState::Closing || c.state == ConnState::Writing { rejected = true; break; }
+            if c.state == ConnState::Closing || c.state == ConnState::Writing {
+                rejected = true;
+                break;
+            }
         }
         sleep(Duration::from_millis(50));
     }
-    assert!(rejected, "exactly 1024 bytes without newline must be rejected (guard is >=)");
+    assert!(
+        rejected,
+        "exactly 1024 bytes without newline must be rejected (guard is >=)"
+    );
 }

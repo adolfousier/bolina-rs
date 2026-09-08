@@ -84,12 +84,19 @@ fn be_tr_03_reordered_open_and_replay_refused() {
     for (i, pkt) in packets.iter().enumerate().rev() {
         let mut out = [0u8; 32];
         let counter = i as u64;
-        let pt_len = s.recv.open(&mut out, &pkt[..HEADER_SIZE], &pkt[HEADER_SIZE..], counter);
+        let pt_len = s
+            .recv
+            .open(&mut out, &pkt[..HEADER_SIZE], &pkt[HEADER_SIZE..], counter);
         assert!(pt_len.is_ok(), "reordered packet {} should open", i);
     }
     // Replay the first one
     let mut out = [0u8; 32];
-    let result = s.recv.open(&mut out, &packets[0][..HEADER_SIZE], &packets[0][HEADER_SIZE..], 0);
+    let result = s.recv.open(
+        &mut out,
+        &packets[0][..HEADER_SIZE],
+        &packets[0][HEADER_SIZE..],
+        0,
+    );
     assert_eq!(result, Err(TransportError::Replay));
 }
 
@@ -113,7 +120,9 @@ fn tampered_payload_fails_aead_tag() {
     let len = s.seal(&mut pkt, b"secret").unwrap();
     pkt[HEADER_SIZE] ^= 0x01; // tamper
     let mut out = [0u8; 32];
-    let result = s.recv.open(&mut out, &pkt[..HEADER_SIZE], &pkt[HEADER_SIZE..len], 0);
+    let result = s
+        .recv
+        .open(&mut out, &pkt[..HEADER_SIZE], &pkt[HEADER_SIZE..len], 0);
     assert_eq!(result, Err(TransportError::DecryptFailed));
 }
 
@@ -136,7 +145,8 @@ fn be_tr_05_session_ceiling_refuses_without_degrading() {
 fn release_zeroes_whole_slot() {
     // session_test.zig:204 — release clears in_use and zeros keys
     let mut t = SessionTable::new();
-    t.admit(0, 0, [0xAA; 32], [0xBB; 32], [0xCC; 32], 1000).unwrap();
+    t.admit(0, 0, [0xAA; 32], [0xBB; 32], [0xCC; 32], 1000)
+        .unwrap();
     assert!(t.lookup(0).is_some());
     t.release(0);
     assert!(t.lookup(0).is_none());
@@ -160,11 +170,17 @@ fn be_tr_06_transport_failure_surfaces_as_error() {
     cs.counter = REKEY_AFTER_MESSAGES;
     let mut out = [0u8; 8];
     // RekeyRequired
-    assert_eq!(cs.seal(&mut out, b"x", b""), Err(TransportError::RekeyRequired));
+    assert_eq!(
+        cs.seal(&mut out, b"x", b""),
+        Err(TransportError::RekeyRequired)
+    );
     // OutOfRange (reset counter first)
     cs.counter = 0;
     let mut small = [0u8; 4];
-    assert_eq!(cs.seal(&mut small, b"x", b""), Err(TransportError::OutOfRange));
+    assert_eq!(
+        cs.seal(&mut small, b"x", b""),
+        Err(TransportError::OutOfRange)
+    );
 }
 
 #[test]

@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 //! control: HTTP front door (single-threaded, multiplexed into poll loop)
 //!
 //! One loop, zero threads: wire fd + listener fd + client slots all in one poll pass.
@@ -98,7 +97,7 @@ impl Connection {
                     }
                 }
             }
-            Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {},
+            Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {}
             Err(e) => return Err(format!("read: {}", e)),
         }
 
@@ -120,10 +119,14 @@ impl Connection {
 
         let response = format!(
             "HTTP/1.1 {} {}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
-            status, status_text, body.len()
+            status,
+            status_text,
+            body.len()
         );
 
-        self.stream.write_all(response.as_bytes()).map_err(|e| e.to_string())?;
+        self.stream
+            .write_all(response.as_bytes())
+            .map_err(|e| e.to_string())?;
         self.stream.write_all(body).map_err(|e| e.to_string())?;
         self.state = ConnState::Closing;
         Ok(())
@@ -146,8 +149,6 @@ fn parse_content_length(headers: &[u8]) -> Result<Option<usize>, String> {
 }
 
 /// Control plane server
-#[allow(dead_code)]
-#[allow(dead_code)]
 pub struct ControlPlane {
     pub listener: TcpListener,
     pub clients: Vec<Connection>,
@@ -171,7 +172,8 @@ impl ControlPlane {
                 if self.clients.len() >= MAX_CLIENTS {
                     // Table full: send 503, close immediately
                     let mut conn = Connection::new(stream);
-                    conn.write_response(503, b"table full").map_err(|e| e.to_string())?;
+                    conn.write_response(503, b"table full")
+                        .map_err(|e| e.to_string())?;
                 } else {
                     stream.set_nonblocking(true).map_err(|e| e.to_string())?;
                     self.clients.push(Connection::new(stream));

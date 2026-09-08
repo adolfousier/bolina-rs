@@ -50,7 +50,15 @@ struct Context {
 
 impl Context {
     fn new() -> Self {
-        Self { msg_id: 0, total: 0, received: 0, bytes: 0, updated_ms: 0, in_use: false, seen: [0; 16] }
+        Self {
+            msg_id: 0,
+            total: 0,
+            received: 0,
+            bytes: 0,
+            updated_ms: 0,
+            in_use: false,
+            seen: [0; 16],
+        }
     }
 }
 
@@ -60,17 +68,34 @@ pub struct PeerReassembler<const MAX_CONTEXTS: usize, const MAX_FRAGMENTS: u16> 
     bytes_used: usize,
 }
 
-impl<const MAX_CONTEXTS: usize, const MAX_FRAGMENTS: u16> PeerReassembler<MAX_CONTEXTS, MAX_FRAGMENTS> {
+impl<const MAX_CONTEXTS: usize, const MAX_FRAGMENTS: u16>
+    PeerReassembler<MAX_CONTEXTS, MAX_FRAGMENTS>
+{
     pub fn new() -> Self {
-        Self { contexts: [Context::new(); MAX_CONTEXTS], active: 0, bytes_used: 0 }
+        Self {
+            contexts: [Context::new(); MAX_CONTEXTS],
+            active: 0,
+            bytes_used: 0,
+        }
     }
 
-    pub fn active_contexts(&self) -> u8 { self.active }
-    pub fn bytes_in_use(&self) -> usize { self.bytes_used }
+    pub fn active_contexts(&self) -> u8 {
+        self.active
+    }
+    pub fn bytes_in_use(&self) -> usize {
+        self.bytes_used
+    }
 
     /// Ingest one authenticated fragment. Returns the outcome.
     /// Breach returns MessageDropped and tears down the context; session unaffected.
-    pub fn ingest(&mut self, now_ms: u64, msg_id: u64, index: u16, total: u16, frag_bytes: usize) -> PeerEvent {
+    pub fn ingest(
+        &mut self,
+        now_ms: u64,
+        msg_id: u64,
+        index: u16,
+        total: u16,
+        frag_bytes: usize,
+    ) -> PeerEvent {
         // Malformed: total==0 | index>=total | total>ceiling
         if total == 0 || index >= total || total > MAX_FRAGMENTS {
             return PeerEvent::MessageDropped;
@@ -175,10 +200,17 @@ pub struct NodeCapacity {
 }
 
 impl NodeCapacity {
-    pub fn new() -> Self { Self { sessions: 0, bytes: 0 } }
+    pub fn new() -> Self {
+        Self {
+            sessions: 0,
+            bytes: 0,
+        }
+    }
 
     pub fn try_admit_session(&mut self) -> NodeEvent {
-        if self.sessions >= SESSIONS_PER_NODE { return NodeEvent::Refused; }
+        if self.sessions >= SESSIONS_PER_NODE {
+            return NodeEvent::Refused;
+        }
         self.sessions += 1;
         NodeEvent::Admitted
     }
@@ -199,6 +231,10 @@ impl NodeCapacity {
         self.bytes = self.bytes.saturating_sub(n);
     }
 
-    pub fn sessions(&self) -> u16 { self.sessions }
-    pub fn bytes(&self) -> usize { self.bytes }
+    pub fn sessions(&self) -> u16 {
+        self.sessions
+    }
+    pub fn bytes(&self) -> usize {
+        self.bytes
+    }
 }

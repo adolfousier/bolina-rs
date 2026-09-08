@@ -1,6 +1,6 @@
 //! W10 tests: mac cookies + control API gaps.
 
-use bolina::transport::mac1::{CookieSecret, MAC_BYTES, KEY_BYTES, COOKIE_ROTATE_MS};
+use bolina::transport::mac1::{CookieSecret, COOKIE_ROTATE_MS, KEY_BYTES, MAC_BYTES};
 
 // ---------------------------------------------------------------------------
 // Mac cookies (BE-TR-04a)

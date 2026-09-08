@@ -8,7 +8,6 @@
 //!   commit_consumed_11 emitted ONLY after durable appendSync returns OK.
 //!   effect_start IS the normative APPROVED->EXECUTING transition (D-067).
 //!   effect_refused: refused path never emits mark_published afterwards.
-#![allow(dead_code)]
 
 // ---------------------------------------------------------------------------
 // Tag enum: wire-stable ids (numbering matches Zig for cross-impl comparison).
@@ -129,7 +128,11 @@ impl TraceRing {
             tag,
             pc,
             id: fingerprint(id_bytes),
-            id2: if id2_bytes.is_empty() { 0 } else { fingerprint(id2_bytes) },
+            id2: if id2_bytes.is_empty() {
+                0
+            } else {
+                fingerprint(id2_bytes)
+            },
             now_ms,
             seq: self.seq_next,
         };

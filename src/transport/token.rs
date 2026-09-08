@@ -3,7 +3,6 @@
 //! One bearer token, generated from CSPRNG at first boot, stored 0600,
 //! compared timing-safely. Fail-closed: absent/short/corrupt token refuses
 //! every request except /healthz.
-#![allow(dead_code)]
 
 pub const TOKEN_BYTES: usize = 32;
 pub const TOKEN_HEX_LEN: usize = 64;
@@ -66,7 +65,8 @@ pub fn save(path: &str, token: &[u8; TOKEN_BYTES]) -> Result<(), TokenError> {
         opts.write(true).create(true).truncate(true).mode(0o600);
         let mut file = opts.open(path).map_err(|_| TokenError::DiskError)?;
         use std::io::Write;
-        file.write_all(&hex_bytes).map_err(|_| TokenError::DiskError)?;
+        file.write_all(&hex_bytes)
+            .map_err(|_| TokenError::DiskError)?;
     }
 
     #[cfg(not(unix))]

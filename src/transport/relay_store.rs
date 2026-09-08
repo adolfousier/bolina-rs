@@ -2,7 +2,6 @@
 //!
 //! BE-MESH-03: bounded relay storage with TTL expiry.
 //! Storage keys by overlay_addr, not client_index (D-058).
-#![allow(dead_code)]
 
 pub const MAX_BODY: usize = 2048;
 pub const MAX_PER_RECIPIENT: usize = 64;
@@ -56,7 +55,11 @@ impl Store {
         for _ in 0..MAX_STORED {
             packets.push(StoredPacket::default());
         }
-        Self { packets, count: 0, refused_quota: 0 }
+        Self {
+            packets,
+            count: 0,
+            refused_quota: 0,
+        }
     }
 
     pub fn reset(&mut self) {
@@ -112,7 +115,11 @@ impl Store {
         Err(StoreError::StoreFull)
     }
 
-    pub fn drain_next(&mut self, recipient_addr: &[u8; 16], now_ms: u64) -> Option<DrainedPacket<'_>> {
+    pub fn drain_next(
+        &mut self,
+        recipient_addr: &[u8; 16],
+        now_ms: u64,
+    ) -> Option<DrainedPacket<'_>> {
         self.purge_expired(now_ms);
         let mut best: Option<usize> = None;
         for (i, p) in self.packets.iter().enumerate() {

@@ -5,14 +5,10 @@
 //! - dispatch: 7 outcomes, effect-once, replay refusal, orphan tombstone
 //! - resolver: canonical grammar, alias collapse, foreign-fp refuse, signed set
 
+use bolina::transport::dispatch::{DispatchError, Outcome, T_MAX_S_DEFAULT, T_RECV_S_DEFAULT};
+use bolina::transport::resolver::{executor_fp, validate_canonical, ResolveError, Resolver};
 use bolina::transport::verify::{
-    VerifyError, SenderTable, SenderEntry,
-    EffectOutcome, SENDER_MAX_ACTION,
-};
-use bolina::transport::resolver::{Resolver, ResolveError, executor_fp, validate_canonical};
-use bolina::transport::dispatch::{
-    DispatchError, Outcome,
-    T_MAX_S_DEFAULT, T_RECV_S_DEFAULT,
+    EffectOutcome, SenderEntry, SenderTable, VerifyError, SENDER_MAX_ACTION,
 };
 
 // ---------------------------------------------------------------------------
@@ -85,7 +81,8 @@ fn resolver_alias_collapses_to_canonical() {
     let alias = b"door-front";
 
     r.add(canonical.as_bytes()).expect("add should succeed");
-    r.add_alias(canonical.as_bytes(), alias).expect("alias should succeed");
+    r.add_alias(canonical.as_bytes(), alias)
+        .expect("alias should succeed");
 
     // Resolve alias should return canonical
     let result = r.resolve(alias);
@@ -114,13 +111,17 @@ fn resolver_overflow_refuses() {
     // Fill to MAX_RESOURCES (32)
     for i in 0..32 {
         let canonical = format!("bol:{}/core/res-{}", fp_str, i);
-        r.add(canonical.as_bytes()).expect("should succeed within capacity");
+        r.add(canonical.as_bytes())
+            .expect("should succeed within capacity");
     }
 
     // 33rd should refuse
     let overflow = format!("bol:{}/core/overflow", fp_str);
     assert!(r.add(overflow.as_bytes()).is_err());
-    assert_eq!(r.add(overflow.as_bytes()).unwrap_err(), ResolveError::SetFull);
+    assert_eq!(
+        r.add(overflow.as_bytes()).unwrap_err(),
+        ResolveError::SetFull
+    );
 }
 
 #[test]
@@ -131,7 +132,8 @@ fn resolver_duplicate_entry_refuses() {
     let fp_str = std::str::from_utf8(&fp).unwrap();
     let canonical = format!("bol:{}/core/dup", fp_str);
 
-    r.add(canonical.as_bytes()).expect("first add should succeed");
+    r.add(canonical.as_bytes())
+        .expect("first add should succeed");
     let result = r.add(canonical.as_bytes());
     assert!(result.is_err());
     assert_eq!(result.unwrap_err(), ResolveError::DuplicateEntry);
@@ -286,7 +288,9 @@ fn dispatch_action_boundary_exactly_max_accepted() {
     // resolver owns the executor identity; canonical resource added
     let exec_key = [5u8; 32];
     let mut resolver = Resolver::new(&exec_key);
-    let fp = std::str::from_utf8(&executor_fp(&exec_key)).unwrap().to_string();
+    let fp = std::str::from_utf8(&executor_fp(&exec_key))
+        .unwrap()
+        .to_string();
     let canonical = format!("bol:{}/ns/dev/x", fp);
     resolver.add(canonical.as_bytes()).unwrap();
 
@@ -367,7 +371,11 @@ fn dispatch_action_boundary_exactly_max_accepted() {
         trusted_ca_keys: &[],
     };
     let out = d.dispatch(&wire, &hooks, 1700000010001);
-    assert_eq!(out, Ok(Outcome::IntentAdmitted), "action at exactly the bound must be admitted");
+    assert_eq!(
+        out,
+        Ok(Outcome::IntentAdmitted),
+        "action at exactly the bound must be admitted"
+    );
 }
 
 fn hex_to_bytes(s: &str) -> Vec<u8> {
@@ -381,8 +389,7 @@ fn hex_to_bytes(s: &str) -> Vec<u8> {
 // =========================================================================
 
 use bolina::transport::dispatch::{
-    Orphan, init_durable_ledger, close_durable_ledger,
-    tombstone_orphan, EventSink, NullEventSink,
+    close_durable_ledger, init_durable_ledger, tombstone_orphan, EventSink, NullEventSink, Orphan,
 };
 
 #[test]

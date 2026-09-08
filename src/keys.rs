@@ -11,7 +11,6 @@
 //! - truncated secret file = corruption, NEVER silent regeneration
 //! - cert.bin loads verbatim up to MAX_CERT; ABSENT = len 0 unbound-accept
 //! - CA pubs load ca0.pub..ca7.pub in LABEL ORDER (order = cert sig slots)
-#![allow(dead_code)]
 
 use crate::transport::resolver::executor_fp;
 use ed25519_dalek::SigningKey;
@@ -177,7 +176,13 @@ pub fn load_or_generate(data_dir: &Path) -> Result<Keys, KeysError> {
         }
     }
 
-    Ok(Keys { secret_static, pub_static, sig_key, cert, ca_pubs })
+    Ok(Keys {
+        secret_static,
+        pub_static,
+        sig_key,
+        cert,
+        ca_pubs,
+    })
 }
 
 fn timing_safe_eq(a: &[u8], b: &[u8]) -> bool {
@@ -255,10 +260,7 @@ mod tests {
         assert_eq!(k2.cert, blob);
         // over-large cert = CertTooLarge, distinct fatal
         fs::write(dir.join("cert.bin"), vec![0u8; MAX_CERT + 1]).unwrap();
-        assert_eq!(
-            load_or_generate(&dir).unwrap_err(),
-            KeysError::CertTooLarge
-        );
+        assert_eq!(load_or_generate(&dir).unwrap_err(), KeysError::CertTooLarge);
     }
 
     /// keys_test.zig:152 - CA pubs in LABEL ORDER; missing ends the prefix.
@@ -285,7 +287,9 @@ mod tests {
         assert_eq!(fp, crate::transport::resolver::executor_fp(&pubkey));
         let hex = std::str::from_utf8(&fp).unwrap();
         assert_eq!(hex.len(), 16);
-        assert!(hex.bytes().all(|b| b.is_ascii_lowercase() || b.is_ascii_digit()));
+        assert!(hex
+            .bytes()
+            .all(|b| b.is_ascii_lowercase() || b.is_ascii_digit()));
     }
 
     /// perms: secret files 0600, dir 0700.

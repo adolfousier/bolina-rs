@@ -64,8 +64,14 @@ fn build_response_appends_envelopes() {
     let mut out = [0u8; MAX_RESPONSE_BYTES];
     let channel_id = [0xAA; 32];
     let items = vec![
-        ServeItem { hash: [1; 32], wire: vec![0x01, 0x02, 0x03] },
-        ServeItem { hash: [2; 32], wire: vec![0x04, 0x05] },
+        ServeItem {
+            hash: [1; 32],
+            wire: vec![0x01, 0x02, 0x03],
+        },
+        ServeItem {
+            hash: [2; 32],
+            wire: vec![0x04, 0x05],
+        },
     ];
     let result = build_response(&mut out, channel_id, &items, &[]);
     assert_eq!(result.count, 2);
@@ -78,8 +84,14 @@ fn build_response_skips_have_hashes() {
     let mut out = [0u8; MAX_RESPONSE_BYTES];
     let channel_id = [0xAA; 32];
     let items = vec![
-        ServeItem { hash: [1; 32], wire: vec![0x01] },
-        ServeItem { hash: [2; 32], wire: vec![0x02] },
+        ServeItem {
+            hash: [1; 32],
+            wire: vec![0x01],
+        },
+        ServeItem {
+            hash: [2; 32],
+            wire: vec![0x02],
+        },
     ];
     let have = vec![[1; 32]]; // peer has first
     let result = build_response(&mut out, channel_id, &items, &have);
@@ -91,11 +103,16 @@ fn build_response_skips_have_hashes() {
 fn build_response_truncates_at_envelope_ceiling() {
     let mut out = [0u8; MAX_RESPONSE_BYTES];
     let channel_id = [0xAA; 32];
-    let items: Vec<ServeItem> = (0..65).map(|i| {
-        let mut hash = [0u8; 32];
-        hash[0] = i as u8;
-        ServeItem { hash, wire: vec![i as u8] }
-    }).collect();
+    let items: Vec<ServeItem> = (0..65)
+        .map(|i| {
+            let mut hash = [0u8; 32];
+            hash[0] = i as u8;
+            ServeItem {
+                hash,
+                wire: vec![i as u8],
+            }
+        })
+        .collect();
     let result = build_response(&mut out, channel_id, &items, &[]);
     assert_eq!(result.count, MAX_RESPONSE_ENVELOPES);
     assert!(result.truncated);

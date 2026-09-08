@@ -2,8 +2,6 @@
 //!
 //! Port of src/relay.zig (255 lines) + relay_test.zig (328 lines).
 //! BE-MESH-02/05. MD5 heritage: dedup-first insert.
-#![allow(dead_code)]
-
 
 // --- Constants ---
 
@@ -48,13 +46,23 @@ pub struct RelayRoute {
 
 impl RelayRoute {
     pub fn parse(buf: &[u8]) -> Result<Self> {
-        if buf.len() != LEN_RELAY_ROUTE { return Err(RelayError::Truncated); }
-        if buf[0] != MSG_RELAY_ROUTE { return Err(RelayError::WrongType); }
-        if buf[1] != 0 || buf[2] != 0 || buf[3] != 0 { return Err(RelayError::NonZeroReserved); }
+        if buf.len() != LEN_RELAY_ROUTE {
+            return Err(RelayError::Truncated);
+        }
+        if buf[0] != MSG_RELAY_ROUTE {
+            return Err(RelayError::WrongType);
+        }
+        if buf[1] != 0 || buf[2] != 0 || buf[3] != 0 {
+            return Err(RelayError::NonZeroReserved);
+        }
         let sender_index = u32::from_be_bytes(buf[4..8].try_into().unwrap());
         let recipient_index = u32::from_be_bytes(buf[8..12].try_into().unwrap());
         let timestamp = u64::from_be_bytes(buf[12..20].try_into().unwrap());
-        Ok(Self { sender_index, recipient_index, timestamp })
+        Ok(Self {
+            sender_index,
+            recipient_index,
+            timestamp,
+        })
     }
 
     pub fn encode(&self, out: &mut [u8]) {
@@ -81,21 +89,37 @@ pub struct RelayRegistration {
 
 impl RelayRegistration {
     pub fn parse(buf: &[u8]) -> Result<Self> {
-        if buf.len() != LEN_RELAY_REGISTRATION { return Err(RelayError::Truncated); }
-        if buf[0] != MSG_RELAY_REGISTRATION { return Err(RelayError::WrongType); }
-        if buf[1] != 0 || buf[2] != 0 || buf[3] != 0 { return Err(RelayError::NonZeroReserved); }
+        if buf.len() != LEN_RELAY_REGISTRATION {
+            return Err(RelayError::Truncated);
+        }
+        if buf[0] != MSG_RELAY_REGISTRATION {
+            return Err(RelayError::WrongType);
+        }
+        if buf[1] != 0 || buf[2] != 0 || buf[3] != 0 {
+            return Err(RelayError::NonZeroReserved);
+        }
         let relay_index = u32::from_be_bytes(buf[4..8].try_into().unwrap());
         let client_index = u32::from_be_bytes(buf[8..12].try_into().unwrap());
         let timestamp = u64::from_be_bytes(buf[12..20].try_into().unwrap());
         let mut overlay_addr = [0u8; LEN_OVERLAY_ADDR];
         overlay_addr.copy_from_slice(&buf[20..36]);
         let expiry = u64::from_be_bytes(buf[36..44].try_into().unwrap());
-        if expiry > MAX_EXPIRY { return Err(RelayError::ExpiryTooLong); }
+        if expiry > MAX_EXPIRY {
+            return Err(RelayError::ExpiryTooLong);
+        }
         let mut sig = [0u8; LEN_SIG];
         sig.copy_from_slice(&buf[44..108]);
         // padding at 108..124, ignored
         let tbs_len = LEN_RELAY_REGISTRATION - LEN_SIG - LEN_PADDING; // = 44
-        Ok(Self { relay_index, client_index, timestamp, overlay_addr, expiry, sig, tbs_len })
+        Ok(Self {
+            relay_index,
+            client_index,
+            timestamp,
+            overlay_addr,
+            expiry,
+            sig,
+            tbs_len,
+        })
     }
 
     pub fn tbs<'a>(&self, buf: &'a [u8]) -> &'a [u8] {
@@ -118,7 +142,11 @@ pub struct RelayTable {
 }
 
 impl RelayTable {
-    pub fn new() -> Self { Self { entries: Vec::with_capacity(MAX_RELAY_TABLE) } }
+    pub fn new() -> Self {
+        Self {
+            entries: Vec::with_capacity(MAX_RELAY_TABLE),
+        }
+    }
 
     /// MD5 heritage: dedup by overlay_addr FIRST.
     /// Same addr => in-place refresh (return true).
@@ -130,20 +158,26 @@ impl RelayTable {
                 return true;
             }
         }
-        if self.entries.len() >= MAX_RELAY_TABLE { return false; }
+        if self.entries.len() >= MAX_RELAY_TABLE {
+            return false;
+        }
         self.entries.push(entry);
         true
     }
 
     pub fn lookup(&self, overlay_addr: &[u8]) -> Option<&RelayEntry> {
-        self.entries.iter().find(|e| e.overlay_addr[..] == *overlay_addr)
+        self.entries
+            .iter()
+            .find(|e| e.overlay_addr[..] == *overlay_addr)
     }
 
     pub fn prune(&mut self, now: u64) {
         self.entries.retain(|e| e.expiry > now);
     }
 
-    pub fn count(&self) -> usize { self.entries.len() }
+    pub fn count(&self) -> usize {
+        self.entries.len()
+    }
 }
 
 // --- Forwarding (BE-MESH-02) ---

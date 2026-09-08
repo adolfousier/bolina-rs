@@ -10,7 +10,6 @@
 //!
 //! Pure and zero-heap: resolve_claim borrows the caller's parsed slices and
 //! returns a value, allocating nothing.
-#![allow(dead_code)]
 
 use crate::codec::{verify_signed, DOMAIN_SPAN, LEN_SPAN_REF};
 
