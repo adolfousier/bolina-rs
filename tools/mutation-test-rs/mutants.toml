@@ -370,3 +370,46 @@ file = "src/transport/token.rs"
 anchor = "    if data.len() != TOKEN_HEX_LEN {"
 replacement = "    if data.len() == TOKEN_HEX_LEN {"
 description = "token: load length check inverted (BE-TR-04a)"
+
+# --- W12 DAEMON WIRING (task-9 mutation anchors) ---
+[[mutants]]
+domain = "daemon"
+file = "src/daemon.rs"
+anchor = '|out: &[u8]| sock.send_to(out, src).map(|_| ()).map_err(|_| ())'
+replacement = '|out: &[u8]| { let _ = (out, src, sock); Ok::<(), ()>(()) }'
+description = "w12: msg2 sendto closure dropped (send not wired)"
+
+[[mutants]]
+domain = "daemon"
+file = "src/daemon.rs"
+anchor = '1 => self.handle_handshake(pkt, src, sock),'
+replacement = '1 => self.handle_transport(pkt),'
+description = "w12: dispatch type-1 crossed to transport handler"
+
+[[mutants]]
+domain = "daemon"
+file = "src/daemon.rs"
+anchor = 'if self.sessions.admit(slot as u32, 0, send_key, recv_key, h, now_ms()).is_ok() {'
+replacement = 'if self.sessions.admit(slot as u32, 0, send_key, recv_key, h, now_ms()).is_err() {'
+description = "w12: handshake admission gate inverted"
+
+[[mutants]]
+domain = "daemon"
+file = "src/daemon.rs"
+anchor = 'if bound {'
+replacement = 'if !bound {'
+description = "w12: bound/unbound transport routing swapped (BE-TR-01a gate)"
+
+[[mutants]]
+domain = "daemon"
+file = "src/daemon.rs"
+anchor = 'self.rejected_total += 1; // transport replay / decrypt failure'
+replacement = 'self.rejected_total += 0; // transport replay / decrypt failure'
+description = "w12: transport rejection counter dropped (SSE counter source)"
+
+[[mutants]]
+domain = "control_api"
+file = "src/control_api.rs"
+anchor = 'out.push_str(&format!("event: {}\ndata: {}\n\n", tag.name(), seq));'
+replacement = 'out.push_str(&format!("event: {}\ndata: {}\n", tag.name(), seq));'
+description = "w12: SSE framing loses blank-line terminator"
