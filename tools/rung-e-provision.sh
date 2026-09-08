@@ -4,18 +4,21 @@
 # Usage: ./rung-e-provision.sh <data_dir>
 #
 # Writes the vector executor identity + CA1 trust anchor to <data_dir>
-# in the format both daemons (Rust + Zig) expect:
-#   <data_dir>/sig.secret  (32B raw — executor Ed25519 seed)
-#   <data_dir>/sig.pub     (32B raw — executor Ed25519 pubkey)
-#   <data_dir>/kex.secret  (32B raw — executor X25519 secret)
-#   <data_dir>/kex.pub     (32B raw — executor X25519 pubkey)
-#   <data_dir>/ca/ca0.pub  (32B raw — CA1 Ed25519 pubkey, trust anchor)
+# in the format the Zig daemon's keys.zig expects:
+#   <data_dir>/sig.key      (32B raw — executor Ed25519 seed)
+#   <data_dir>/sig.pub      (32B raw — executor Ed25519 pubkey)
+#   <data_dir>/static.key   (32B raw — executor X25519 secret)
+#   <data_dir>/static.pub   (32B raw — executor X25519 pubkey)
+#   <data_dir>/ca/ca0.pub   (32B raw — CA1 Ed25519 pubkey, trust anchor)
 #
 # Then prints:
 #   BOLINA_RESOURCES value
 #   Client flags (--zig-kex-pub, --zig-sig-pub)
 #
-# No cert.bin: executor doesn't need one (it receives, doesn't send).
+# No cert.bin: executor doesn't need one for inbound binding verification.
+# The Zig daemon enters bound-require mode based on own_cert_len > 0, but
+# inbound binding frames are processed regardless of mode — the daemon's
+# trusted CAs verify the CLIENT's cert, not the daemon's own.
 
 set -euo pipefail
 
@@ -38,22 +41,27 @@ KEX_PUB=$(jq -r '.keys.executor.kex_pubkey' "$VECTORS")
 CA1_PUB=$(jq -r '.keys.ca1.sig_pubkey' "$VECTORS")
 RESOURCE=$(jq -r '.structures.envelope_intent.fields.body_resource_id' "$VECTORS")
 
-# Write raw bytes (hex → binary)
-echo "$SIG_SEED" | xxd -r -p > "$DATA_DIR/sig.secret"
-echo "$SIG_PUB"  | xxd -r -p > "$DATA_DIR/sig.pub"
-echo "$KEX_SEED" | xxd -r -p > "$DATA_DIR/kex.secret"
-echo "$KEX_PUB"  | xxd -r -p > "$DATA_DIR/kex.pub"
-echo "$CA1_PUB"  | xxd -r -p > "$DATA_DIR/ca/ca0.pub"
+# hex2bin via python3 (portable — xxd not available on all platforms)
+hex2bin() {
+  python3 -c "import sys, binascii; sys.stdout.buffer.write(binascii.unhexlify(sys.argv[1]))" "$1"
+}
 
-# Set permissions (private keys 0600)
-chmod 0600 "$DATA_DIR/sig.secret" "$DATA_DIR/kex.secret"
-chmod 0644 "$DATA_DIR/sig.pub" "$DATA_DIR/kex.pub" "$DATA_DIR/ca/ca0.pub"
+# Write raw bytes (hex → binary) with correct Zig keys.zig filenames
+hex2bin "$SIG_SEED" > "$DATA_DIR/sig.key"
+hex2bin "$SIG_PUB"  > "$DATA_DIR/sig.pub"
+hex2bin "$KEX_SEED" > "$DATA_DIR/static.key"
+hex2bin "$KEX_PUB"  > "$DATA_DIR/static.pub"
+hex2bin "$CA1_PUB"  > "$DATA_DIR/ca/ca0.pub"
+
+# Set permissions (private keys 0600, matching keys.zig writeKeyFile)
+chmod 0600 "$DATA_DIR/sig.key" "$DATA_DIR/static.key"
+chmod 0644 "$DATA_DIR/sig.pub" "$DATA_DIR/static.pub" "$DATA_DIR/ca/ca0.pub"
 
 echo "=== Provisioned $DATA_DIR ==="
-echo "  sig.secret:  $(wc -c < "$DATA_DIR/sig.secret")B"
+echo "  sig.key:     $(wc -c < "$DATA_DIR/sig.key")B"
 echo "  sig.pub:     $(wc -c < "$DATA_DIR/sig.pub")B"
-echo "  kex.secret:  $(wc -c < "$DATA_DIR/kex.secret")B"
-echo "  kex.pub:     $(wc -c < "$DATA_DIR/kex.pub")B"
+echo "  static.key:  $(wc -c < "$DATA_DIR/static.key")B"
+echo "  static.pub:  $(wc -c < "$DATA_DIR/static.pub")B"
 echo "  ca/ca0.pub:  $(wc -c < "$DATA_DIR/ca/ca0.pub")B"
 echo ""
 echo "=== Daemon env ==="

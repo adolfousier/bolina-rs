@@ -116,7 +116,11 @@ pub fn open_bound_with(
 
     let bind_input = [vec![DOMAIN_BINDING], ex.result.handshake_hash.to_vec()].concat();
     let bind_sig = sig.sign(&bind_input);
-    let mut binding_pt = cert_wire;
+    // Zig reference format: u16be(cert_len) || cert || sig(64)
+    let cert_len = cert_wire.len() as u16;
+    let mut binding_pt = Vec::with_capacity(2 + cert_wire.len() + 64);
+    binding_pt.extend_from_slice(&cert_len.to_be_bytes());
+    binding_pt.extend_from_slice(&cert_wire);
     binding_pt.extend_from_slice(bind_sig.to_bytes().as_slice());
 
 

@@ -554,6 +554,31 @@ This is parity with the frozen Zig reference, not a port gap:
 These modules are the standalone no-clock audit path (BE-HIST-01/03/04,
 evidence projection, DAG causality). Both implementations exercise them via
 dedicated test suites, and both keep them out of the live admission path.
-They stay unreferenced by the daemon until a Zig-side change (or an audit
+### 14.7 Binding frame wire format: u16be(cert_len) prefix (rung E finding)
+
+The Zig reference's `parseBindingMessage` (daemon.zig) and `sendBindingFrame`
+use the wire format `u16be(cert_len) || cert || sig(64)`. The Rust port
+initially implemented `cert || sig(64)` on both client and daemon — a
+symmetry trap: Rust-Rust interop passed because both sides agreed on the
+wrong format, but Rust-Zig interop failed silently (the Zig daemon parsed
+the first 2 bytes of the cert as `cert_len`, got an absurd value, and
+dropped the binding frame via `self.drop()` with no log).
+
+Caught by rung E against the Zig v0.6.1-13 reference: e1-e3 passed
+(handshake, binding sent, envelope sent) but e4 saw 0 SSE events because
+the binding never completed. The daemon's complete silence between
+`entering recv loop` and shutdown was the diagnostic clue — the binding
+frame was silently dropped, leaving the session unbound, and all subsequent
+envelopes were dropped by the `if (!sess.bound)` guard.
+
+Fix applied to both sides:
+- Client (handshake.rs): prepend `u16be(cert_len)` to the binding plaintext
+- Daemon (daemon.rs): read `u16be(cert_len)` from the first 2 bytes, then
+  extract cert and sig at the correct offsets
+
+This is exactly the class of bug rung E was designed to catch — a wire
+format divergence invisible to same-implementation testing.
+
+they stay unreferenced by the daemon until a Zig-side change (or an audit
 tool integration) makes them runtime-relevant — and any such change is a
 cross-side decision, not a Rust-only wiring task.

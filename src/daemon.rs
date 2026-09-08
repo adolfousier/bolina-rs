@@ -277,12 +277,17 @@ impl Daemon {
         slot: u32,
         receiver_idx: u32,
     ) {
-        // plaintext = cert_wire || binding_sig (64B, ed25519)
-        if plain.len() < 64 + 16 {
+        // plaintext = u16be(cert_len) || cert || binding_sig (64B, ed25519)
+        if plain.len() < 2 + 64 {
             self.rejected_total += 1;
             return;
         }
-        let (cert_wire, bind_sig) = plain.split_at(plain.len() - 64);
+        let cert_len = u16::from_be_bytes([plain[0], plain[1]]) as usize;
+        if plain.len() < 2 + cert_len + 64 {
+            self.rejected_total += 1;
+            return;
+        }
+        let (cert_wire, bind_sig) = (&plain[2..2 + cert_len], &plain[2 + cert_len..2 + cert_len + 64]);
         let Ok(cert) = codec::parse_cert(cert_wire) else {
             self.rejected_total += 1;
             return;

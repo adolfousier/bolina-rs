@@ -356,7 +356,10 @@ fn w12_binding_frame_binds_and_stores_cert() {
     let cert = build_cert(ck, t - 1_000, t + 3_600_000);
     let bind_input = [vec![DOMAIN_BINDING], h.to_vec()].concat();
     let bind_sig = ck.sig.sign(&bind_input);
-    let mut pt = cert.clone();
+    let cert_len = cert.len() as u16;
+    let mut pt = Vec::with_capacity(2 + cert.len() + 64);
+    pt.extend_from_slice(&cert_len.to_be_bytes());
+    pt.extend_from_slice(&cert);
     pt.extend_from_slice(bind_sig.to_bytes().as_slice());
     r.send_sealed(&pt);
     let bound = r.daemon.sessions.lookup(0).expect("session").bound;
@@ -398,7 +401,10 @@ fn w12_binding_kex_mismatch_is_rejected() {
     cert.extend_from_slice(ca_sig.to_bytes().as_slice());
     let bind_input = [vec![DOMAIN_BINDING], h.to_vec()].concat();
     let bind_sig = ck.sig.sign(&bind_input);
-    let mut pt = cert;
+    let cert_len = cert.len() as u16;
+    let mut pt = Vec::with_capacity(2 + cert.len() + 64);
+    pt.extend_from_slice(&cert_len.to_be_bytes());
+    pt.extend_from_slice(&cert);
     pt.extend_from_slice(bind_sig.to_bytes().as_slice());
     let before = r.daemon.rejected_total;
     r.send_sealed(&pt);
@@ -429,7 +435,10 @@ fn bind_rig(r: &mut Rig) {
     let cert = build_cert_version(ck, t - 1_000, t + 3_600_000, 2);
     let bind_input = [vec![DOMAIN_BINDING], h.to_vec()].concat();
     let bind_sig = ck.sig.sign(&bind_input);
-    let mut pt = cert;
+    let cert_len = cert.len() as u16;
+    let mut pt = Vec::with_capacity(2 + cert.len() + 64);
+    pt.extend_from_slice(&cert_len.to_be_bytes());
+    pt.extend_from_slice(&cert);
     pt.extend_from_slice(bind_sig.to_bytes().as_slice());
     r.send_sealed(&pt);
     assert!(
@@ -616,7 +625,10 @@ fn w12_valid_grant_refuses_effect_fail_closed_and_publishes() {
     let cert = build_approver_cert(&r.client_keys, t - 1_000, t + 3_600_000);
     let bind_input = [vec![DOMAIN_BINDING], h2.to_vec()].concat();
     let bind_sig = r.client_keys.approver.sign(&bind_input);
-    let mut pt = cert;
+    let cert_len = cert.len() as u16;
+    let mut pt = Vec::with_capacity(2 + cert.len() + 64);
+    pt.extend_from_slice(&cert_len.to_be_bytes());
+    pt.extend_from_slice(&cert);
     pt.extend_from_slice(bind_sig.to_bytes().as_slice());
     r.send_sealed_on(&mut approver_session, &pt);
     assert!(

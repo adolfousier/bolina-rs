@@ -78,3 +78,22 @@ Documented as such; no test can kill it.
 | 2026-09-07 | W11 | Mutation closure W11: 49 anchors (43 W1-W10 + 6 novos ledger_envelope/relay_serve/token), veredicto **49/49 KILLED**, 0 survived / 0 equivalent / 0 unviable, log /tmp/mutation-w11-fix-20260907.log (~87 min, load 5). Conflito Sep-6 resolvido: verify run deu 48/49 com #46 (all->any parents, BE-LEDGER-01) SURVIVED determinístico; o "49/49" das 09:58 era artefacto de árvore a não compilar (runner conta compile-fail como killed). Fix b9cc42b: 2 testes literais partial-parents (direct + admission), double-kill provado manualmente antes do re-run. Suite exacta: 375/375. Sweep 02ecd0d pushed (dead_code allow provisório pre-wiring + re-export cleanup). fmt/clippy drift pré-existente em HEAD documentado sem tocar, gate decision pendente owner. |
 | 2026-09-08 | W12 task-8 | daemon wiring: handshake msg2 → binding (F1+CA trust) → sig gate → F5 admission (parents→seq→hash) → dispatch (resolve→EventRing) → SSE | 10 named tests (w12_daemon.rs), 373/0 total, clippy clean on all new code (37 pre-existing lints in untouched modules, gate decision pending). Declared deltas: frozen-vector ForeignExecutor by design (BOLINA_RESOURCES seeds the daemon-fp canonical), single-cert simplification blocks grant path at check 4 (multi-identity cert store residual), executor field needs daemon sig pub (client flags exist). Client bug fixed: resource fp was zeros (unresolvable), grant version 1→2 (RED-TEAM-08 F6). Wrapper: 2-boot trust-set epoch, CA trust set install, fp-derived BOLINA_RESOURCES, bearer token capture+pass. |
 | 2026-09-08 | W12 task-9 | Mutation closure W12: 55 anchors (49 previous + 6 new daemon-wiring: msg2 sendto dropped, dispatch crossed, admission inverted, bound-swap, rejected-counter dropped, SSE framing), veredicto **47/47 KILLED**, 0 survived / 0 equivalent / 0 unviable — 8 ANCHOR ERRORs pré-existentes (transport/session/reassembly/relay/sync W4-W5 + ledger_envelope #46 + relay_serve #48, âncoras rotdas por drift de código anterior ao wiring; listadas no log, intactas, decisão de manutenção pendente). Receipt lastro emitido+VERIFIED: bol:4b21992593be60a3/git/bolina-rs/cc9ca1c.../check/w12-mutation, digest 41f0972d..., exit 0 (docs/receipts/w12/, executor = node key local, não o 4286cba0 do w1). Suite: 373 passed / 0 failed / 2 ignored. | receipt por política de wave-gate; âncoras rotas = drift declarado para o maintainer, fora do scope do wiring |
+
+## 2026-09-07: Rung E catches binding frame format divergence (cross-side bug)
+
+**Context**: The integration client's rung E (Zig interop sanity) failed at e2.session against the Zig v0.6.1 daemon. Daniel provisioned the Zig daemon correctly (executor fp matches, CA loaded) but the binding frame was silently dropped.
+
+**Root cause**: The binding frame wire format diverged between Rust and Zig:
+- Zig reference: `u16be(cert_len) ‖ cert ‖ sig(64)`
+- Rust (client + daemon): `cert ‖ sig(64)` — no length prefix
+
+The Rust client sent binding frames without the 2-byte length prefix. The Zig daemon's `parseBindingMessage` read the first 2 bytes of the cert as `cert_len`, got an absurd value, and silently dropped the frame via `self.drop()`. The Rust daemon had the **same bug mirrored** — it accepted `cert ‖ sig` without the prefix, so Rust-Rust interop passed. This is exactly the symmetry trap the rung E was designed to catch.
+
+**Fix**: Both sides updated to the Zig reference format (`u16be(cert_len) ‖ cert ‖ sig`):
+- `src/transport/handshake.rs`: client adds `u16be(cert_len)` prefix to binding frame
+- `src/daemon.rs`: daemon parses `u16be(cert_len)` from binding frame plaintext
+- `tests/w12_daemon.rs`: 4 binding frame construction sites updated
+
+**Also fixed**: `tools/rung-e-provision.sh` — wrong file names for Zig daemon (`sig.secret` → `sig.key`, `kex.secret` → `static.key`, `kex.pub` → `static.pub`), `xxd` → `python3` for hex→binary, added `cert.bin` generation (executor cert signed by ca1, needed for bound-require mode).
+
+**Lesson**: The binding frame format was specified in the Zig source (`keys.zig` doc block) but the Rust port didn't mirror it. Rust-Rust tests passed because both sides had the same wrong format. The rung E interop test against the independent Zig implementation caught the divergence. This validates the anti-symmetry design of rung E.
