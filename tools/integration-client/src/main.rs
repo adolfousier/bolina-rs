@@ -14,6 +14,7 @@ mod keys;
 mod ladder_a;
 mod ladder_b;
 mod ladder_c;
+mod ladder_d;
 
 use std::net::{SocketAddr, UdpSocket};
 use std::process::ExitCode;
@@ -31,6 +32,7 @@ struct Args {
     daemon_kex_pub: [u8; 32],
     daemon_sig_pub: [u8; 32],
     timeout_ms: u64,
+    canonical: String,
     ladder: char,
 }
 
@@ -79,6 +81,7 @@ fn parse_args() -> Result<Args, String> {
         daemon_kex_pub: [0u8; 32],
         daemon_sig_pub: [0u8; 32],
         timeout_ms: 2_000,
+        canonical: "bol:0000000000000000/ns/dev/x".to_string(),
         ladder: 'a',
     };
     let mut have_daemon = false;
@@ -120,6 +123,9 @@ fn parse_args() -> Result<Args, String> {
                     return Err(format!("--ladder: unknown ladder '{v}' (a|b|c|d)"));
                 }
                 args.ladder = c;
+            }
+            "--canonical" => {
+                args.canonical = value()?.to_string();
             }
             "--timeout-ms" => {
                 args.timeout_ms = value()?.parse().map_err(|_| "--timeout-ms: expected u64")?
@@ -184,8 +190,9 @@ fn main() -> ExitCode {
         'a' => ladder_a::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.zig),
         'b' => ladder_b::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.zig),
         'c' => ladder_c::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.round, args.zig),
+        'd' => ladder_d::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.control, &args.canonical, Duration::from_millis(args.timeout_ms)),
         other => {
-            eprintln!("error: ladder '{other}' not implemented yet (d: task 5)");
+            eprintln!("error: ladder '{other}' not implemented yet (e: task 6)");
             return ExitCode::from(2);
         }
     };
