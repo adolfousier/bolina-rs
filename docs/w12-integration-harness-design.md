@@ -385,7 +385,7 @@ The client and daemon wiring can proceed in parallel: the client sends correct p
 |------|-----------|
 | **Symmetry trap: client and daemon share the bolina crate — a shared codec bug cancels itself out and rounds pass green** (happened in W4: Rust-Rust roundtrips passed, live Zig daemon dropped msg1) | (1) Ladder C fed 100% frozen vector bytes every round; ladders A/B frozen on every epoch round 0 (section 5.3). (2) Rung E: client validated against the Zig daemon v0.6.1 once per soak session — the exact check that caught the W4 bug. (3) Fresh fields declared per-round in the `frozen=` log field. |
 | Daemon crashes mid-round | Soak wrapper restarts daemon, logs the failure, starts a new epoch (epoch round 0 re-freezes ladders A/B/C) |
-| Session table exhaustion (MAX_SESSIONS=16) | Each round uses 4 sessions; rounds are sequential, not parallel |
+| Session/handshake table exhaustion | The handshake server table is 16 slots in both implementations and neither frees slots (Zig v0.6.1 `handshake.zig:51` returns TableFull at the 17th handshake — frozen reference physics, ported faithfully). At 3 transport handshakes per round (A/B/C; D is HTTP-only), an epoch must end by round 5. Default `EPOCH_ROUNDS=5`; the restart re-arms the handshake table and re-freezes vectors (section 5.3). |
 | Ledger file growth | Soak wrapper uses TempDir, cleans up after |
 | Port conflicts | Configurable ports, default 9800/9801 |
 | Timing-dependent failures | Fixed delays between operations, configurable |
@@ -399,4 +399,28 @@ The client and daemon wiring can proceed in parallel: the client sends correct p
 
 ---
 
-**Next step:** Owner review of this design. If approved, implementation starts with the client binary skeleton (section 11, step 1).
+## 14. Declared Deltas of the Daemon Wiring (task 8, as landed)
+
+The wiring composes the W2-W11 modules on the daemon's single poll() loop
+(mac1 gate → Noise_IK responder → session admit → binding frame → sig gate →
+F5 admission → dispatch → EventRing; control plane → http_parse →
+control_api routes with bearer token on everything except /healthz).
+These deltas are declared, not hidden — each is a deliberate scope decision,
+each is visible in `src/daemon.rs` doc comments, and the harness runs green
+WITH them:
+
+| Delta | What it means | Why |
+|-------|---------------|-----|
+| **Effect hook is fail-closed** | `Outcome::Effect` commits the consumed grant durably, then returns `Refused`. The effect is never executed. | No effect backend exists in W12 scope (D-089; Zig daemon.zig parity pending). Orphan tombstone lands with the effect backend. |
+| **`is_revoked` hook is inert** | Always returns `false`. | No revocation source is wired in W12 scope. |
+| **`Outcome::Effect` / `Utterance` publish no ring event** | The EventRing has no tags for these outcomes. | Ring tag set is frozen to the Zig contract; inventing tags would break cross-diff. |
+| **Envelope hash = BLAKE2s-256(full envelope wire)** | Pinned by test. | F5 admission and ledger dedupe need one canonical hash; this is the one the ledger module already defines. |
+| **Anchors (BE-HIST-02) are not an admission gate** | F5 admission deliberately does not consult anchors; they are recorded on the audit path. | Matches the Zig admission order (parents → seq → store); consulting anchors there would change declared physics. |
+| **Relay types 5/6 ignored by the daemon** | Role-gated relay serving is post-W12. | Section 13 scope: single-daemon, single-client. |
+
+Ladder D note: the shipped control plane accepts exactly the routes the
+control_api module tests (`POST /v1/intents` → 202/422/400, `GET /v1/events`
+SSE, `/healthz` unauthenticated). The rung-D round counts come from the
+EventRing over SSE (section 8), so a rung-D pass also proves the ring is
+wired to dispatch.
+
