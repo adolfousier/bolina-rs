@@ -494,3 +494,22 @@ structure and signature scheme only; the resource field is client-built
 replay, truncated, sig-patched) whose exact admission/rejection outcome
 depends on the fp match. The c2 dup, c3 replay, c4 truncated, and c5
 sig-patched steps are independent of fp and fire as expected.
+
+### 14.6 evidence / dag / historical: no direct daemon calls, by reference parity
+
+The daemon makes zero direct calls into `evidence`, `dag`, or `historical`.
+This is parity with the frozen Zig reference, not a port gap:
+
+- Zig side: `grep` over production files (daemon.zig, dispatch.zig,
+  verify.zig, sync.zig, grant_trace.zig, adversarial_audit.zig) finds the
+  three names only in comments — zero real calls. Their only real consumers
+  are test files (evidence_record_test.zig, ledger_test.zig, dag_test.zig).
+- Rust side: `evidence::` and `historical::` have zero callers outside
+  themselves; `dag::` is consumed only by historical. Same shape.
+
+These modules are the standalone no-clock audit path (BE-HIST-01/03/04,
+evidence projection, DAG causality). Both implementations exercise them via
+dedicated test suites, and both keep them out of the live admission path.
+They stay unreferenced by the daemon until a Zig-side change (or an audit
+tool integration) makes them runtime-relevant — and any such change is a
+cross-side decision, not a Rust-only wiring task.
