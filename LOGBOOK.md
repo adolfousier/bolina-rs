@@ -97,3 +97,16 @@ The Rust client sent binding frames without the 2-byte length prefix. The Zig da
 **Also fixed**: `tools/rung-e-provision.sh` — wrong file names for Zig daemon (`sig.secret` → `sig.key`, `kex.secret` → `static.key`, `kex.pub` → `static.pub`), `xxd` → `python3` for hex→binary, added `cert.bin` generation (executor cert signed by ca1, needed for bound-require mode).
 
 **Lesson**: The binding frame format was specified in the Zig source (`keys.zig` doc block) but the Rust port didn't mirror it. Rust-Rust tests passed because both sides had the same wrong format. The rung E interop test against the independent Zig implementation caught the divergence. This validates the anti-symmetry design of rung E.
+
+## 2026-09-09: Rung E GREEN — e4 was watching a channel the reference never writes to
+
+**Context**: e1-e3 green on Daniel's machine after the u16be + cert.bin fixes, but e4 still showed 0 SSE events, 0 counters, ledger 0B, daemon silent.
+
+**Diagnosis (sealed binary untouched)**: loopback UDP capture proxy (5 datagrams: msg1 144B, msg2 92B, daemon binding push 288B, client binding 391B, envelope 312B) + `BOLINA_WIRE_DUMP` client dump + a Python emulation of the Zig responder transcribed from noise.zig/session.zig/binding.zig. The emulation validated bit-exact against the live run (msg2 tag byte-identical, both transport keys match, daemon-side h == client-side h), then walked every bindSession predicate on the captured bytes. TWO stacked bugs:
+
+1. Provisioning installed only the CA1 anchor, but the frozen agent cert is dual-signed CA1+CA2 and `validateCertChain` requires EVERY ca_key in the trust set → `UntrustedCA` → silent `self.drop()` (Daniel's original e4 failure).
+2. The reference discards wire-dispatch outcomes at the main loop (`_ = handleDatagram`, main.zig); the EventRing carries only grant lifecycle + HTTP-admitted intents and `bolina_intents_admitted_total` increments only in `postIntent`. An e4 watching SSE can never pass against the reference, interop quality irrelevant. Wire admission IS observable: `GET /v1/intents/<32hex>` → 200 `pending` (getIntentState scans the shared table, main.zig `Api.table = &d.dispatcher.intents`). Proven live on the warm daemon BEFORE the client fix: the frozen intent was already `pending`.
+
+**Fixes**: `cfd7c8a` provision installs ca/ca1.pub (CA2 anchor). `f2012f2` Initiator::eph_secret diagnostic accessor. `6d99698` e4 probes the state route; e2 verifies the daemon-pushed binding frame (executor sig over 0x05||h — transcript hash byte-identical cross-signed; Daniel's method point: a step must observe its effect); client session arms recv.key (was deaf); env-gated BOLINA_WIRE_DUMP.
+
+**Verdict**: RUNG-E PASS clean-room (fresh daemon + provision per run, macOS, dev binary v0.6.1-18-g53fd099 wire-identical to the -13 reference target — zero src/ commits after its Aug 28 build), exit 0, six steps green. Suite 373/0/2; clippy: 37 declared pre-existing, 0 new. Design doc §5.1/§5.1.3 corrected + §5.1.4 declared deltas. Pending: Daniel's re-run against his compiled -13 daemon (command unchanged + --zig-token).

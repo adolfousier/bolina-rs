@@ -193,14 +193,14 @@ Plus **rung E** (interop sanity), which runs ONCE per soak session against the Z
 
 **Rung E exists to break the symmetry.** Before the soak loop starts, the client runs against the **Zig daemon trunk** (independent reference — see 5.1.2 for why the trunk, not the v0.6.1 tag):
 
-| Step | Client Action | Expected Zig Daemon Outcome |
-|------|--------------|----------------------------|
-| 1 | Noise_IK handshake (client's own codec) | Handshake completes — the msg1 pre-message path that W4 got wrong |
-| 2 | Binding frame | Bound |
-| 3 | One envelope (frozen vector bytes) | Admitted |
-| 4 | `GET /v1/events` | Admission visible in the event stream |
+| Step | Client action | Expected Zig daemon outcome | How it is OBSERVED (2026-09-09) |
+|------|--------------|------------------------------|--------------------------------|
+| e1 | Load the frozen vector identity | - | Client-side: cert 293B, intent 280B |
+| e2 | Noise_IK handshake + binding frame | Session committed, bound | The daemon pushes its OWN binding frame right after commit (bound-require mode); the client opens it and verifies the executor signature over 0x05||h. That cross-signs the transcript hash in both directions: an observed effect, not a send-side claim |
+| e3 | One envelope (frozen vector bytes) | Admitted into the intent table | Probed by e4 |
+| e4 | `GET /v1/intents/<32hex>` | 200 `pending` | `getIntentState` scans the SAME table wire dispatch admits into (main.zig: `Api.table = &d.dispatcher.intents`). NOT SSE: see 5.1.4 |
 
-**Pass criteria:** all four steps succeed. **On failure the soak aborts** — there is no point burning machine hours on a client that cannot talk to the reference implementation. This is exactly how G2 caught the msg1 bug.
+**Pass criteria:** all steps succeed. **On failure the soak aborts** — there is no point burning machine hours on a client that cannot talk to the reference implementation. This is exactly how G2 caught the msg1 bug.
 
 Rung E does not need the full ladder. It needs to exist, once, per soak session.
 
@@ -227,19 +227,23 @@ The rung E verdict runs against **`v0.6.1-13-g9447ca8`** (Zig trunk HEAD on the 
 
 #### 5.1.3 Rung E daemon provisioning — the Zig daemon must run as the vector executor (declared 2026-09-08)
 
-The e4 step (admission visible in SSE) requires the Zig daemon to **admit** the frozen intent envelope. The frozen intent's resource is `bol:c3efd641bfa0582f/logs/deploy.log` — the fp `c3efd641bfa0582f` is the vector executor's identity fp (Blake2s-8 of its sig_pubkey). For the daemon to resolve this resource locally (not refuse as ForeignExecutor per BE-RES-02), it must **be** that executor.
+The e4 step (admission observed via the state route - see 5.1.4) requires the Zig daemon to **admit** the frozen intent envelope. The frozen intent's resource is `bol:c3efd641bfa0582f/logs/deploy.log` — the fp `c3efd641bfa0582f` is the vector executor's identity fp (first 8 bytes of BLAKE2s-256 of its sig_pubkey, hex; keys.zig `fingerprint`). For the daemon to resolve this resource locally (not refuse as ForeignExecutor per BE-RES-02), it must **be** that executor.
 
-**Provisioning is straight config — no key generation, no CA reconstruction.** The script `tools/rung-e-provision.sh <data_dir>` writes all required files from `test/vectors.json`:
+**Provisioning is straight config — no key generation, no CA reconstruction.** The script `tools/rung-e-provision.sh <data_dir>` writes all required files from `test/vectors.json` (filenames are what the reference `keys.zig` reads; corrected 2026-09-08 after the first delivery used names the daemon ignores):
 
 | File | Content | Source |
 |------|---------|--------|
-| `<data_dir>/sig.secret` | 32B raw — executor Ed25519 seed | vectors `keys.executor.seed` |
+| `<data_dir>/sig.key` | 32B raw — executor Ed25519 seed | vectors `keys.executor.seed` |
 | `<data_dir>/sig.pub` | 32B raw — executor Ed25519 pubkey | vectors `keys.executor.sig_pubkey` |
-| `<data_dir>/kex.secret` | 32B raw — executor X25519 secret | vectors `keys.executor.kex_seed` |
-| `<data_dir>/kex.pub` | 32B raw — executor X25519 pubkey | vectors `keys.executor.kex_pubkey` |
+| `<data_dir>/static.key` | 32B raw — executor X25519 secret | vectors `keys.executor.kex_seed` |
+| `<data_dir>/static.pub` | 32B raw — executor X25519 pubkey | vectors `keys.executor.kex_pubkey` |
 | `<data_dir>/ca/ca0.pub` | 32B raw — CA1 Ed25519 pubkey (trust anchor) | vectors `keys.ca1.sig_pubkey` |
+| `<data_dir>/ca/ca1.pub` | 32B raw — CA2 Ed25519 pubkey (trust anchor) | vectors `keys.ca2.sig_pubkey` |
+| `<data_dir>/cert.bin` | 190B — executor cert signed by CA1 (role EXECUTOR) | built by the script from vector material |
 
-**No cert.bin** — the executor receives envelopes, doesn't send them. The daemon enters bound-require mode (CA trust anchors present) and verifies the client's binding frame against ca1.
+**BOTH anchors are required (2026-09-09):** the frozen agent cert carries TWO CA signatures (CA1 + CA2), and `validateCertChain` requires every ca_key in the cert to verify AND be in the trust set. With only ca0.pub, bindSession dies `UntrustedCA` and the daemon drops every binding frame silently (no log, no counter, ledger 0 bytes) — the first of the two stacked bugs behind the 2026-09-08 e4 failure (see 5.1.4).
+
+**cert.bin is required (corrected 2026-09-08):** without it the daemon stays in unbound-accept mode and silently drops inbound binding frames (`daemon.zig` `handleTransport`, `self.drop()`). With cert.bin present it boots into bound-require mode ("cert loaded") and pushes its own binding frame after each handshake commit — the frame e2 now verifies.
 
 **Daemon env:**
 ```
@@ -252,9 +256,20 @@ BOLINA_RESOURCES=bol:c3efd641bfa0582f/logs/deploy.log
 --zig-sig-pub 882d0ea3b2864e7a587f3e698cea4459998312e655e05fa5e8b5119d8baac8cd
 ```
 
-**Expected e4 outcome with full provisioning:** the Zig daemon resolves the resource locally, admits the envelope, publishes `intent_admitted` to its EventRing, and the SSE GET returns the event. Cross-admission between independent implementations proven.
+**Expected e4 outcome with full provisioning (corrected 2026-09-09):** the Zig daemon resolves the resource locally, admits the envelope into the intent table it shares with the control plane, and `GET /v1/intents/<32hex>` returns 200 `pending`. Cross-admission between independent implementations proven. SSE stays at 0 events for wire admissions: that is reference behavior, not a failure — see 5.1.4.
 
-**If provisioning is incomplete** (e.g. BOLINA_RESOURCES missing, or wrong executor fp), the daemon refuses silently (fail-closed per D-091) and e4 sees 0 events — the exact failure observed before this section was written.
+**If provisioning is incomplete** (missing anchors, missing cert.bin, absent or wrong BOLINA_RESOURCES), the daemon refuses silently (fail-closed per D-091): e2.push times out (no binding push in unbound-accept mode) or e4.state gets 404 (intent absent from the table). Before the observation channels existed this presented as "0 SSE events" with no way to bisect — the 2026-09-08 failure on the owner's machine.
+
+#### 5.1.4 Rung E observation surface — declared deltas of the sealed reference (measured 2026-09-09)
+
+Two facts about the reference, measured on clean-room macOS runs (fresh daemon + fresh provision per run; dev-clone binary `zig-out/bin/bolina` built Aug 28 from `v0.6.1-18-g53fd099`, wire-identical to the `-13` target per 5.1.2 — zero `src/` commits after the binary's build):
+
+1. **Wire-path admissions are invisible to SSE and /metrics.** The daemon discards wire-dispatch outcomes at the main loop (`_ = handleDatagram`, main.zig), the EventRing receives only grant lifecycle events (`grant_consumed`, `grant_published` from dispatch.zig) and HTTP-admitted intents, and `bolina_intents_admitted_total` increments only in `postIntent` (control_api.zig). An e4 watching `/v1/events` for `intent_admitted` can never pass against the reference, no matter how correct the interop is. The observable channel for a wire admission is `GET /v1/intents/<32hex>` → 200 `pending` (`getIntentState` scans the shared table: main.zig wires `Api.table = &d.dispatcher.intents`). This is reference behavior, not a port gap: the Rust daemon's control plane DOES publish wire admissions (ladder D observes that against it); the rung E verdict follows the reference's surface.
+2. **The frozen agent cert is dual-signed (CA1 + CA2).** Every ca_key must verify AND be in the trust set (`validateCertChain`), so provisioning installs both anchors (5.1.3). With one anchor the binding dies `UntrustedCA` inside `bindSession` → silent `self.drop()`: no log line, no counter, ledger 0 bytes. This was the first of the two stacked bugs behind the 2026-09-08 e4 failure; the second was the SSE observation channel (delta 1).
+
+**Diagnosis method (receipt):** the drop point was located WITHOUT instrumenting the sealed binary — UDP capture proxy on loopback (all 5 datagrams: msg1 144B, msg2 92B, daemon binding push 288B, client binding 391B, envelope 312B) + `BOLINA_WIRE_DUMP` client dump (msg1, msg2, ephemeral secret, handshake hash, transport keys) + a Python emulation of the Zig responder transcribed from noise.zig/session.zig/binding.zig. The emulation validated bit-exact against the live run (msg2 tag reproduced byte-for-byte; both transport keys match; daemon-side h == client-side h) and walked every bindSession predicate on the captured bytes: with both anchors present ALL pass — which moved the verdict to the observation channel, confirmed live by `GET /v1/intents/0102030405060708090a0b0c0d0e0f10` → 200 `pending` on the warm daemon BEFORE the client fix landed.
+
+**Clean-room verdict after the fix (2026-09-09, commits `cfd7c8a` + `f2012f2` + `6d99698`):** `RUNG-E VERDICT: PASS`, exit 0. e2.push: daemon binding frame opened (288B wire, 256B pt, counter 0), executor sig over 0x05||h VERIFIED — transcript hash byte-identical, cross-signed. e4.state: 200 `pending`; SSE 0 events (expected per delta 1). Suite 373 passed / 0 failed / 2 ignored; clippy: the 37 declared pre-existing lints, zero new.
 
 
 ### 5.2 Daemon Epochs and the Frozen Round
