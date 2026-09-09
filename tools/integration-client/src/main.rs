@@ -105,7 +105,7 @@ fn parse_args() -> Result<Args, String> {
                 // (hex64) and exit; the wrapper installs it as ca0.pub so the
                 // daemon trusts the client's binding certs (task-8 wiring)
                 let ck: ClientKeys = seeded(args.seed);
-                println!("client_ca_pub={}", hex::encode(ck.ca.verifying_key().to_bytes()));
+                println!("client_ca_pub={} (ladders A-D only; rung E uses frozen vector cert)", hex::encode(ck.ca.verifying_key().to_bytes()));
                 std::process::exit(0);
             }
             "--daemon" => {
