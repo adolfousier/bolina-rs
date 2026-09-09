@@ -352,6 +352,16 @@ impl Initiator {
         )
     }
 
+    /// Diagnostic accessor (rung E wire dump, BOLINA_WIRE_DUMP): the
+    /// per-handshake ephemeral secret. Exposing a secret is deliberate and
+    /// scoped: only the integration client's interop-debug path reads it, so
+    /// an off-wire Python emulation of the Zig responder can recompute the
+    /// full transcript (ee/se DH need one side's secret). Never called from
+    /// library, daemon, or test paths.
+    pub fn eph_secret(&self) -> &[u8; DHLEN] {
+        &self.eph_kp.secret
+    }
+
     /// Split: the initiator sends under c1 and receives under c2.
     pub fn finalize(self) -> HandshakeResult {
         let (c1, c2) = self.sym.split();
