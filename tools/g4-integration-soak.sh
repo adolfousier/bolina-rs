@@ -95,7 +95,7 @@ mode_soak() {
   local rounds="${ROUNDS:-0}" duration="${DURATION:-0}" epoch_rounds="${EPOCH_ROUNDS:-5}"
   local bind="${BIND:-127.0.0.1:9800}" control="${CONTROL:-127.0.0.1:9801}"
   local daemon_kex="${DAEMON_KEX_PUB:-}" daemon_sig="${DAEMON_SIG_PUB:-}"
-  local abort_on_fail=0
+  local abort_on_fail=0 outdir="" keep_all_logs=0 log_sample=100
   while [ $# -gt 0 ]; do
     case "$1" in
       --rounds)        rounds="$2"; shift 2 ;;
@@ -107,7 +107,10 @@ mode_soak() {
       --daemon-kex-pub) daemon_kex="$2"; shift 2 ;;
       --daemon-sig-pub) daemon_sig="$2"; shift 2 ;;
       --abort-on-fail) abort_on_fail=1; shift ;;
-      *) die "soak: unknown arg $1" ;;
+      --outdir)        outdir="$2"; shift 2 ;;
+      --keep-all-logs) keep_all_logs=1; shift ;;
+      --log-sample)    log_sample="$2"; shift 2 ;;
+      *) die "soak: unknown arg $1 (accepted: --rounds --duration --epoch-rounds --bind --control --seed --daemon-kex-pub --daemon-sig-pub --abort-on-fail --outdir --keep-all-logs --log-sample)" ;;
     esac
   done
   [ "$rounds" -gt 0 ] || [ "$duration" -gt 0 ] || die "soak: --rounds N or --duration SEC required"
@@ -115,7 +118,7 @@ mode_soak() {
   build_client
   [ -x "$DAEMON_BIN" ] || die "daemon binary missing (build at repo root: cargo build --release): $DAEMON_BIN"
 
-  local ev="/tmp/g4-soak-$(date -u +%Y%m%dT%H%M%SZ)"
+  local ev="${outdir:-/tmp/g4-soak-$(date -u +%Y%m%dT%H%M%SZ)}"
   mkdir -p "$ev"
   local soak_log="$ev/soak.log"
   echo "== G4 INTEGRATION SOAK ==" | tee "$soak_log"
@@ -232,7 +235,15 @@ print(hashlib.blake2s(b, digest_size=32).hexdigest()[:16])' "$1"
       if ! start_daemon; then echo "SOAK ABORT: daemon restart failed" | tee -a "$soak_log"; break; fi
       epoch_r=0
     fi
-    if run_round "$r" "$epoch_r"; then passes=$((passes+1)); else
+    if run_round "$r" "$epoch_r"; then
+      passes=$((passes+1))
+      # Log volume: keep failure logs always; keep passing-round logs only
+      # every Nth round (default 100) or with --keep-all-logs. Per-ladder
+      # files (.a/.b/.c/.d) are deleted; combined failure logs are kept.
+      if [ "$keep_all_logs" -eq 0 ] && [ $((r % log_sample)) -ne 0 ]; then
+        rm -f "$ev/round-$(printf '%04d' "$r").log".* 2>/dev/null
+      fi
+    else
       fails=$((fails+1))
       if [ "$abort_on_fail" -eq 1 ]; then echo "SOAK ABORT: --abort-on-fail" | tee -a "$soak_log"; break; fi
     fi
@@ -252,8 +263,11 @@ print(hashlib.blake2s(b, digest_size=32).hexdigest()[:16])' "$1"
     echo "rounds_run=$r passes=$passes fails=$fails elapsed_s=$(( $(date +%s) - start_ts ))"
     echo "evidence_dir=$ev"
   } | tee -a "$soak_log"
-  shasum -a 256 "$soak_log" "$ev"/round-*.log* "$ev/daemon.log" "${outdir_files[@]:-}" > "$ev/evidence.sha256" 2>/dev/null || \
-    shasum -a 256 "$soak_log" "$ev"/round-* "$ev/daemon.log" > "$ev/evidence.sha256"
+  # evidence.sha256: use find/xargs to avoid shell arg overflow at scale
+  # (25k rounds × 4 ladders = 100k+ files overflows ARG_MAX).
+  # Exclude daemon-data/ (contains key material — not evidence).
+  find "$ev" -type f ! -name 'evidence.sha256' ! -path '*/daemon-data/*' -print0 | \
+    LC_ALL=C sort -z | xargs -0 shasum -a 256 > "$ev/evidence.sha256"
   echo "evidence: $ev/evidence.sha256" | tee -a "$soak_log"
   [ "$fails" -eq 0 ] && exit 0
   exit 1
