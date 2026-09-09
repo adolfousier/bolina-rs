@@ -118,9 +118,27 @@ Source frozen per §15 from this tag onward.
 - Sustained load (covered by G3 receipt)
 - Process longevity beyond 5-round epochs
 - Wire admission visibility in SSE (reference behavior, §5.1.4 delta 1)
-- The seal/swap decision — that remains the owner's call, with this evidence
-  on the table.
+
+## Seal Decision
+
+**Date:** 2026-09-09
+**Decision:** Daniel (@iamloonix) seals `v0.8.0-integration-candidate` (commit
+`9a1cdf1`) as the integration reference head for the bolina Rust port.
+
+**Evidence reviewed:**
+- G4 soak: 25,689/25,689 rounds PASS, 3h, four ladders against running daemon
+- Rung E: PASS against Zig v0.6.1-13-g9447ca8 (cross-verified bidirectionally)
+- Co-tenancy: 37/37 clean
+- Four honest declarations accepted
+- Anomaly T3: cross-gate, <1/5,500 @ 95%, not reproduced in ~64,000 rounds
+- Kit corrections (evidence.sha256, log volume, --outdir) verified
+
+**Swap:** The Rust port at `9a1cdf1` is now the integration reference. The
+Zig reference (v0.6.1-13-g9447ca8) remains the original specification. Future
+work builds on top of this head.
+
+**Authority:** D-096 (seal/swap decision is the owner's call).
 
 ---
 
-*Receipt authored 2026-09-09. Soak operated by Daniel. Evidence archived.*
+*Receipt authored 2026-09-09. Soak operated by Daniel. Evidence archived. Sealed 2026-09-09.*
