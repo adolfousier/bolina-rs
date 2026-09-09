@@ -64,7 +64,24 @@ pub fn exchange_with(
     initiator
         .read_response(&m2, &daemon_sig_pub)
         .map_err(|e| format!("read_response: {e:?}"))?;
+    // Env-gated interop wire dump (rung E debugging): msg1/msg2 as sent and
+    // received, the ephemeral secret (off-wire input the Zig-responder
+    // emulation needs for ee/se), and the finalized keys + transcript hash.
+    // Written BEFORE finalize consumes the initiator.
+    let eph_sec = *initiator.eph_secret();
     let result = initiator.finalize();
+    if let Ok(path) = std::env::var("BOLINA_WIRE_DUMP") {
+        let j = format!(
+            "{{\"msg1\":\"{}\",\"msg2\":\"{}\",\"eph_secret\":\"{}\",\"handshake_hash\":\"{}\",\"send_key\":\"{}\",\"recv_key\":\"{}\"}}",
+            hex::encode(msg1),
+            hex::encode(m2),
+            hex::encode(eph_sec),
+            hex::encode(result.handshake_hash),
+            hex::encode(result.send_key),
+            hex::encode(result.recv_key),
+        );
+        std::fs::write(&path, j).map_err(|e| format!("wire dump write to {path}: {e}"))?;
+    }
 
     let di = OFF2_SENDER_INDEX;
     let daemon_index = u32::from_be_bytes([m2[di], m2[di + 1], m2[di + 2], m2[di + 3]]);
@@ -72,6 +89,12 @@ pub fn exchange_with(
     let mut session = Session::new();
     session.peer_index = daemon_index;
     session.send.key = result.send_key;
+    // Arm the recv direction too: in bound-require mode the reference daemon
+    // pushes its OWN binding frame right after commit (Zig daemon.zig
+    // handleHandshake -> sendBindingFrame, BE-TR-01 both directions). Without
+    // recv.key the client is deaf to it and rung E's e2 cannot observe the
+    // daemon-side effect.
+    session.recv.key = result.recv_key;
     session.bound = true; // client-side bookkeeping only
 
     Ok(Exchange { result, session, daemon_index })
