@@ -16,6 +16,9 @@ overflow-checks = true
 # Enable only in the integration-client dependency.
 interop-debug = []
 
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(feature, values("interop-debug"))'] }
+
 [dependencies]
 # W1: D-096-A pinned crates (dalek family + RustCrypto), lockfile committed.
 ed25519-dalek = "=2.1.1"

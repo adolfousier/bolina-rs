@@ -156,7 +156,7 @@ print(hashlib.blake2s(b, digest_size=32).hexdigest()[:16])' "$1"
     ca_hex="$("$CLIENT" --seed "$SEED" --print-ca | grep -o 'client_ca_pub=[0-9a-f]*' | head -1 | cut -d= -f2)"
     [ -n "$ca_hex" ] || { echo "client --print-ca produced nothing" | tee -a "$soak_log"; return 1; }
     mkdir -p "$data_dir/ca"
-    printf '%s' "$ca_hex" | xxd -r -p > "$data_dir/ca/ca0.pub"
+    python3 -c "import sys, binascii; sys.stdout.buffer.write(binascii.unhexlify(sys.argv[1]))" "$ca_hex" > "$data_dir/ca/ca0.pub"
     # declared resources (BE-RES-02): executor-fp canonicals for the ladders
     local fp
     fp="$(daemon_fp "$daemon_sig")" || { echo "fp computation failed" | tee -a "$soak_log"; return 1; }

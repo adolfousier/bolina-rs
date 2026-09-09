@@ -39,14 +39,21 @@ fi
 DATA_DIR="$1"
 mkdir -p "$DATA_DIR/ca"
 
-# Extract hex values from vectors.json
-SIG_SEED=$(jq -r '.keys.executor.seed' "$VECTORS")
-SIG_PUB=$(jq -r '.keys.executor.sig_pubkey' "$VECTORS")
-KEX_SEED=$(jq -r '.keys.executor.kex_seed' "$VECTORS")
-KEX_PUB=$(jq -r '.keys.executor.kex_pubkey' "$VECTORS")
-CA1_PUB=$(jq -r '.keys.ca1.sig_pubkey' "$VECTORS")
-CA2_PUB=$(jq -r '.keys.ca2.sig_pubkey' "$VECTORS")
-RESOURCE=$(jq -r '.structures.envelope_intent.fields.body_resource_id' "$VECTORS")
+# Extract hex values from vectors.json via python3 (portable — jq/xxd not guaranteed on all platforms)
+eval "$(python3 -c "
+import json, sys
+with open('$VECTORS') as f:
+    v = json.load(f)
+k = v['keys']
+s = v['structures']
+print(f'SIG_SEED={k[\"executor\"][\"seed\"]}')
+print(f'SIG_PUB={k[\"executor\"][\"sig_pubkey\"]}')
+print(f'KEX_SEED={k[\"executor\"][\"kex_seed\"]}')
+print(f'KEX_PUB={k[\"executor\"][\"kex_pubkey\"]}')
+print(f'CA1_PUB={k[\"ca1\"][\"sig_pubkey\"]}')
+print(f'CA2_PUB={k[\"ca2\"][\"sig_pubkey\"]}')
+print(f'RESOURCE={s[\"envelope_intent\"][\"fields\"][\"body_resource_id\"]}')
+")"
 
 # hex2bin via python3 (portable — xxd not available on all platforms)
 hex2bin() {

@@ -4,6 +4,9 @@ version = "0.1.0"
 edition = "2021"
 description = "W12 integration harness client - exercises the bolina daemon over the real execution path (docs/w12-integration-harness-design.md)"
 
+[features]
+interop-debug = []  # Activates bolina's eph_secret() for wire dump / Zig responder emulation
+
 [dependencies]
 bolina = { path = "../..", features = ["interop-debug"] }
 # Pinned to the exact bolina crate versions (D-096-A lockfile parity).
