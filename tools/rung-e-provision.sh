@@ -10,7 +10,14 @@
 #   <data_dir>/static.key   (32B raw — executor X25519 secret)
 #   <data_dir>/static.pub   (32B raw — executor X25519 pubkey)
 #   <data_dir>/ca/ca0.pub   (32B raw — CA1 Ed25519 pubkey, trust anchor)
+#   <data_dir>/ca/ca1.pub   (32B raw — CA2 Ed25519 pubkey, trust anchor)
 #   <data_dir>/cert.bin     (190B — executor cert signed by CA1, for bound-require mode)
+#
+# BOTH anchors are required: the frozen agent cert (structures.cert.wire_hex)
+# carries TWO CA signatures (CA1+CA2), and Zig validateCertChain requires EVERY
+# ca_key in the cert to be in the trust set. Missing CA2 = UntrustedCA inside
+# bindSession = silent self.drop() (daemon.zig drop point 6): no log, no counter,
+# ledger 0 bytes, SSE 0 events. Found by rung E on Daniel's box 2026-09-08.
 #
 # The Zig daemon needs cert.bin (own_cert_len > 0) to leave unbound-accept mode.
 # Without it, binding frames from inbound peers are silently dropped.
@@ -38,6 +45,7 @@ SIG_PUB=$(jq -r '.keys.executor.sig_pubkey' "$VECTORS")
 KEX_SEED=$(jq -r '.keys.executor.kex_seed' "$VECTORS")
 KEX_PUB=$(jq -r '.keys.executor.kex_pubkey' "$VECTORS")
 CA1_PUB=$(jq -r '.keys.ca1.sig_pubkey' "$VECTORS")
+CA2_PUB=$(jq -r '.keys.ca2.sig_pubkey' "$VECTORS")
 RESOURCE=$(jq -r '.structures.envelope_intent.fields.body_resource_id' "$VECTORS")
 
 # hex2bin via python3 (portable — xxd not available on all platforms)
@@ -51,6 +59,7 @@ hex2bin "$SIG_PUB"  > "$DATA_DIR/sig.pub"
 hex2bin "$KEX_SEED" > "$DATA_DIR/static.key"
 hex2bin "$KEX_PUB"  > "$DATA_DIR/static.pub"
 hex2bin "$CA1_PUB"  > "$DATA_DIR/ca/ca0.pub"
+hex2bin "$CA2_PUB"  > "$DATA_DIR/ca/ca1.pub"
 
 # Generate cert.bin: executor cert signed by CA1.
 # The Zig daemon needs own_cert_len > 0 to leave unbound-accept mode.
@@ -107,7 +116,7 @@ python3 "$CERT_SCRIPT" "$DATA_DIR" "$VECTORS"
 
 # Set permissions (private keys 0600, matching keys.zig writeKeyFile)
 chmod 0600 "$DATA_DIR/sig.key" "$DATA_DIR/static.key"
-chmod 0644 "$DATA_DIR/sig.pub" "$DATA_DIR/static.pub" "$DATA_DIR/ca/ca0.pub" "$DATA_DIR/cert.bin"
+chmod 0644 "$DATA_DIR/sig.pub" "$DATA_DIR/static.pub" "$DATA_DIR/ca/ca0.pub" "$DATA_DIR/ca/ca1.pub" "$DATA_DIR/cert.bin"
 
 echo "=== Provisioned $DATA_DIR ==="
 echo "  sig.key:     $(wc -c < "$DATA_DIR/sig.key")B"
@@ -115,6 +124,7 @@ echo "  sig.pub:     $(wc -c < "$DATA_DIR/sig.pub")B"
 echo "  static.key:  $(wc -c < "$DATA_DIR/static.key")B"
 echo "  static.pub:  $(wc -c < "$DATA_DIR/static.pub")B"
 echo "  ca/ca0.pub:  $(wc -c < "$DATA_DIR/ca/ca0.pub")B"
+echo "  ca/ca1.pub:  $(wc -c < "$DATA_DIR/ca/ca1.pub")B"
 echo "  cert.bin:    $(wc -c < "$DATA_DIR/cert.bin")B"
 echo ""
 echo "=== Daemon env ==="
