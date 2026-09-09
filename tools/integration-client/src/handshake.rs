@@ -68,8 +68,11 @@ pub fn exchange_with(
     // received, the ephemeral secret (off-wire input the Zig-responder
     // emulation needs for ee/se), and the finalized keys + transcript hash.
     // Written BEFORE finalize consumes the initiator.
+    // Gated behind `interop-debug` feature — disabled in release builds.
+    #[cfg(feature = "interop-debug")]
     let eph_sec = *initiator.eph_secret();
     let result = initiator.finalize();
+    #[cfg(feature = "interop-debug")]
     if let Ok(path) = std::env::var("BOLINA_WIRE_DUMP") {
         let j = format!(
             "{{\"msg1\":\"{}\",\"msg2\":\"{}\",\"eph_secret\":\"{}\",\"handshake_hash\":\"{}\",\"send_key\":\"{}\",\"recv_key\":\"{}\"}}",

@@ -597,3 +597,34 @@ format divergence invisible to same-implementation testing.
 they stay unreferenced by the daemon until a Zig-side change (or an audit
 tool integration) makes them runtime-relevant — and any such change is a
 cross-side decision, not a Rust-only wiring task.
+
+## 15. Head Freeze Policy (declared 2026-09-09, Daniel)
+
+**Rule:** From the integration soak tag onward, `src/` is frozen until the
+receipt is emitted. Corrections discovered during the soak window go to a
+pending list and enter the next tag, not the soak candidate.
+
+**Rationale:** The G3 soak validated `be8f658` (3,165 lines). Since then,
+`src/` received 30 files, 1,365 insertions, 522 deletions — the soak no
+longer covers the candidate. This is the second time this happened (first:
+between the old tag and the W7-W11 audit). If code keeps changing after each
+soak, every soak is born obsolete and no piece of evidence ever describes the
+artefact on the table.
+
+**Mechanics:**
+
+1. Tag the soak candidate: `v0.8.0-candidate` (or next version) on the
+   audited HEAD.
+2. From the tag, `src/` accepts zero changes until the receipt is written
+   and the seal decision is made.
+3. Bugs found during the soak go to `docs/pending-corrections.md` with the
+   commit they would have been, the affected files, and the test that would
+   have caught it.
+4. After the receipt is emitted, pending corrections land in a single commit
+   on a new branch, tagged as the next candidate.
+5. The soak wrapper records the tag it ran against in `evidence.sha256` —
+   the receipt cites this tag, not `main`.
+
+**Exception:** `tools/`, `docs/`, and `tests/` are not frozen. The soak
+validates `src/` behaviour; harness improvements and documentation changes
+do not affect the candidate.

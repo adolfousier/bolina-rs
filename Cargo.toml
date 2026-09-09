@@ -10,6 +10,12 @@ description = "Bolina protocol head - Rust reference candidate (D-096-A)"
 debug-assertions = true
 overflow-checks = true
 
+[features]
+# Gated debug surface: exposes ephemeral handshake secrets for interop
+# debugging (off-wire Zig responder emulation). Disabled in release builds.
+# Enable only in the integration-client dependency.
+interop-debug = []
+
 [dependencies]
 # W1: D-096-A pinned crates (dalek family + RustCrypto), lockfile committed.
 ed25519-dalek = "=2.1.1"

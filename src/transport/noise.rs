@@ -358,6 +358,9 @@ impl Initiator {
     /// an off-wire Python emulation of the Zig responder can recompute the
     /// full transcript (ee/se DH need one side's secret). Never called from
     /// library, daemon, or test paths.
+    ///
+    /// Gated behind `interop-debug` feature — disabled in release builds.
+    #[cfg(feature = "interop-debug")]
     pub fn eph_secret(&self) -> &[u8; DHLEN] {
         &self.eph_kp.secret
     }

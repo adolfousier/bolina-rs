@@ -5,7 +5,7 @@ edition = "2021"
 description = "W12 integration harness client - exercises the bolina daemon over the real execution path (docs/w12-integration-harness-design.md)"
 
 [dependencies]
-bolina = { path = "../.." }
+bolina = { path = "../..", features = ["interop-debug"] }
 # Pinned to the exact bolina crate versions (D-096-A lockfile parity).
 ed25519-dalek = "=2.1.1"
 rand = "0.8"

@@ -2,3 +2,4 @@
 /logs
 *.receipt.bak
 target/
+.e2e-test/
