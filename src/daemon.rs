@@ -221,6 +221,7 @@ impl Daemon {
             &sig_pub,
             // exact-length sendto; a failed send aborts BEFORE commit
             |out: &[u8]| sock.send_to(out, src).map(|_| ()).map_err(|_| ()),
+            now_ms(),
         );
         if let Ok(slot) = res {
             let Some(s) = self.hs.slots[slot].as_ref() else { return };

@@ -86,12 +86,11 @@ PY
 # ---- soak mode -------------------------------------------------------------
 mode_soak() {
   # EPOCH_ROUNDS default 5: the handshake server table is 16 slots in BOTH
-  # implementations (Rust handshake.rs:20; Zig handshake.zig:25) and neither
-  # frees slots — the Zig v0.6.1 reference returns TableFull at the 17th
-  # handshake (handshake.zig:51) and so must the Rust port (parity, not a
-  # bug). 3 transport handshakes per round (ladders A/B/C; D is HTTP-only)
-  # means 5 rounds = 15 slots; the 6th round would refuse msg2. The epoch
-  # restart re-arms the table and re-freezes vectors (design section 5.3).
+  # implementations (Rust handshake.rs:20; Zig handshake.zig:25). The handshake
+  # slot and transport session share the same index, so slots cannot be
+  # released independently. The epoch restart re-arms the table and re-freezes
+  # vectors (design section 5.3). release_slot/release_stale are available for
+  # future architectural changes (decoupled indices or session timeout).
   local rounds="${ROUNDS:-0}" duration="${DURATION:-0}" epoch_rounds="${EPOCH_ROUNDS:-5}"
   local bind="${BIND:-127.0.0.1:9800}" control="${CONTROL:-127.0.0.1:9801}"
   local daemon_kex="${DAEMON_KEX_PUB:-}" daemon_sig="${DAEMON_SIG_PUB:-}"

@@ -628,3 +628,29 @@ artefact on the table.
 **Exception:** `tools/`, `docs/`, and `tests/` are not frozen. The soak
 validates `src/` behaviour; harness improvements and documentation changes
 do not affect the candidate.
+
+## 16. Load Soak Command (for owner machine)
+
+The load soak extends the G4 integration soak duration to 8+ hours, accumulating
+tens of thousands of rounds against the integrated daemon. This addresses G4
+Honest Declaration 1: "This soak does not measure load resistance."
+
+```bash
+# 8-hour load soak on owner machine
+./tools/g4-integration-soak.sh soak \
+  --duration 28800 \
+  --bind 127.0.0.1:7420 \
+  --control 127.0.0.1:7421 \
+  --outdir /tmp/g4-load-soak \
+  --log-sample 100
+
+# Expected: ~60,000+ rounds, 0 failures
+# Evidence: /tmp/g4-load-soak/evidence.sha256
+```
+
+Log volume management (default): only failure rounds + every 100th passing round
+are kept on disk. Use `--keep-all-logs` to retain all round logs (~4 files per
+round). Use `--log-sample N` to change the sampling interval.
+
+Duration mechanism validated: `--duration 15` ran 20 rounds in 15s with correct
+epoch restarts, evidence hashing, and exit code 0 (2026-09-10).
