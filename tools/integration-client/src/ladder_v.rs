@@ -5,6 +5,14 @@
 //! (handshake + binding), N envelopes — the 16-slot table constrains
 //! concurrent sessions, not envelope volume.
 //!
+//! Capacity limits (from the daemon):
+//! - Intent table: MAX_PENDING = 256 (TableFull after 256 distinct intents)
+//! - Envelope ledger: MAX_ENVELOPES = 4096 (StoreFull after 4096 envelopes)
+//! Envelopes above MAX_PENDING are admitted to the ledger but rejected by
+//! the intent table. The daemon still processes them (decrypt + parse +
+//! verify + ledger insert), causing O(n²) processing backlog. Use
+//! --drain-delay-ms in the soak wrapper to let the daemon drain between rounds.
+//!
 //! Metrics per batch (100 envelopes): latency (ms), throughput (env/s).
 //! Closes G4 Honest Declaration 1: sustained load on the integrated path.
 

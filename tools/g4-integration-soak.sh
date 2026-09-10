@@ -94,7 +94,7 @@ mode_soak() {
   local rounds="${ROUNDS:-0}" duration="${DURATION:-0}" epoch_rounds="${EPOCH_ROUNDS:-5}"
   local bind="${BIND:-127.0.0.1:9800}" control="${CONTROL:-127.0.0.1:9801}"
   local daemon_kex="${DAEMON_KEX_PUB:-}" daemon_sig="${DAEMON_SIG_PUB:-}"
-  local abort_on_fail=0 outdir="" keep_all_logs=0 log_sample=100 envelopes_per_session=0
+  local abort_on_fail=0 outdir="" keep_all_logs=0 log_sample=100 envelopes_per_session=0 drain_delay_ms=500
   while [ $# -gt 0 ]; do
     case "$1" in
       --rounds)        rounds="$2"; shift 2 ;;
@@ -110,7 +110,8 @@ mode_soak() {
       --keep-all-logs) keep_all_logs=1; shift ;;
       --log-sample)    log_sample="$2"; shift 2 ;;
       --envelopes-per-session) envelopes_per_session="$2"; shift 2 ;;
-      *) die "soak: unknown arg $1 (accepted: --rounds --duration --epoch-rounds --bind --control --seed --daemon-kex-pub --daemon-sig-pub --abort-on-fail --outdir --keep-all-logs --log-sample --envelopes-per-session)" ;;
+      --drain-delay-ms) drain_delay_ms="$2"; shift 2 ;;
+      *) die "soak: unknown arg $1 (accepted: --rounds --duration --epoch-rounds --bind --control --seed --daemon-kex-pub --daemon-sig-pub --abort-on-fail --outdir --keep-all-logs --log-sample --envelopes-per-session --drain-delay-ms)" ;;
     esac
   done
   [ "$rounds" -gt 0 ] || [ "$duration" -gt 0 ] || die "soak: --rounds N or --duration SEC required"
@@ -123,6 +124,7 @@ mode_soak() {
   local soak_log="$ev/soak.log"
   echo "== G4 INTEGRATION SOAK ==" | tee "$soak_log"
   echo "rounds=$rounds duration=$duration epoch_rounds=$epoch_rounds seed=$SEED bind=$bind" | tee -a "$soak_log"
+  echo "envelopes_per_session=$envelopes_per_session drain_delay_ms=$drain_delay_ms log_sample=$log_sample" | tee -a "$soak_log"
   echo "note: rung E is Zig-interop, owner-machine mode (g4-integration-soak.sh rung-e); skipped inside the Rust soak loop" | tee -a "$soak_log"
 
   # ---- daemon lifecycle (epochs) ----
@@ -228,6 +230,13 @@ print(hashlib.blake2s(b, digest_size=32).hexdigest()[:16])' "$1"
       rc=$?
       set -e
       if [ $rc -ne 0 ]; then bad="$bad v:$rc"; fi
+      # Drain delay: let the daemon finish processing V's envelope backlog
+      # before the next round's handshake. Without this, the daemon is still
+      # processing envelopes when the next msg1 arrives, causing EAGAIN timeout.
+      # O(n²) dedup in envelope ledger + Ed25519 verify ≈ 250ms-1.2s for 2000 env.
+      if [ "$drain_delay_ms" -gt 0 ]; then
+        sleep "$(python3 -c "print($drain_delay_ms / 1000.0)")"
+      fi
     fi
     if [ -z "$bad" ]; then
       echo "round=$rr epoch_r=$er result=PASS" | tee -a "$soak_log"
