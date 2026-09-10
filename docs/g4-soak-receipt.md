@@ -119,26 +119,28 @@ Source frozen per §15 from this tag onward.
 - Process longevity beyond 5-round epochs
 - Wire admission visibility in SSE (reference behavior, §5.1.4 delta 1)
 
-## Seal Decision
+## Structural Limitation: Session Concurrency
 
-**Date:** 2026-09-09
-**Decision:** Daniel (@iamloonix) seals `v0.8.0-integration-candidate` (commit
-`9a1cdf1`) as the integration reference head for the bolina Rust port.
+The 16-slot handshake table ceiling constrains concurrent sessions, not
+envelope volume. The Zig reference has the same ceiling with the same
+absence of slot release (handshake.zig:25). This is not a port gap — it is
+fidelity to the reference.
 
-**Evidence reviewed:**
-- G4 soak: 25,689/25,689 rounds PASS, 3h, four ladders against running daemon
-- Rung E: PASS against Zig v0.6.1-13-g9447ca8 (cross-verified bidirectionally)
-- Co-tenancy: 37/37 clean
-- Four honest declarations accepted
-- Anomaly T3: cross-gate, <1/5,500 @ 95%, not reproduced in ~64,000 rounds
-- Kit corrections (evidence.sha256, log volume, --outdir) verified
+Decoupling handshake slot indices from transport session indices would
+enable concurrent sessions beyond 16, but this would be an improvement
+over the canonical implementation, not a conformance fix. It is archived
+as a proposal for future decision, not a gate prerequisite.
 
-**Swap:** The Rust port at `9a1cdf1` is now the integration reference. The
-Zig reference (v0.6.1-13-g9447ca8) remains the original specification. Future
-work builds on top of this head.
+The volume soak (W13, ladder V) exercises the dimension that matters:
+envelope throughput within a single established session, which is not
+constrained by the 16-slot table.
 
-**Authority:** D-096 (seal/swap decision is the owner's call).
+## Status
+
+Receipt authored 2026-09-09. Evidence archived.
+Seal and swap decisions remain open — pending W13 plan completion
+(load soak by volume, Declaration 1 closure).
 
 ---
 
-*Receipt authored 2026-09-09. Soak operated by Daniel. Evidence archived. Sealed 2026-09-09.*
+*Receipt authored 2026-09-09. Soak operated by Daniel. Evidence archived.*
