@@ -94,7 +94,7 @@ mode_soak() {
   local rounds="${ROUNDS:-0}" duration="${DURATION:-0}" epoch_rounds="${EPOCH_ROUNDS:-5}"
   local bind="${BIND:-127.0.0.1:9800}" control="${CONTROL:-127.0.0.1:9801}"
   local daemon_kex="${DAEMON_KEX_PUB:-}" daemon_sig="${DAEMON_SIG_PUB:-}"
-  local abort_on_fail=0 outdir="" keep_all_logs=0 log_sample=100
+  local abort_on_fail=0 outdir="" keep_all_logs=0 log_sample=100 envelopes_per_session=0
   while [ $# -gt 0 ]; do
     case "$1" in
       --rounds)        rounds="$2"; shift 2 ;;
@@ -109,7 +109,8 @@ mode_soak() {
       --outdir)        outdir="$2"; shift 2 ;;
       --keep-all-logs) keep_all_logs=1; shift ;;
       --log-sample)    log_sample="$2"; shift 2 ;;
-      *) die "soak: unknown arg $1 (accepted: --rounds --duration --epoch-rounds --bind --control --seed --daemon-kex-pub --daemon-sig-pub --abort-on-fail --outdir --keep-all-logs --log-sample)" ;;
+      --envelopes-per-session) envelopes_per_session="$2"; shift 2 ;;
+      *) die "soak: unknown arg $1 (accepted: --rounds --duration --epoch-rounds --bind --control --seed --daemon-kex-pub --daemon-sig-pub --abort-on-fail --outdir --keep-all-logs --log-sample --envelopes-per-session)" ;;
     esac
   done
   [ "$rounds" -gt 0 ] || [ "$duration" -gt 0 ] || die "soak: --rounds N or --duration SEC required"
@@ -162,7 +163,7 @@ print(hashlib.blake2s(b, digest_size=32).hexdigest()[:16])' "$1"
     # declared resources (BE-RES-02): executor-fp canonicals for the ladders
     local fp
     fp="$(daemon_fp "$daemon_sig")" || { echo "fp computation failed" | tee -a "$soak_log"; return 1; }
-    res="bol:${fp}/harness/a,bol:${fp}/harness/b,bol:${fp}/ns/dev/x"
+    res="bol:${fp}/harness/a,bol:${fp}/harness/b,bol:${fp}/ns/dev/x,bol:${fp}/harness/v"
     # Ladder D posts one NEW intent per epoch round; a PENDING intent holds
     # its resource for T_PENDING_MS=900s (Zig intent.zig BE-GRANT-06: a held
     # resource refuses new intents with 409). So each epoch round gets its
@@ -215,6 +216,19 @@ print(hashlib.blake2s(b, digest_size=32).hexdigest()[:16])' "$1"
       set -e
       if [ $rc -ne 0 ]; then bad="$bad $l:$rc"; fi
     done
+    # Ladder V: volume soak (N envelopes per session, exercises admission
+    # path under sustained load — hash store, replay windows, intent table,
+    # ledger growth). Runs after A-D; uses the same session setup.
+    if [ "$envelopes_per_session" -gt 0 ]; then
+      set +e
+      "$CLIENT" --daemon "$bind" --control "$control" --seed "$SEED" --round "$er" \
+        --ladder v --timeout-ms "$TIMEOUT_MS" \
+        --envelopes-per-session "$envelopes_per_session" \
+        --daemon-kex-pub "$daemon_kex" --daemon-sig-pub "$daemon_sig" > "$log.v" 2>&1
+      rc=$?
+      set -e
+      if [ $rc -ne 0 ]; then bad="$bad v:$rc"; fi
+    fi
     if [ -z "$bad" ]; then
       echo "round=$rr epoch_r=$er result=PASS" | tee -a "$soak_log"
       return 0

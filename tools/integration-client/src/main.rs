@@ -16,6 +16,7 @@ mod ladder_b;
 mod ladder_c;
 mod ladder_d;
 mod ladder_e;
+mod ladder_v;
 
 use std::net::{SocketAddr, UdpSocket};
 use std::process::ExitCode;
@@ -36,6 +37,7 @@ struct Args {
     canonical: String,
     control_token: Option<String>,
     ladder: char,
+    envelopes_per_session: usize,
 }
 
 fn usage() -> String {
@@ -53,7 +55,8 @@ fn usage() -> String {
          \x20   --daemon-kex-pub <hex>  responder X25519 static pub, 64 hex chars (required)\n\
          \x20   --daemon-sig-pub <hex>  responder Ed25519 sig pub, 64 hex chars (required)\n\
          \x20   --zig                   rung E: target the Zig daemon v0.6.1 (symmetry check)\n\
-         \x20   --ladder <a|b|c|d>      which ladder to run (default a)\n\
+         \x20   --ladder <a|b|c|d|e|v>  which ladder to run (default a)\n\
+         \x20   --envelopes-per-session <N>  ladder V: envelopes per session (default 1000)\n\
          \x20   --timeout-ms <u64>      per-step wire timeout, milliseconds (default 2000)\n\
          \x20   --help                  show this help\n\
          \n\
@@ -86,6 +89,7 @@ fn parse_args() -> Result<Args, String> {
         canonical: "bol:0000000000000000/ns/dev/x".to_string(),
         control_token: None,
         ladder: 'a',
+        envelopes_per_session: 1000,
     };
     let mut have_daemon = false;
     let mut have_control = false;
@@ -130,8 +134,8 @@ fn parse_args() -> Result<Args, String> {
             "--ladder" => {
                 let v = value()?;
                 let c = v.chars().next().ok_or("--ladder: empty")?.to_ascii_lowercase();
-                if !matches!(c, 'a' | 'b' | 'c' | 'd' | 'e') {
-                    return Err(format!("--ladder: unknown ladder '{v}' (a|b|c|d)"));
+                if !matches!(c, 'a' | 'b' | 'c' | 'd' | 'e' | 'v') {
+                    return Err(format!("--ladder: unknown ladder '{v}' (a|b|c|d|e|v)"));
                 }
                 args.ladder = c;
             }
@@ -143,6 +147,9 @@ fn parse_args() -> Result<Args, String> {
             }
             "--control-token" => {
                 args.control_token = Some(value()?);
+            }
+            "--envelopes-per-session" => {
+                args.envelopes_per_session = value()?.parse().map_err(|_| "--envelopes-per-session: expected usize")?;
             }
             other => return Err(format!("unknown flag: {other} (see --help)")),
         }
@@ -206,6 +213,7 @@ fn main() -> ExitCode {
         'c' => ladder_c::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.round, args.zig),
         'e' => ladder_e::run(&socket, args.daemon, args.daemon_kex_pub, args.daemon_sig_pub, args.round, args.control, args.control_token.as_deref(), Duration::from_millis(args.timeout_ms)),
         'd' => ladder_d::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.control, &args.canonical, args.control_token.as_deref(), Duration::from_millis(args.timeout_ms)),
+        'v' => ladder_v::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.envelopes_per_session),
         other => {
             eprintln!("error: ladder '{other}' not implemented yet");
             return ExitCode::from(2);
