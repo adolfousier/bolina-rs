@@ -135,11 +135,30 @@ The volume soak (W13, ladder V) exercises the dimension that matters:
 envelope throughput within a single established session, which is not
 constrained by the 16-slot table.
 
+## Throughput Limitation: Linear Dedup (Structural, Shared with Reference)
+
+Envelope admission uses O(n) linear dedup per insertion. Admitting envelope
+n costs proportionally to n. The `--drain-delay-ms` gives the single-threaded
+daemon time to drain the processing backlog before the next round; it does
+not remove this structural ceiling.
+
+This is fidelity to the reference: `ledger.zig:139-149` performs the same
+linear scan over an array of 4,096 with the same `MAX_ENVELOPES` and the
+same `StoreFull` behaviour. The Zig comment explains why — the scan detects
+equivocation (BE-ENV-05), not only duplicates. A hash index would change
+the semantics, not just the performance.
+
+The volume soak exercises the admission path up to the declared ceilings:
+- 256 intents per session (MAX_PENDING, intent table)
+- 4,096 envelopes in the ledger (MAX_ENVELOPES)
+- Throughput limited by linear dedup shared with the reference
+
 ## Status
 
 Receipt authored 2026-09-09. Evidence archived.
-Seal and swap decisions remain open — pending W13 plan completion
-(load soak by volume, Declaration 1 closure).
+Volume soak in progress: started 2026-09-10T20:58:18Z, 8h, commit f74d57b.
+Seal and swap decisions remain open — pending volume soak results
+(Declaration 1 closure).
 
 ---
 

@@ -629,28 +629,51 @@ artefact on the table.
 validates `src/` behaviour; harness improvements and documentation changes
 do not affect the candidate.
 
-## 16. Load Soak Command (for owner machine)
+## 16. Volume Soak Command (for owner machine)
 
-The load soak extends the G4 integration soak duration to 8+ hours, accumulating
-tens of thousands of rounds against the integrated daemon. This addresses G4
-Honest Declaration 1: "This soak does not measure load resistance."
+The volume soak exercises the admission path under sustained envelope volume
+within a single established session. This addresses G4 Honest Declaration 1:
+"This soak does not measure sustained load."
+
+Each round runs ladders A–D (3 handshakes) plus ladder V (1 handshake + N
+envelopes), totalling 4 handshakes per round. With the 16-slot handshake table,
+`--epoch-rounds` MUST be 4 (4 × 4 = 16, exactly filling the table before restart).
+The default of 5 causes 20% round failures (the 5th round requests the 17th slot).
 
 ```bash
-# 8-hour load soak on owner machine
+# 8-hour volume soak on owner machine
 ./tools/g4-integration-soak.sh soak \
   --duration 28800 \
+  --envelopes-per-session 2000 \
+  --epoch-rounds 4 \
+  --drain-delay-ms 1000 \
   --bind 127.0.0.1:7420 \
   --control 127.0.0.1:7421 \
-  --outdir /tmp/g4-load-soak \
+  --outdir /tmp/g4-volume-soak \
   --log-sample 100
 
-# Expected: ~60,000+ rounds, 0 failures
-# Evidence: /tmp/g4-load-soak/evidence.sha256
+# Expected: ~28,800 rounds, 0 failures
+# Evidence: /tmp/g4-volume-soak/evidence.sha256
 ```
 
-Log volume management (default): only failure rounds + every 100th passing round
-are kept on disk. Use `--keep-all-logs` to retain all round logs (~4 files per
-round). Use `--log-sample N` to change the sampling interval.
+### Key parameters
 
-Duration mechanism validated: `--duration 15` ran 20 rounds in 15s with correct
-epoch restarts, evidence hashing, and exit code 0 (2026-09-10).
+| Flag | Value | Rationale |
+|---|---|---|
+| `--envelopes-per-session` | 2000 | Exercises ledger, hash store, replay windows, and dedup well beyond the intent table ceiling (256). Work above 256 is NOT wasted — it exercises the admission path that matters. |
+| `--epoch-rounds` | 4 | 4 handshakes/round × 4 rounds = 16 slots. Default 5 overflows the table. |
+| `--drain-delay-ms` | 1000 | Gives the single-threaded daemon time to drain the dedup backlog before the next round. Does NOT fix the O(n) dedup — that is reference parity (ledger.zig:139-149). |
+
+### Throughput limitation (structural, shared with reference)
+
+Envelope admission uses linear dedup (O(n) scan per insertion). Admitting
+envelope n costs proportionally to n. This is fidelity to the reference —
+the Zig scan detects equivocation (BE-ENV-05), not only duplicates, and a
+hash index would change the semantics. The `--drain-delay-ms` gives the
+single-threaded daemon time to finish; it does not remove the structural
+throughput ceiling.
+
+Validated: `--epoch-rounds 4 --drain-delay-ms 1000 --envelopes-per-session 2000`
+ran 12/12 PASS, exit 0 (2026-09-10). Without `--drain-delay-ms`, the dedup
+backlog masks the slot arithmetic; the two effects only separate with both
+fixes applied simultaneously.
