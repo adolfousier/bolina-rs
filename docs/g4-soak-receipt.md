@@ -148,17 +148,21 @@ same `StoreFull` behaviour. The Zig comment explains why — the scan detects
 equivocation (BE-ENV-05), not only duplicates. A hash index would change
 the semantics, not just the performance.
 
-The volume soak exercises the admission path up to the declared ceilings:
-- 256 intents per session (MAX_PENDING, intent table)
-- 4,096 envelopes in the ledger (MAX_ENVELOPES)
-- Throughput limited by linear dedup shared with the reference
+The volume soak exercised the admission path against the declared
+ceilings — 256 intents/session (MAX_PENDING) and 4 096 ledger entries
+(MAX_ENVELOPES) — and measured what they cost: flat batch latency,
+because the ceilings cap the linear cost inside an epoch rather than let
+it grow (G5 §Why the curve is flat).
 
 ## Status
 
 Receipt authored 2026-09-09. Evidence archived.
-Volume soak in progress: started 2026-09-10T20:58:18Z, 8h, commit f74d57b.
-Seal and swap decisions remain open — pending volume soak results
-(Declaration 1 closure).
+Volume soak closed 2026-09-11: 11 944 / 11 944 rounds, zero failures,
+flat admission latency across 8h — see `docs/g5-volume-soak-receipt.md`.
+Honest Declaration 1 is closed on the volume dimension; what stays open
+(ledger beyond an epoch, session concurrency) is enumerated in G5.
+Seal and swap decisions remain the owner's — this evidence informs them
+and pre-empts nothing.
 
 ---
 
