@@ -18,7 +18,7 @@
 | Machine load | ~0.5, 36 °C |
 | Restore | complete — services and crontab restored |
 
-Each round exercises four ladders (A/B/C/D) against the running daemon, with
+Each round exercised ladders B/C/D against the running daemon; A's binding was unframed and dropped (see Correction 2026-09-12), with
 EPOCH_ROUNDS=5 and daemon restart to rearm the 16-slot handshake table.
 
 ## Scope
@@ -118,6 +118,31 @@ Source frozen per §15 from this tag onward.
 - Sustained load (covered by G3 receipt)
 - Process longevity beyond 5-round epochs
 - Wire admission visibility in SSE (reference behavior, §5.1.4 delta 1)
+
+## Correction (2026-09-12): Ladder A Never Bound - G4 Requires Re-run
+
+Post-seal wire counters exposed a client-side defect in the code this gate ran
+on. At `9a1cdf1`, `ladder_a.rs` built the binding frame inline without the
+`u16be(cert_len)` prefix (the local `cert_len` existed only for the log line);
+the daemon parses the prefix strictly and dropped the frame silently - so
+**every envelope of ladder A was lost in all 25,689 rounds**. Verified at the
+sealed commit itself, not inferred:
+
+| Ladder | Binding path at 9a1cdf1 | State |
+|---|---|---|
+| A | `ladder_a.rs:247` exchange + inline unframed frame | **broken** - never bound |
+| B | `ladder_b.rs:74` `open_bound_session` (framed shared path) | intact |
+| C | `ladder_c.rs:44` `open_bound_session` - the zero `cert_len` occurrences in C mean C never built the frame by hand, which is precisely why C was fine | intact |
+| D | HTTP path | unaffected |
+
+So the integrated admission path was exercised by B/C/D, not by the four
+ladders the table above claims. The counters, framed bindings, drain
+accounting and per-round `/metrics` equality (`binding_delta == 0` as the
+unframed-binding tripwire) landed in `b859732`+. An instrumented G4 re-run on
+the fixed client supersedes the numbers claimed here. The recorded owner
+decision (2026-09-11) predates this finding; re-verification was requested by
+the owner on 2026-09-12 - this receipt documents the defect and does not
+restate the decision either way.
 
 ## Structural Limitation: Session Concurrency
 

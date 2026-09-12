@@ -91,6 +91,7 @@ mode_soak() {
   # released independently. The epoch restart re-arms the table and re-freezes
   # vectors (design section 5.3). release_slot/release_stale are available for
   # future architectural changes (decoupled indices or session timeout).
+  local v_rot=0
   local rounds="${ROUNDS:-0}" duration="${DURATION:-0}" epoch_rounds="${EPOCH_ROUNDS:-5}"
   local bind="${BIND:-127.0.0.1:9800}" control="${CONTROL:-127.0.0.1:9801}"
   local daemon_kex="${DAEMON_KEX_PUB:-}" daemon_sig="${DAEMON_SIG_PUB:-}"
@@ -165,7 +166,19 @@ print(hashlib.blake2s(b, digest_size=32).hexdigest()[:16])' "$1"
     # declared resources (BE-RES-02): executor-fp canonicals for the ladders
     local fp
     fp="$(daemon_fp "$daemon_sig")" || { echo "fp computation failed" | tee -a "$soak_log"; return 1; }
-    res="bol:${fp}/harness/a,bol:${fp}/harness/b,bol:${fp}/ns/dev/x,bol:${fp}/harness/v"
+    res="bol:${fp}/harness/a,bol:${fp}/harness/b,bol:${fp}/ns/dev/x"
+    # Ladder V rotates resources v0..v{v_rot-1}. The lane count is capped by
+    # the resolver's MAX_RESOURCES=32 set (Zig parity): base 3 + one r{er}
+    # lane per epoch round + one v lane per epoch round, with a margin -
+    # boot2 refuses SetFull if the set overflows. Rotation lifts admissions
+    # from the resource-held ceiling (1/round) to epoch_rounds/epoch: the
+    # measured dispatch load this soak exists to count.
+    v_rot=0
+    if [ "$envelopes_per_session" -gt 0 ]; then
+      v_rot=$((32 - 3 - 2 * epoch_rounds)); [ "$v_rot" -ge 1 ] || v_rot=1
+      local vr=0
+      while [ "$vr" -lt "$v_rot" ]; do res="$res,bol:${fp}/harness/v$vr"; vr=$((vr+1)); done
+    fi
     # Ladder D posts one NEW intent per epoch round; a PENDING intent holds
     # its resource for T_PENDING_MS=900s (Zig intent.zig BE-GRANT-06: a held
     # resource refuses new intents with 409). So each epoch round gets its
@@ -200,9 +213,45 @@ print(hashlib.blake2s(b, digest_size=32).hexdigest()[:16])' "$1"
 
   # ---- round loop ----
   local r=0 epoch_r=0 fails=0 passes=0 start_ts=$(date +%s)
+
+  # Round-level admission accounting. Daniel's rule (2026-09-12): a step that
+  # does not observe its effect is not a step. Snapshot the daemon's own
+  # /metrics before and after each round; log every delta; fail the round on
+  # any silent-drop signature. Two tripwires, both from the binding incident:
+  #   binding_delta != 0  - a client sent an unframed binding and the daemon
+  #                         dropped it (this is exactly how G4 lost ladder A)
+  #   ledger arrivals < floor - envelopes vanished before the admission path
+  # Floor is 2+N: B (2 envelopes) + V (N), the provably-fresh per-round wire
+  # traffic. Exact expectations (idempotence, saturation, resource-held) are
+  # recorded from the deltas into soak.log and calibrated per gate.
+  metrics_snapshot() {
+    python3 - "$control" "$daemon_token" << 'PYPY'
+import sys, urllib.request
+host, port = sys.argv[1].rsplit(":", 1)
+req = urllib.request.Request("http://%s:%s/metrics" % (host, port),
+                             headers={"Authorization": "Bearer " + sys.argv[2]})
+vals = {}
+with urllib.request.urlopen(req, timeout=3) as r:
+    for line in r.read().decode().splitlines():
+        name, _, val = line.rpartition(" ")
+        try:
+            vals[name] = int(val)
+        except ValueError:
+            pass
+rej = lambda c: vals.get('bolina_wire_rejects_total{class="%s"}' % c, 0)
+print(vals.get("bolina_ledger_inserts_total", -1),
+      vals.get("bolina_ledger_storefull_total", -1),
+      rej("binding"), rej("transport"), rej("parse"),
+      vals.get("bolina_wire_admissions_total", -1),
+      vals.get("bolina_intents_admitted_total", -1))
+PYPY
+  }
+
   run_round() {
     local rr="$1" er="$2" l f rc bad="" fp
     local log="$ev/round-$(printf '%04d' "$rr").log"
+    local pre post acct
+    pre="$(metrics_snapshot 2>/dev/null)" || pre=""
     fp="$(daemon_fp "$daemon_sig")"
     for l in a b c d; do
       # ladder D: one fresh declared resource per epoch round (T_PENDING_MS
@@ -225,7 +274,7 @@ print(hashlib.blake2s(b, digest_size=32).hexdigest()[:16])' "$1"
       set +e
       "$CLIENT" --daemon "$bind" --control "$control" --seed "$SEED" --round "$er" \
         --ladder v --timeout-ms "$TIMEOUT_MS" \
-        --envelopes-per-session "$envelopes_per_session" \
+        --envelopes-per-session "$envelopes_per_session" --v-rotation "$v_rot" \
         --control-token "$daemon_token" \
         --daemon-kex-pub "$daemon_kex" --daemon-sig-pub "$daemon_sig" > "$log.v" 2>&1
       rc=$?
@@ -239,11 +288,37 @@ print(hashlib.blake2s(b, digest_size=32).hexdigest()[:16])' "$1"
         sleep "$(python3 -c "print($drain_delay_ms / 1000.0)")"
       fi
     fi
+    post="$(metrics_snapshot 2>/dev/null)" || post=""
+    if [ -z "$pre" ] || [ -z "$post" ]; then
+      bad="$bad acct:unreadable"
+      acct="(metrics unreadable pre=[$pre] post=[$post])"
+    else
+      acct="$(python3 - "$pre" "$post" "$((2 + envelopes_per_session))" << 'PYPY'
+import sys
+p = [int(x) for x in sys.argv[1].split()]
+q = [int(x) for x in sys.argv[2].split()]
+d = [b - a for a, b in zip(p, q)]
+d_ledger = d[0] + d[1]
+floor = int(sys.argv[3])
+problems = []
+if d[2] != 0:
+    problems.append("binding_rejects=%d (unframed binding?)" % d[2])
+if d_ledger < floor:
+    problems.append("ledger_arrivals=%d < floor %d" % (d_ledger, floor))
+status = "FAIL" if problems else "OK"
+detail = (" ins+%d sf+%d bind+%d trp+%d prs+%d wadm+%d hadm+%d" % tuple(d))
+if problems:
+    detail += " <<< " + "; ".join(problems)
+print(status + detail)
+PYPY
+)"
+      [ "${acct%% *}" = "OK" ] || bad="$bad acct:1"
+    fi
     if [ -z "$bad" ]; then
-      echo "round=$rr epoch_r=$er result=PASS" | tee -a "$soak_log"
+      echo "round=$rr epoch_r=$er result=PASS accounting:$acct" | tee -a "$soak_log"
       return 0
     fi
-    echo "round=$rr epoch_r=$er result=FAIL failures:$bad" | tee -a "$soak_log"
+    echo "round=$rr epoch_r=$er result=FAIL failures:$bad accounting:$acct" | tee -a "$soak_log"
     cat "$log".* >> "$log" 2>/dev/null
     return 1
   }

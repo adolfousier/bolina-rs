@@ -29,6 +29,16 @@ use crate::ladder_d::http_request;
 
 const BATCH_SIZE: usize = 100;
 
+/// Resource rotation: envelopes cycle through v0..v{V_ROTATION-1}. With one
+/// shared resource the intent table (BE-GRANT-06) keeps the first intent
+/// PENDING and holds every later one with r_intent_resource_held - measured
+/// at 1 admission per 300 envelopes. Rotating lifts the workload to the
+/// intent-table ceiling (MAX_PENDING=256), which is the dispatch load the
+/// volume soak exists to measure - capped in practice by the resolver's
+/// MAX_RESOURCES=32 set (Zig parity), which the wrapper computes and passes
+/// as --v-rotation. Default only applies to manual runs.
+pub const V_ROTATION: usize = 16;
+
 /// Snapshot of the daemon's wire-path counters from /metrics.
 #[derive(Debug, Default, PartialEq)]
 pub struct MetricsSnapshot {
@@ -121,6 +131,7 @@ pub fn run(
     seed: u64,
     round: u32,
     envelopes_per_session: usize,
+    v_rotation: usize,
     control: SocketAddr,
     token: Option<&str>,
     timeout: Duration,
@@ -128,7 +139,7 @@ pub fn run(
     let log = RoundLog {
         steps: Vec::new(),
         frozen: format!(
-            "volume: {envelopes_per_session} envelopes/session, batches of {BATCH_SIZE}"
+            "volume: {envelopes_per_session} envelopes/session, batches of {BATCH_SIZE}, rotation {v_rotation}"
         ),
         ok: true,
         failed_at: None,
@@ -166,7 +177,6 @@ pub fn run(
     // Volume envelopes.
     let channel = channel_for(seed, round);
     let sender = ck.sig.verifying_key().to_bytes();
-    let resource = resource_for(&daemon_sig_pub, "v");
 
     let total_batches = (envelopes_per_session + BATCH_SIZE - 1) / BATCH_SIZE;
     let total_start = Instant::now();
@@ -181,6 +191,8 @@ pub fn run(
             let env_idx = total_sent + i;
             let iid = id16(seed, round * 10000 + env_idx as u32, "vol-intent");
             let seq = (round as u64) * 1_000_000 + env_idx as u64 + 100;
+            let lane = env_idx % v_rotation.max(1);
+            let resource = resource_for(&daemon_sig_pub, &format!("v{lane}"));
             let rationale_str = format!("volume batch {batch} env {i}");
             let body = {
                 let intent = Intent {

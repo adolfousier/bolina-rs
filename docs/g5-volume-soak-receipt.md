@@ -131,6 +131,18 @@ needs new wire-path counters in `src/` — specified in
 `docs/pending-corrections.md`, item 1. The 8 h soak stands as written for
 what it measured: send-throughput, stability, no degradation.
 
+### Second correction (2026-09-12, measured): wire arrivals were ~3/round
+
+The first correction replaced "24 M admitted" with a derived bound. The wire
+counters now measure, not derive, and the bound was still generous: at
+`f74d57b` both A and V sent unframed bindings (V copied A's pattern), so the
+daemon bound neither. Per round only B (2 envelopes) + C (1 insert) reached
+the ledger - ~3 wire arrivals per round, i.e. **~36k across the 8 h run**, not
+millions. The flat latency curve measured client send + kernel absorb. The
+instrumented re-run (framed bindings, V resource rotation `v0..v255`,
+per-round accounting with binding-delta tripwire) produces the measured
+numbers this receipt will be re-issued from.
+
 ## Status
 
 Volume soak closed 2026-09-11. G4 Honest Declaration 1 closes on the

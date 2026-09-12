@@ -38,6 +38,7 @@ struct Args {
     control_token: Option<String>,
     ladder: char,
     envelopes_per_session: usize,
+    v_rotation: usize,
 }
 
 fn usage() -> String {
@@ -90,6 +91,7 @@ fn parse_args() -> Result<Args, String> {
         control_token: None,
         ladder: 'a',
         envelopes_per_session: 1000,
+        v_rotation: ladder_v::V_ROTATION,
     };
     let mut have_daemon = false;
     let mut have_control = false;
@@ -150,6 +152,9 @@ fn parse_args() -> Result<Args, String> {
             }
             "--envelopes-per-session" => {
                 args.envelopes_per_session = value()?.parse().map_err(|_| "--envelopes-per-session: expected usize")?;
+            }
+            "--v-rotation" => {
+                args.v_rotation = value()?.parse().map_err(|_| "--v-rotation: expected usize")?;
             }
             other => return Err(format!("unknown flag: {other} (see --help)")),
         }
@@ -213,7 +218,7 @@ fn main() -> ExitCode {
         'c' => ladder_c::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.round, args.zig),
         'e' => ladder_e::run(&socket, args.daemon, args.daemon_kex_pub, args.daemon_sig_pub, args.round, args.control, args.control_token.as_deref(), Duration::from_millis(args.timeout_ms)),
         'd' => ladder_d::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.control, &args.canonical, args.control_token.as_deref(), Duration::from_millis(args.timeout_ms)),
-        'v' => ladder_v::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.envelopes_per_session, args.control, args.control_token.as_deref(), Duration::from_millis(args.timeout_ms)),
+        'v' => ladder_v::run(&socket, args.daemon, &ck, args.daemon_kex_pub, args.daemon_sig_pub, args.seed, args.round, args.envelopes_per_session, args.v_rotation, args.control, args.control_token.as_deref(), Duration::from_millis(args.timeout_ms)),
         other => {
             eprintln!("error: ladder '{other}' not implemented yet");
             return ExitCode::from(2);
