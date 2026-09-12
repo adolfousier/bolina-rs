@@ -177,6 +177,8 @@ impl Daemon {
             token,
             ctl_requests,
             ctl_auth_refused,
+            wire,
+            mem,
             ..
         } = self;
         let ctrl = control.as_mut().expect("checked caller");
@@ -194,6 +196,9 @@ impl Daemon {
                         metrics,
                         token: token.as_ref(),
                         auth_refused: ctl_auth_refused,
+                        wire,
+                        ledger_inserts: mem.inserts_total,
+                        ledger_storefull: mem.storefull_total,
                         now,
                     },
                 )?;
@@ -522,6 +527,10 @@ struct RouteCtx<'a> {
     metrics: &'a mut Metrics,
     token: Option<&'a [u8; token::TOKEN_HEX_LEN]>,
     auth_refused: &'a mut u64,
+    /// Wire-path admission counters, exposed on /metrics (pending-corrections #1).
+    wire: &'a WireCounters,
+    ledger_inserts: u64,
+    ledger_storefull: u64,
     now: u64,
 }
 
@@ -582,7 +591,16 @@ fn route_http(conn: &mut Connection, ctx: RouteCtx<'_>) -> Result<(), String> {
         }
         (Method::Get, b"/metrics") => (
             200,
-            control_api::metrics_body(ctx.metrics.admitted_total, 0, 0, 0).into_bytes(),
+            control_api::metrics_body(
+                ctx.metrics.admitted_total,
+                0,
+                0,
+                0,
+                ctx.wire,
+                ctx.ledger_inserts,
+                ctx.ledger_storefull,
+            )
+            .into_bytes(),
         ),
         (Method::Get | Method::Post, _) => (404, b"not found\n".to_vec()),
     };

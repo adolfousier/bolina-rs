@@ -329,7 +329,10 @@ mod tests {
         ledger.insert_envelope(entry.clone()).unwrap();
         assert_eq!(ledger.inserts_total, 1);
         ledger.insert_envelope(entry).unwrap();
-        assert_eq!(ledger.inserts_total, 1, "idempotent duplicate must not increment");
+        assert_eq!(
+            ledger.inserts_total, 1,
+            "idempotent duplicate must not increment"
+        );
         assert_eq!(ledger.storefull_total, 0);
     }
 

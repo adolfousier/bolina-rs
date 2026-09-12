@@ -16,7 +16,6 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use bolina::codec::{self, Grant, Intent};
 use bolina::keys as bkeys;
-use bolina::transport::binding::DOMAIN_BINDING;
 use bolina::transport::session::{Session, HEADER_SIZE};
 use ed25519_dalek::Signer;
 
@@ -242,37 +241,26 @@ pub fn run(
         failed_at: None,
     };
 
-    // Step 1+2: handshake. Failure here against an unwired daemon is the
-    // expected matrix outcome, and the error text says so.
-    let (mut log, mut hs) = match handshake::exchange(socket, daemon, ck, daemon_kex_pub, daemon_sig_pub, round) {
-        Ok(hs) => {
-            let l1 = log.step("handshake.msg2", format!("msg2 ok, daemon_idx={}", hs.daemon_index));
-            let l2 = l1.step(
-                "handshake.finalize",
-                format!("split ok, h={}", hex::encode(&hs.result.handshake_hash[..8])),
-            );
-            (l2.step("session", "client send state armed (counter 0)".into()), hs)
-        }
+    // Step 1+3: handshake + binding through the SHARED framed path
+    // (u16be(cert_len) || cert || sig(64), BE-TR-01a). The old inline
+    // construction here omitted the prefix: against the strictly-parsing
+    // daemon the binding was silently dropped and every envelope lost -
+    // invisible because a green ladder A only ever observed its own
+    // sends. B and C already used open_bound_session; A now does too.
+    let (mut hs, bind_n) = match handshake::open_bound_session(
+        socket, daemon, ck, daemon_kex_pub, daemon_sig_pub, round,
+    ) {
+        Ok(v) => v,
         Err(e) => return log.fail("handshake.msg2", e),
     };
-
-    // Step 3: binding frame - first type-4 packet, counter 0.
-    // Plaintext = cert || binding_sig over DOMAIN_BINDING || handshake_hash.
-    let t = now_ms();
-    let cert = crate::keys::build_cert(ck, t.saturating_sub(1_000), t + 3_600_000);
-    let bind_input = [vec![DOMAIN_BINDING], hs.result.handshake_hash.to_vec()].concat();
-    let bind_sig = ck.sig.sign(&bind_input);
-    let cert_len = cert.len();
-    let binding_pt = {
-        let mut pt = cert;
-        pt.extend_from_slice(bind_sig.to_bytes().as_slice());
-        pt
-    };
-    let n = match send_sealed(socket, daemon, &mut hs.session, &binding_pt) {
-        Ok(n) => n,
-        Err(e) => return log.fail("binding.sent", e),
-    };
-    log = log.step("binding.sent", format!("{n} bytes (cert {cert_len} + sig 64)"));
+    let mut log = log
+        .step("handshake.msg2", format!("msg2 ok, daemon_idx={}", hs.daemon_index))
+        .step(
+            "handshake.finalize",
+            format!("split ok, h={}", hex::encode(&hs.result.handshake_hash[..8])),
+        )
+        .step("session", "client send state armed (counter 0)".into())
+        .step("binding.sent", format!("{bind_n} bytes (u16be framed, shared path)"));
 
     // Step 4: envelopes. Frozen policy per the round-log declaration.
     let frozen = match load_frozen() {

@@ -412,6 +412,10 @@ fn w12_binding_kex_mismatch_is_rejected() {
     assert!(!bound, "kex mismatch must NOT bind (F1)");
     assert_eq!(r.daemon.rejected_total, before + 1, "rejection counted");
     assert_eq!(r.daemon.sender_cert_count(), 0, "no cert stored on reject");
+    assert_eq!(
+        r.daemon.wire.rejects[0], 1,
+        "Binding class must land at [0]"
+    );
 }
 
 fn rig_ready() -> Rig {
@@ -475,6 +479,10 @@ fn w12_wire_intent_admits_and_publishes_event() {
         bolina::control_api::get_intent_state(&id32, &r.daemon.intents).ok(),
         Some("pending"),
     );
+    assert_eq!(
+        r.daemon.wire.admissions_total, 1,
+        "wire admission counter bumps exactly once"
+    );
 }
 
 #[test]
@@ -530,6 +538,10 @@ fn w12_transport_replay_is_rejected() {
         let _ = r.wire.recv_from(&mut [0u8; 2048]);
     }
     assert_eq!(r.daemon.ring.since(0).len(), 1, "replay never publishes");
+    assert_eq!(
+        r.daemon.wire.rejects[1], 1,
+        "Transport class must land at [1]"
+    );
     assert_eq!(
         r.daemon.rejected_total, 1,
         "replay counted as transport rejection"

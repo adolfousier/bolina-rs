@@ -226,6 +226,7 @@ print(hashlib.blake2s(b, digest_size=32).hexdigest()[:16])' "$1"
       "$CLIENT" --daemon "$bind" --control "$control" --seed "$SEED" --round "$er" \
         --ladder v --timeout-ms "$TIMEOUT_MS" \
         --envelopes-per-session "$envelopes_per_session" \
+        --control-token "$daemon_token" \
         --daemon-kex-pub "$daemon_kex" --daemon-sig-pub "$daemon_sig" > "$log.v" 2>&1
       rc=$?
       set -e

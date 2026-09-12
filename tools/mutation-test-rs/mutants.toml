@@ -413,3 +413,53 @@ file = "src/control_api.rs"
 anchor = 'out.push_str(&format!("event: {}\ndata: {}\n\n", tag.name(), seq));'
 replacement = 'out.push_str(&format!("event: {}\ndata: {}\n", tag.name(), seq));'
 description = "w12: SSE framing loses blank-line terminator"
+
+# --- COUNTERS (W13, pending-corrections #1) ---
+[[mutants]]
+domain = "counters"
+file = "src/ledger_envelope.rs"
+anchor = "        if self.envelopes.len() >= MAX_ENVELOPES {"
+replacement = "        if self.envelopes.len() > MAX_ENVELOPES {"
+description = "counters: StoreFull boundary weakened (4097th insert lands)"
+
+[[mutants]]
+domain = "counters"
+file = "src/ledger_envelope.rs"
+anchor = "        self.inserts_total += 1;"
+replacement = "        self.inserts_total += 0;"
+description = "counters: inserts_total never bumps"
+
+[[mutants]]
+domain = "counters"
+file = "src/ledger_envelope.rs"
+anchor = "            self.storefull_total += 1;"
+replacement = "            self.storefull_total += 0;"
+description = "counters: storefull_total never bumps"
+
+[[mutants]]
+domain = "counters"
+file = "src/daemon.rs"
+anchor = "                            self.wire.admissions_total += 1;"
+replacement = "                            self.wire.admissions_total += 0;"
+description = "counters: wire admissions_total never bumps"
+
+[[mutants]]
+domain = "counters"
+file = "src/control_api.rs"
+anchor = "        self.rejects[class.index()] += 1;"
+replacement = "        self.rejects[class.index()] += 0;"
+description = "counters: per-class reject bump silenced"
+
+[[mutants]]
+domain = "counters"
+file = "src/control_api.rs"
+anchor = "            WireRejectClass::Binding => 0,"
+replacement = "            WireRejectClass::Binding => 1,"
+description = "counters: Binding class maps onto Transport slot"
+
+[[mutants]]
+domain = "counters"
+file = "src/control_api.rs"
+anchor = "    for (i, name) in WireRejectClass::NAMES.iter().enumerate() {"
+replacement = "    for (i, name) in WireRejectClass::NAMES[..1].iter().enumerate() {"
+description = "counters: /metrics renders only the first reject class"

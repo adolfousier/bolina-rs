@@ -1,37 +1,117 @@
-//! Ladder V — volume soak: N envelopes per session with batch metrics.
+//! Ladder V - volume soak: N envelopes per session with batch metrics.
 //!
 //! Exercises the admission path under sustained load: hash store, replay
 //! windows, parents-before-seq, intent table, ledger growth. One session
-//! (handshake + binding), N envelopes — the 16-slot table constrains
+//! (handshake + binding), N envelopes - the 16-slot table constrains
 //! concurrent sessions, not envelope volume.
 //!
-//! Capacity limits (from the daemon):
-//! - Intent table: MAX_PENDING = 256 (TableFull after 256 distinct intents)
-//! - Envelope ledger: MAX_ENVELOPES = 4096 (StoreFull after 4096 envelopes)
-//! Envelopes above MAX_PENDING are admitted to the ledger but rejected by
-//! the intent table. The daemon still processes them (decrypt + parse +
-//! verify + ledger insert), causing O(n²) processing backlog. Use
-//! --drain-delay-ms in the soak wrapper to let the daemon drain between rounds.
-//!
-//! Metrics per batch (100 envelopes): latency (ms), throughput (env/s).
-//! Closes G4 Honest Declaration 1: sustained load on the integrated path.
+//! Two fixes ride with the counters (pending-corrections #1):
+//!  - the old inline binding omitted u16be(cert_len); the strictly-parsing
+//!    daemon dropped it, so every V session was silently UNBOUND and all
+//!    envelopes fell out before admission - the 8 h "volume" run was
+//!    traffic, not admission. V now uses the shared framed path.
+//!  - a step that does not observe its effect is not a step: V reads the
+//!    daemon's /metrics wire counters before and after the batches and
+//!    fails the round unless every sent envelope is accounted (inserted
+//!    or StoreFull-rejected).
 
 use std::net::{SocketAddr, UdpSocket};
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use bolina::codec::{self, Intent};
-use bolina::transport::binding::DOMAIN_BINDING;
-use ed25519_dalek::Signer;
 
 use crate::handshake;
 use crate::keys::ClientKeys;
 use crate::ladder_a::{
-    build_envelope, channel_for, id16, now_ms, resource_for, send_sealed,
-    RoundLog,
+    build_envelope, channel_for, id16, resource_for, send_sealed, RoundLog,
 };
+use crate::ladder_d::http_request;
 
 const BATCH_SIZE: usize = 100;
 
+/// Snapshot of the daemon's wire-path counters from /metrics.
+#[derive(Debug, Default, PartialEq)]
+pub struct MetricsSnapshot {
+    pub admissions: u64,
+    pub inserts: u64,
+    pub storefull: u64,
+    pub rejects: Vec<(String, u64)>,
+}
+
+pub fn parse_metrics(body: &str) -> Result<MetricsSnapshot, String> {
+    let mut m = MetricsSnapshot::default();
+    let (mut seen_a, mut seen_i, mut seen_s) = (false, false, false);
+    for line in body.lines() {
+        let (name, val) = match line.rsplit_once(' ') {
+            Some(p) => p,
+            None => continue,
+        };
+        let Ok(v) = val.parse::<u64>() else { continue };
+        match name {
+            "bolina_wire_admissions_total" => {
+                m.admissions = v;
+                seen_a = true;
+            }
+            "bolina_ledger_inserts_total" => {
+                m.inserts = v;
+                seen_i = true;
+            }
+            "bolina_ledger_storefull_total" => {
+                m.storefull = v;
+                seen_s = true;
+            }
+            other => {
+                if let Some(cls) = other
+                    .strip_prefix("bolina_wire_rejects_total{class=\"")
+                    .and_then(|s| s.strip_suffix("\"}"))
+                {
+                    m.rejects.push((cls.to_string(), v));
+                }
+            }
+        }
+    }
+    if !(seen_a && seen_i && seen_s) {
+        return Err(format!(
+            "metrics body missing wire counters (admissions={seen_a} inserts={seen_i} storefull={seen_s})"
+        ));
+    }
+    Ok(m)
+}
+
+fn read_metrics(
+    control: SocketAddr,
+    token: Option<&str>,
+    timeout: Duration,
+) -> Result<MetricsSnapshot, String> {
+    let (status, body) = http_request(control, "GET", "/metrics", None, token, timeout)?;
+    if status != 200 {
+        return Err(format!("/metrics: status {status}"));
+    }
+    parse_metrics(&body)
+}
+
+fn reject_delta(base: &MetricsSnapshot, end: &MetricsSnapshot) -> String {
+    let mut parts = String::new();
+    for (name, val) in &end.rejects {
+        let prev = base
+            .rejects
+            .iter()
+            .find(|(n, _)| n == name)
+            .map(|(_, v)| *v)
+            .unwrap_or(0);
+        let d = val.saturating_sub(prev);
+        if d > 0 {
+            parts.push_str(&format!(" {name}={d}"));
+        }
+    }
+    if parts.is_empty() {
+        " none".to_string()
+    } else {
+        parts
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
 pub fn run(
     socket: &UdpSocket,
     daemon: SocketAddr,
@@ -41,39 +121,49 @@ pub fn run(
     seed: u64,
     round: u32,
     envelopes_per_session: usize,
+    control: SocketAddr,
+    token: Option<&str>,
+    timeout: Duration,
 ) -> RoundLog {
     let log = RoundLog {
         steps: Vec::new(),
-        frozen: format!("volume: {envelopes_per_session} envelopes/session, batches of {BATCH_SIZE}"),
+        frozen: format!(
+            "volume: {envelopes_per_session} envelopes/session, batches of {BATCH_SIZE}"
+        ),
         ok: true,
         failed_at: None,
     };
 
-    // Step 1: handshake
-    let (mut log, mut hs) = match handshake::exchange(socket, daemon, ck, daemon_kex_pub, daemon_sig_pub, round) {
-        Ok(hs) => {
-            let l = log.step("handshake.msg2", format!("msg2 ok, daemon_idx={}", hs.daemon_index));
-            (l.step("session", "client send state armed".into()), hs)
-        }
-        Err(e) => return log.fail("handshake.msg2", e),
-    };
+    // Handshake + binding, shared framed path.
+    let (mut hs, bind_n) =
+        match handshake::open_bound_session(socket, daemon, ck, daemon_kex_pub, daemon_sig_pub, round)
+        {
+            Ok(v) => v,
+            Err(e) => return log.fail("session", e),
+        };
+    let mut log = log
+        .step("handshake.msg2", format!("msg2 ok, daemon_idx={}", hs.daemon_index))
+        .step("session", "client send state armed".into())
+        .step("binding.sent", format!("{bind_n} bytes (u16be framed)"));
 
-    // Step 2: binding frame
-    let t = now_ms();
-    let cert = crate::keys::build_cert(ck, t.saturating_sub(1_000), t + 3_600_000);
-    let bind_input = [vec![DOMAIN_BINDING], hs.result.handshake_hash.to_vec()].concat();
-    let bind_sig = ck.sig.sign(&bind_input);
-    let binding_pt = {
-        let mut pt = cert;
-        pt.extend_from_slice(bind_sig.to_bytes().as_slice());
-        pt
+    // Baseline counters: observation is mandatory before any traffic.
+    // Settle first: ladders A-D ran just before V, and the daemon drains
+    // roughly one packet per 10 ms loop tick - its tail (~7 packets) must
+    // land before the baseline, or it would leak into V's window.
+    std::thread::sleep(Duration::from_millis(200));
+    let base = match read_metrics(control, token, timeout) {
+        Ok(m) => m,
+        Err(e) => return log.fail("metrics.baseline", e),
     };
-    match send_sealed(socket, daemon, &mut hs.session, &binding_pt) {
-        Ok(n) => log = log.step("binding.sent", format!("{n} bytes")),
-        Err(e) => return log.fail("binding.sent", e),
-    }
+    log = log.step(
+        "metrics.baseline",
+        format!(
+            "admissions={} inserts={} storefull={}",
+            base.admissions, base.inserts, base.storefull
+        ),
+    );
 
-    // Step 3: volume envelopes
+    // Volume envelopes.
     let channel = channel_for(seed, round);
     let sender = ck.sig.verifying_key().to_bytes();
     let resource = resource_for(&daemon_sig_pub, "v");
@@ -89,9 +179,8 @@ pub fn run(
 
         for i in 0..batch_count {
             let env_idx = total_sent + i;
-            // Each envelope: unique intent_id, unique seq, same resource
             let iid = id16(seed, round * 10000 + env_idx as u32, "vol-intent");
-            let seq = (round as u64) * 1_000_000 + env_idx as u64 + 100; // offset past binding
+            let seq = (round as u64) * 1_000_000 + env_idx as u64 + 100;
             let rationale_str = format!("volume batch {batch} env {i}");
             let body = {
                 let intent = Intent {
@@ -122,13 +211,10 @@ pub fn run(
             f64::INFINITY
         };
         batch_latencies.push(batch_ms);
-
         total_sent += batch_count;
         log = log.step(
             "batch",
-            format!(
-                "{batch}/{total_batches}: {batch_count} env in {batch_ms}ms ({batch_throughput:.0} env/s)"
-            ),
+            format!("{batch}/{total_batches}: {batch_count} env in {batch_ms}ms ({batch_throughput:.0} env/s)"),
         );
     }
 
@@ -138,12 +224,9 @@ pub fn run(
     } else {
         f64::INFINITY
     };
-
-    // Summary metrics
     let p50 = percentile(&batch_latencies, 50);
     let p95 = percentile(&batch_latencies, 95);
     let p99 = percentile(&batch_latencies, 99);
-
     log = log.step(
         "volume.summary",
         format!(
@@ -151,7 +234,49 @@ pub fn run(
         ),
     );
 
-    log.step("ladder.done", format!("volume soak complete: {total_sent} envelopes, {total_batches} batches"))
+    // Admission evidence: counter delta across the batches. The daemon
+    // drains ~100 packets/s (one per 10 ms loop tick), so right after a
+    // burst the final read trails the sends: poll until the ledger stage
+    // accounts every sent envelope, or a 60 s drain deadline expires.
+    let deadline = Instant::now() + Duration::from_secs(60);
+    let end = loop {
+        let m = match read_metrics(control, token, timeout) {
+            Ok(m) => m,
+            Err(e) => return log.fail("metrics.final", e),
+        };
+        let accounted = m.inserts.saturating_sub(base.inserts)
+            + m.storefull.saturating_sub(base.storefull);
+        if accounted >= total_sent as u64 || Instant::now() >= deadline {
+            break m;
+        }
+        std::thread::sleep(Duration::from_millis(100));
+    };
+    let d_adm = end.admissions.saturating_sub(base.admissions);
+    let d_ins = end.inserts.saturating_sub(base.inserts);
+    let d_sf = end.storefull.saturating_sub(base.storefull);
+    log = log.step(
+        "volume.admission",
+        format!(
+            "admitted +{d_adm} | ledger_inserts +{d_ins} | storefull +{d_sf} | rejects:{}",
+            reject_delta(&base, &end)
+        ),
+    );
+
+    // Full ledger-stage accounting: every sent envelope either became a
+    // fresh insert or a StoreFull rejection (saturation rounds included).
+    if d_ins + d_sf != total_sent as u64 {
+        return log.fail(
+            "volume.admission",
+            format!(
+                "accounting gap: sent {total_sent}, inserts +{d_ins}, storefull +{d_sf} - envelopes vanished before the ledger"
+            ),
+        );
+    }
+
+    log.step(
+        "ladder.done",
+        format!("volume soak complete: {total_sent} envelopes accounted, +{d_adm} admitted"),
+    )
 }
 
 fn percentile(sorted_values: &[u64], p: usize) -> u64 {
@@ -162,4 +287,47 @@ fn percentile(sorted_values: &[u64], p: usize) -> u64 {
     v.sort();
     let idx = (v.len() * p + 99) / 100; // round up
     v[std::cmp::min(idx, v.len() - 1)]
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const FIXTURE: &str = "bolina_intents_admitted_total 2\n\
+        bolina_ctl_requests_total 7\n\
+        bolina_wire_admissions_total 4\n\
+        bolina_ledger_inserts_total 9\n\
+        bolina_ledger_storefull_total 2\n\
+        bolina_wire_rejects_total{class=\"table_full\"} 3\n";
+
+    #[test]
+    fn parse_metrics_reads_wire_counters_and_classes() {
+        let m = parse_metrics(FIXTURE).unwrap();
+        assert_eq!(m.admissions, 4);
+        assert_eq!(m.inserts, 9);
+        assert_eq!(m.storefull, 2);
+        assert_eq!(m.rejects, vec![("table_full".to_string(), 3u64)]);
+    }
+
+    #[test]
+    fn parse_metrics_fails_when_counters_missing() {
+        assert!(parse_metrics("bolina_intents_admitted_total 2\n").is_err());
+    }
+
+    #[test]
+    fn reject_delta_only_reports_growth() {
+        let base = MetricsSnapshot {
+            admissions: 1,
+            inserts: 2,
+            storefull: 0,
+            rejects: vec![("table_full".into(), 3u64), ("bad_sig".into(), 7u64)],
+        };
+        let end = MetricsSnapshot {
+            admissions: 5,
+            inserts: 2,
+            storefull: 1,
+            rejects: vec![("table_full".into(), 6u64), ("bad_sig".into(), 7u64)],
+        };
+        assert_eq!(reject_delta(&base, &end), " table_full=3".to_string());
+    }
 }

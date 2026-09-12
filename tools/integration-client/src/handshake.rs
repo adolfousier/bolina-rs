@@ -18,17 +18,6 @@ pub struct Exchange {
     pub daemon_index: u32,
 }
 
-pub fn exchange(
-    socket: &UdpSocket,
-    daemon: SocketAddr,
-    ck: &ClientKeys,
-    daemon_kex_pub: [u8; 32],
-    daemon_sig_pub: [u8; 32],
-    our_index: u32,
-) -> Result<Exchange, String> {
-    exchange_with(socket, daemon, ck.kex, daemon_kex_pub, daemon_sig_pub, our_index)
-}
-
 /// Core handshake with an explicit kex identity (rung E passes the frozen
 /// vector agent identity; the ladders pass the client's seeded keys).
 pub fn exchange_with(

@@ -538,6 +538,9 @@ pub fn metrics_body(
     ctl_requests: u64,
     ctl_auth_refused: u64,
     ctl_timeouts: u64,
+    wire: &WireCounters,
+    ledger_inserts: u64,
+    ledger_storefull: u64,
 ) -> String {
     let mut out = String::new();
     for (name, val) in [
@@ -545,8 +548,19 @@ pub fn metrics_body(
         ("bolina_ctl_requests_total", ctl_requests),
         ("bolina_ctl_auth_refused_total", ctl_auth_refused),
         ("bolina_ctl_timeouts_total", ctl_timeouts),
+        ("bolina_wire_admissions_total", wire.admissions_total),
+        ("bolina_ledger_inserts_total", ledger_inserts),
+        ("bolina_ledger_storefull_total", ledger_storefull),
     ] {
         out.push_str(&format!("{} {}\n", name, val));
+    }
+    // pending-corrections #1: per-class wire rejections. Always render
+    // every class - stable scrape surface, names pinned in tests.
+    for (i, name) in WireRejectClass::NAMES.iter().enumerate() {
+        out.push_str(&format!(
+            "bolina_wire_rejects_total{{class=\"{}\"}} {}\n",
+            name, wire.rejects[i]
+        ));
     }
     out
 }
@@ -617,13 +631,34 @@ mod tests {
 
     #[test]
     fn metrics_body_verbatim() {
-        let body = metrics_body(3, 10, 1, 2);
+        let mut w = WireCounters::new();
+        w.admissions_total = 4;
+        w.rejects[0] = 3;
+        let body = metrics_body(3, 10, 1, 2, &w, 5, 7);
+        // Original four lines stay byte-pinned; wire counters follow.
+        assert!(
+            body.starts_with(
+                "bolina_intents_admitted_total 3\n\
+                 bolina_ctl_requests_total 10\n\
+                 bolina_ctl_auth_refused_total 1\n\
+                 bolina_ctl_timeouts_total 2\n\
+                 bolina_wire_admissions_total 4\n\
+                 bolina_ledger_inserts_total 5\n\
+                 bolina_ledger_storefull_total 7\n"
+            ),
+            "{body}"
+        );
         assert_eq!(
-            body,
-            "bolina_intents_admitted_total 3\n\
-             bolina_ctl_requests_total 10\n\
-             bolina_ctl_auth_refused_total 1\n\
-             bolina_ctl_timeouts_total 2\n"
+            body.lines().count(),
+            7 + WireRejectClass::COUNT,
+            "all reject classes must render"
+        );
+        assert!(
+            body.contains(&format!(
+                "bolina_wire_rejects_total{{class=\"{}\"}} 3\n",
+                WireRejectClass::NAMES[0]
+            )),
+            "{body}"
         );
     }
 

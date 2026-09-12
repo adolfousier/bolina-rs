@@ -3,7 +3,7 @@
 
 use bolina::control_api::{
     get_intent_state, metrics_body, parse_since, post_intent, ApiError, EventRing, IntentOutcome,
-    Metrics, BODY_MAX, ID_HEX_LEN, SUBJ_HEX_LEN,
+    Metrics, WireCounters, WireRejectClass, BODY_MAX, ID_HEX_LEN, SUBJ_HEX_LEN,
 };
 use bolina::state::intent;
 use bolina::transport::resolver::{executor_fp, Resolver};
@@ -213,13 +213,22 @@ fn ctrl_api_get_intent_state_pending() {
     assert_eq!(ApiError::NotFound.status(), 404);
 }
 
-/// 7. metrics counters verbatim with the control-plane trio from ARGS.
+/// 7. metrics counters verbatim with the control-plane trio from ARGS;
+/// wire-path counters follow (pending-corrections #1) with all 44 classes.
 #[test]
 fn ctrl_api_metrics_verbatim() {
-    assert_eq!(
-        metrics_body(2, 7, 1, 0),
-        "bolina_intents_admitted_total 2\nbolina_ctl_requests_total 7\nbolina_ctl_auth_refused_total 1\nbolina_ctl_timeouts_total 0\n"
+    let body = metrics_body(2, 7, 1, 0, &WireCounters::new(), 0, 0);
+    assert!(
+        body.starts_with(
+            "bolina_intents_admitted_total 2\nbolina_ctl_requests_total 7\nbolina_ctl_auth_refused_total 1\nbolina_ctl_timeouts_total 0\n"
+        ),
+        "{body}"
     );
+    let wire: Vec<&str> = body.lines().skip(4).collect();
+    assert_eq!(wire.len(), 3 + WireRejectClass::COUNT);
+    assert_eq!(wire[0], "bolina_wire_admissions_total 0");
+    assert_eq!(wire[1], "bolina_ledger_inserts_total 0");
+    assert_eq!(wire[2], "bolina_ledger_storefull_total 0");
 }
 
 /// 8. honest empty SSE at since=cursor (covered in ring tests); here the
