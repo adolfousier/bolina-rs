@@ -160,9 +160,29 @@ Receipt authored 2026-09-09. Evidence archived.
 Volume soak closed 2026-09-11: 11 944 / 11 944 rounds, zero failures,
 flat admission latency across 8h — see `docs/g5-volume-soak-receipt.md`.
 Honest Declaration 1 is closed on the volume dimension; what stays open
-(ledger beyond an epoch, session concurrency) is enumerated in G5.
-Seal and swap decisions remain the owner's — this evidence informs them
-and pre-empts nothing.
+(ledger beyond an epoch, session concurrency) is enumerated in G5. Note:
+the 8 h volume soak is capped at send-throughput; admitted-vs-sent awaits
+the instrumented re-run (G5 §Correction).
+
+**Owner decision — seal and swap (registered 2026-09-11).** Daniel
+(@iamloonix), holder of this decision per D-096, confirmed in the project
+group at 00:18 UTC:
+
+> selo e swap claro confirmo
+
+Scope, as agreed in that thread:
+
+- **Seal**: `v0.8.0-integration-candidate` (annotated tag on `9a1cdf1`).
+  Measured sha for this gate: `f74d57b` — the delta over the tag is
+  additive and not wired (release methods + one `now_ms` pass-through,
+  callers in tests only); behaviour identical. No extra tag required
+  (owner's call, 2026-09-11).
+- **Swap**: the Rust port at this head is now the integration reference;
+  the Zig reference (`v0.6.1-13-g9447ca8`) remains the original
+  specification.
+- **Follow-on (does not block the seal)**: wire-admission counters plus a
+  1 h instrumented re-run close the G5 §Correction gap — specified in
+  `docs/pending-corrections.md`, landing in the next candidate.
 
 ---
 
