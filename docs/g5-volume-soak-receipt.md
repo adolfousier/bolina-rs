@@ -1,7 +1,8 @@
 # G5 — Volume soak receipt
 
-**Result: 11 944 / 11 944 rounds PASS. Zero failures. Latency flat. ~24 million
-envelopes through the admission path with no degradation.**
+**Result: 11 944 / 11 944 rounds PASS. Zero failures. Latency flat across the
+run. 23.89 million envelopes SENT; the admitted fraction was not measured —
+see §Correction.**
 
 First soak that measures admission-path behaviour under sustained volume —
 the dimension G4's Honest Declaration 1 declared unmeasured. It closes that
@@ -14,7 +15,8 @@ declaration on the volume axis.
 | Target | commit `f74d57b` (see §Target note for tag relationship) |
 | Window | 2026-09-10T20:58:18Z → 2026-09-11T04:58:23Z (**8h exact**, 28 803 s) |
 | Rounds | 11 944 · passes 11 944 · failures **0** |
-| Envelopes through admission | ~24 million (2 000/session × 11 944) |
+| Envelopes sent | 23 888 000 (2 000/session × 11 944 rounds) |
+| Admitted fraction | **not measured** — ladder V counts sends; no wire-path counter exists (see §Correction) |
 | Ladder V batches | ~240 000 batches of 100, metrics logged |
 | Co-tenancy | 97 samples, all `clean`, 0 breaches |
 | Rung E (entry gate) | PASS against sealed Zig reference |
@@ -64,7 +66,8 @@ a saturating structure, not an unbounded one.
 
 - **G4 Honest Declaration 1, volume dimension**: the admission path —
   verify_envelope_admission, hash store, replay windows, intent table,
-  ledger growth, linear dedup — exercised at ~24 M envelopes with zero
+  ledger growth, linear dedup — exercised at capacity — 23.89 M envelopes sent, ledger inserts bounded at
+  ≤12.23 M by capacity arithmetic (§Correction, derived not measured), zero
   failures and stable latency. The daemon is loaded admitting, not
   handshaking-and-restarting.
 
@@ -101,11 +104,39 @@ If the seal wants a tag exactly at `f74d57b`, that is the owner's call —
 - `evidence.sha256` hash root `f0cffea2839c52e2…`, verified at both ends.
 - Operator: Daniel. Machine: his box, co-tenancy closed and sampled 5-min.
 
+## Correction — admitted vs sent (2026-09-11)
+
+The first version of this receipt said "~24 million envelopes through the
+admission path". That number was not measured by anyone and is withdrawn
+(caught by Daniel, who wrote the figure first; the receipt repeated it).
+
+- **Measured**: 23 888 000 envelopes **sent** (11 944 rounds × 2 000, soak
+  log); flat batch latency; zero round failures; rung E entry gate PASS.
+- **Not measured**: how many were admitted. Ladder V reads no per-envelope
+  ack (wire is fire-and-forget), `daemon.log` has no counters, `soak.log`
+  has zero `StoreFull` occurrences — rejection is silent by design.
+- **Derived bounds** (capacity arithmetic + round counts, not measurement):
+  each 4-round epoch offers ~8 020 wire envelopes against `MAX_ENVELOPES`
+  = 4 096; the first ~2 rounds fill the ledger, the rest of the epoch is
+  scan-then-`StoreFull`. Bound: ≤4 096 inserts/epoch × 2 986 epochs =
+  **≤12.23 M ledger inserts**; ≥11.66 M envelopes hit the reject path after
+  a full 4 096-entry scan. Intent-table admits are additionally bounded by
+  `MAX_PENDING` = 256 in flight plus expiry dynamics — also unmeasured.
+
+Why the existing metrics cannot close this: `bolina_intents_admitted_total`
+increments on the **HTTP path only**, by design (G2 finding #1, the
+anti-god-mode invariant, `src/control_api.rs:230`). A wire session reading
+it before/after sees a zero delta structurally. The instrumented re-run
+needs new wire-path counters in `src/` — specified in
+`docs/pending-corrections.md`, item 1. The 8 h soak stands as written for
+what it measured: send-throughput, stability, no degradation.
+
 ## Status
 
-Volume soak closed 2026-09-11. G4 Honest Declaration 1 closed on the
-volume dimension. The G4 seal/swap decision remains the owner's — this
-receipt adds evidence to it and pre-empts nothing.
+Volume soak closed 2026-09-11. G4 Honest Declaration 1 closes on the
+volume dimension, capped per §Correction: send-throughput and stability
+are measured; the admitted fraction awaits the instrumented re-run.
+Owner's seal/swap decision registered in the G4 receipt (2026-09-11).
 
 ---
 
