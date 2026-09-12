@@ -11,12 +11,282 @@
 //! tree must byte-compare both (audit item, inventory).
 
 use crate::state::intent::{self, IntentError, State as IntentState};
+use crate::transport::dispatch::DispatchError;
 use crate::transport::resolver::{ResolveError, Resolver};
+use crate::transport::verify::VerifyError;
 
 pub const RING_CAP: usize = 256; // control_api.zig:21
 pub const ID_HEX_LEN: usize = 64; // control_api.zig:22 (32 bytes hex)
 pub const BODY_MAX: usize = 4096; // control_api.zig:23
 pub const SUBJ_HEX_LEN: usize = 64; // control_api.zig:70
+
+// ---------------------------------------------------------------------------
+// WireRejectClass: one class per wire-path rejection reason.
+// Extension beyond spec's 'by VerifyError class' is deliberate: exact
+// accounting (sum of classes == rejected_total) so ladder V deltas reconcile.
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum WireRejectClass {
+    // Stage-level (daemon.rs pre-envelope)
+    Binding,
+    Transport,
+    Parse,
+    // VerifyError variants (BE-ENV / BE-GRANT checks)
+    VBadVersion,
+    VBadEnvelopeBinding,
+    VBadSignature,
+    VMalformedKey,
+    VBadApproverCert,
+    VBadSubjectCert,
+    VApproverRevoked,
+    VApproverOutOfScope,
+    VSubjectRevoked,
+    VSubjectOutOfScope,
+    VWrongExecutor,
+    VWrongSubject,
+    VNoMatchingIntent,
+    VWrongResource,
+    VActionDigestMismatch,
+    VExpired,
+    VAlreadyConsumed,
+    VWrongBodyType,
+    VSeqWindowStale,
+    VEquivocation,
+    VUnknownParents,
+    VBadControlBody,
+    // DispatchError direct variants
+    DBadEnvelope,
+    DBadBody,
+    DUnsupportedBody,
+    DNoPendingIntent,
+    DUnknownSender,
+    DActionTooLarge,
+    DDiskError,
+    // ResolveError-flattened variants
+    RMalformedCanonical,
+    RSetFull,
+    RAliasPoolFull,
+    RDuplicateEntry,
+    RUnknownResource,
+    RAmbiguousResource,
+    RForeignExecutor,
+    RBufferTooSmall,
+    RIntentTableFull,
+    RIntentDuplicateId,
+    RIntentResourceHeld,
+    RIntentNotPending,
+}
+
+impl WireRejectClass {
+    /// Declaration-order name table. COUNT and NAMES must stay in sync.
+    pub const NAMES: &'static [&'static str] = &[
+        "binding",
+        "transport",
+        "parse",
+        "v_bad_version",
+        "v_bad_envelope_binding",
+        "v_bad_signature",
+        "v_malformed_key",
+        "v_bad_approver_cert",
+        "v_bad_subject_cert",
+        "v_approver_revoked",
+        "v_approver_out_of_scope",
+        "v_subject_revoked",
+        "v_subject_out_of_scope",
+        "v_wrong_executor",
+        "v_wrong_subject",
+        "v_no_matching_intent",
+        "v_wrong_resource",
+        "v_action_digest_mismatch",
+        "v_expired",
+        "v_already_consumed",
+        "v_wrong_body_type",
+        "v_seq_window_stale",
+        "v_equivocation",
+        "v_unknown_parents",
+        "v_bad_control_body",
+        "d_bad_envelope",
+        "d_bad_body",
+        "d_unsupported_body",
+        "d_no_pending_intent",
+        "d_unknown_sender",
+        "d_action_too_large",
+        "d_disk_error",
+        "r_malformed_canonical",
+        "r_set_full",
+        "r_alias_pool_full",
+        "r_duplicate_entry",
+        "r_unknown_resource",
+        "r_ambiguous_resource",
+        "r_foreign_executor",
+        "r_buffer_too_small",
+        "r_intent_table_full",
+        "r_intent_duplicate_id",
+        "r_intent_resource_held",
+        "r_intent_not_pending",
+    ];
+
+    pub const COUNT: usize = Self::NAMES.len();
+
+    /// Index into the rejects array. Must match NAMES order.
+    pub fn index(self) -> usize {
+        match self {
+            WireRejectClass::Binding => 0,
+            WireRejectClass::Transport => 1,
+            WireRejectClass::Parse => 2,
+            WireRejectClass::VBadVersion => 3,
+            WireRejectClass::VBadEnvelopeBinding => 4,
+            WireRejectClass::VBadSignature => 5,
+            WireRejectClass::VMalformedKey => 6,
+            WireRejectClass::VBadApproverCert => 7,
+            WireRejectClass::VBadSubjectCert => 8,
+            WireRejectClass::VApproverRevoked => 9,
+            WireRejectClass::VApproverOutOfScope => 10,
+            WireRejectClass::VSubjectRevoked => 11,
+            WireRejectClass::VSubjectOutOfScope => 12,
+            WireRejectClass::VWrongExecutor => 13,
+            WireRejectClass::VWrongSubject => 14,
+            WireRejectClass::VNoMatchingIntent => 15,
+            WireRejectClass::VWrongResource => 16,
+            WireRejectClass::VActionDigestMismatch => 17,
+            WireRejectClass::VExpired => 18,
+            WireRejectClass::VAlreadyConsumed => 19,
+            WireRejectClass::VWrongBodyType => 20,
+            WireRejectClass::VSeqWindowStale => 21,
+            WireRejectClass::VEquivocation => 22,
+            WireRejectClass::VUnknownParents => 23,
+            WireRejectClass::VBadControlBody => 24,
+            WireRejectClass::DBadEnvelope => 25,
+            WireRejectClass::DBadBody => 26,
+            WireRejectClass::DUnsupportedBody => 27,
+            WireRejectClass::DNoPendingIntent => 28,
+            WireRejectClass::DUnknownSender => 29,
+            WireRejectClass::DActionTooLarge => 30,
+            WireRejectClass::DDiskError => 31,
+            WireRejectClass::RMalformedCanonical => 32,
+            WireRejectClass::RSetFull => 33,
+            WireRejectClass::RAliasPoolFull => 34,
+            WireRejectClass::RDuplicateEntry => 35,
+            WireRejectClass::RUnknownResource => 36,
+            WireRejectClass::RAmbiguousResource => 37,
+            WireRejectClass::RForeignExecutor => 38,
+            WireRejectClass::RBufferTooSmall => 39,
+            WireRejectClass::RIntentTableFull => 40,
+            WireRejectClass::RIntentDuplicateId => 41,
+            WireRejectClass::RIntentResourceHeld => 42,
+            WireRejectClass::RIntentNotPending => 43,
+        }
+    }
+
+    pub fn name(self) -> &'static str {
+        Self::NAMES[self.index()]
+    }
+}
+
+impl From<VerifyError> for WireRejectClass {
+    fn from(e: VerifyError) -> Self {
+        match e {
+            VerifyError::BadVersion => WireRejectClass::VBadVersion,
+            VerifyError::BadEnvelopeBinding => WireRejectClass::VBadEnvelopeBinding,
+            VerifyError::BadSignature => WireRejectClass::VBadSignature,
+            VerifyError::MalformedKey => WireRejectClass::VMalformedKey,
+            VerifyError::BadApproverCert => WireRejectClass::VBadApproverCert,
+            VerifyError::BadSubjectCert => WireRejectClass::VBadSubjectCert,
+            VerifyError::ApproverRevoked => WireRejectClass::VApproverRevoked,
+            VerifyError::ApproverOutOfScope => WireRejectClass::VApproverOutOfScope,
+            VerifyError::SubjectRevoked => WireRejectClass::VSubjectRevoked,
+            VerifyError::SubjectOutOfScope => WireRejectClass::VSubjectOutOfScope,
+            VerifyError::WrongExecutor => WireRejectClass::VWrongExecutor,
+            VerifyError::WrongSubject => WireRejectClass::VWrongSubject,
+            VerifyError::NoMatchingIntent => WireRejectClass::VNoMatchingIntent,
+            VerifyError::WrongResource => WireRejectClass::VWrongResource,
+            VerifyError::ActionDigestMismatch => WireRejectClass::VActionDigestMismatch,
+            VerifyError::Expired => WireRejectClass::VExpired,
+            VerifyError::AlreadyConsumed => WireRejectClass::VAlreadyConsumed,
+            VerifyError::WrongBodyType => WireRejectClass::VWrongBodyType,
+            VerifyError::SeqWindowStale => WireRejectClass::VSeqWindowStale,
+            VerifyError::Equivocation => WireRejectClass::VEquivocation,
+            VerifyError::UnknownParents => WireRejectClass::VUnknownParents,
+            VerifyError::BadControlBody => WireRejectClass::VBadControlBody,
+        }
+    }
+}
+
+impl From<DispatchError> for WireRejectClass {
+    fn from(e: DispatchError) -> Self {
+        match e {
+            DispatchError::BadEnvelope => WireRejectClass::DBadEnvelope,
+            DispatchError::BadBody => WireRejectClass::DBadBody,
+            DispatchError::UnsupportedBody => WireRejectClass::DUnsupportedBody,
+            DispatchError::NoPendingIntent => WireRejectClass::DNoPendingIntent,
+            DispatchError::UnknownSender => WireRejectClass::DUnknownSender,
+            DispatchError::ActionTooLarge => WireRejectClass::DActionTooLarge,
+            DispatchError::DiskError => WireRejectClass::DDiskError,
+            DispatchError::Verify(ve) => WireRejectClass::from(ve),
+            DispatchError::Resolve(re) => WireRejectClass::from(re),
+        }
+    }
+}
+
+impl From<ResolveError> for WireRejectClass {
+    fn from(e: ResolveError) -> Self {
+        match e {
+            ResolveError::MalformedCanonical => WireRejectClass::RMalformedCanonical,
+            ResolveError::SetFull => WireRejectClass::RSetFull,
+            ResolveError::AliasPoolFull => WireRejectClass::RAliasPoolFull,
+            ResolveError::DuplicateEntry => WireRejectClass::RDuplicateEntry,
+            ResolveError::UnknownResource => WireRejectClass::RUnknownResource,
+            ResolveError::AmbiguousResource => WireRejectClass::RAmbiguousResource,
+            ResolveError::ForeignExecutor => WireRejectClass::RForeignExecutor,
+            ResolveError::BufferTooSmall => WireRejectClass::RBufferTooSmall,
+            ResolveError::Intent(ie) => WireRejectClass::from(ie),
+        }
+    }
+}
+
+impl From<IntentError> for WireRejectClass {
+    fn from(e: IntentError) -> Self {
+        match e {
+            IntentError::TableFull => WireRejectClass::RIntentTableFull,
+            IntentError::DuplicateIntentId => WireRejectClass::RIntentDuplicateId,
+            IntentError::ResourceHeld => WireRejectClass::RIntentResourceHeld,
+            IntentError::NotPending => WireRejectClass::RIntentNotPending,
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// WireCounters: per-class rejection + admission counter.
+// ---------------------------------------------------------------------------
+
+pub struct WireCounters {
+    pub admissions_total: u64,
+    pub rejects: [u64; WireRejectClass::COUNT],
+}
+
+impl WireCounters {
+    pub fn new() -> Self {
+        Self {
+            admissions_total: 0,
+            rejects: [0u64; WireRejectClass::COUNT],
+        }
+    }
+
+    pub fn bump(&mut self, class: WireRejectClass) {
+        self.rejects[class.index()] += 1;
+    }
+
+    pub fn reject_sum(&self) -> u64 {
+        self.rejects.iter().sum()
+    }
+}
+
+impl Default for WireCounters {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 // ---------------------------------------------------------------------------
 // EventTag: SSE tag strings are wire-visible; keep exact spelling.

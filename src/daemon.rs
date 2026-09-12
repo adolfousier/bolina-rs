@@ -25,7 +25,7 @@ use blake2::{Blake2s256, Digest};
 
 use crate::codec::{self, parse_envelope};
 use crate::control::{Connection, ControlPlane};
-use crate::control_api::{self, EventRing, EventTag, Metrics};
+use crate::control_api::{self, EventRing, EventTag, Metrics, WireCounters, WireRejectClass};
 use crate::http_parse::{self, Method};
 use crate::keys;
 use crate::ledger_envelope;
@@ -81,6 +81,7 @@ pub struct Daemon {
     pub ctl_requests: u64,
     pub ctl_auth_refused: u64,
     pub rejected_total: u64,
+    pub wire: WireCounters,
     hs: handshake::Table,
     peer_static: [Option<[u8; 32]>; handshake::MAX_SESSIONS],
     /// sender sig pubkey -> binding cert wire (cert_for_sender source)
@@ -106,6 +107,7 @@ impl Daemon {
             ctl_requests: 0,
             ctl_auth_refused: 0,
             rejected_total: 0,
+            wire: WireCounters::new(),
             hs: handshake::Table::new(),
             peer_static: [None; handshake::MAX_SESSIONS],
             certs: Vec::new(),
@@ -224,10 +226,16 @@ impl Daemon {
             now_ms(),
         );
         if let Ok(slot) = res {
-            let Some(s) = self.hs.slots[slot].as_ref() else { return };
+            let Some(s) = self.hs.slots[slot].as_ref() else {
+                return;
+            };
             let (send_key, recv_key, h, peer) =
                 (s.send_key, s.recv_key, s.handshake_hash, s.peer_static);
-            if self.sessions.admit(slot as u32, 0, send_key, recv_key, h, now_ms()).is_ok() {
+            if self
+                .sessions
+                .admit(slot as u32, 0, send_key, recv_key, h, now_ms())
+                .is_ok()
+            {
                 self.peer_static[slot] = Some(peer);
             }
         }
@@ -261,6 +269,7 @@ impl Daemon {
         };
         let Some((bound, h, slot, pt, n)) = opened else {
             self.rejected_total += 1; // transport replay / decrypt failure
+            self.wire.bump(WireRejectClass::Transport);
             return;
         };
         let plain = &pt[..n];
@@ -281,16 +290,22 @@ impl Daemon {
         // plaintext = u16be(cert_len) || cert || binding_sig (64B, ed25519)
         if plain.len() < 2 + 64 {
             self.rejected_total += 1;
+            self.wire.bump(WireRejectClass::Binding);
             return;
         }
         let cert_len = u16::from_be_bytes([plain[0], plain[1]]) as usize;
         if plain.len() < 2 + cert_len + 64 {
             self.rejected_total += 1;
+            self.wire.bump(WireRejectClass::Binding);
             return;
         }
-        let (cert_wire, bind_sig) = (&plain[2..2 + cert_len], &plain[2 + cert_len..2 + cert_len + 64]);
+        let (cert_wire, bind_sig) = (
+            &plain[2..2 + cert_len],
+            &plain[2 + cert_len..2 + cert_len + 64],
+        );
         let Ok(cert) = codec::parse_cert(cert_wire) else {
             self.rejected_total += 1;
+            self.wire.bump(WireRejectClass::Binding);
             return;
         };
         let Some(peer_static) = self.peer_static[slot as usize] else {
@@ -326,6 +341,7 @@ impl Daemon {
             Err(_) => {
                 // F1/BE-TR-01 failure: packet dropped, session stays unbound
                 self.rejected_total += 1;
+                self.wire.bump(WireRejectClass::Binding);
             }
         }
     }
@@ -333,21 +349,25 @@ impl Daemon {
     fn handle_envelope(&mut self, plain: &[u8]) {
         let Ok(env) = parse_envelope(plain) else {
             self.rejected_total += 1;
+            self.wire.bump(WireRejectClass::Parse);
             return;
         };
         if env.sender.len() != 32 || env.channel_id.len() != 32 {
             self.rejected_total += 1;
+            self.wire.bump(WireRejectClass::Parse);
             return;
         }
         // Sig gate FIRST (ladder C declared physics: sig before seq/parents)
-        if verify_envelope(&env).is_err() {
+        if let Err(ve) = verify_envelope(&env) {
             self.rejected_total += 1;
+            self.wire.bump(WireRejectClass::from(ve));
             return;
         }
         let sender: [u8; 32] = env.sender.try_into().expect("len checked");
         let channel: [u8; 32] = env.channel_id.try_into().expect("len checked");
         if env.parents.len() != env.parent_count as usize * 32 {
             self.rejected_total += 1;
+            self.wire.bump(WireRejectClass::Parse);
             return;
         }
         #[allow(clippy::chunks_exact_to_as_chunks)]
@@ -364,13 +384,15 @@ impl Daemon {
                 return;
             }
             self.rejected_total += 1; // BE-ENV-05 equivocation
+            self.wire.bump(WireRejectClass::VEquivocation);
             return;
         }
         // F5: parents BEFORE seq BEFORE insert (no seq consumption on failure)
-        if verify_envelope_admission(&mut self.mem, &hash, &sender, &channel, env.seq, &parents)
-            .is_err()
+        if let Err(ve) =
+            verify_envelope_admission(&mut self.mem, &hash, &sender, &channel, env.seq, &parents)
         {
             self.rejected_total += 1;
+            self.wire.bump(WireRejectClass::from(ve));
             return;
         }
         self.dispatch_envelope(plain, now_ms());
@@ -468,7 +490,10 @@ impl Daemon {
             match d.dispatch(plain, &hooks, now) {
                 Ok(outcome) => {
                     let tag = match outcome {
-                        Outcome::IntentAdmitted => Some(EventTag::IntentAdmitted),
+                        Outcome::IntentAdmitted => {
+                            self.wire.admissions_total += 1;
+                            Some(EventTag::IntentAdmitted)
+                        }
                         Outcome::GrantExecuted => Some(EventTag::GrantExecuted),
                         Outcome::EffectRefused => Some(EventTag::EffectRefused),
                         Outcome::RefusalApplied => Some(EventTag::RefusalApplied),
@@ -480,7 +505,10 @@ impl Daemon {
                         self.ring.publish(t);
                     }
                 }
-                Err(_) => self.rejected_total += 1,
+                Err(de) => {
+                    self.rejected_total += 1;
+                    self.wire.bump(WireRejectClass::from(de));
+                }
             }
         }
     }
