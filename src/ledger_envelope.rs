@@ -71,6 +71,10 @@ pub struct Ledger {
     seq_windows: Vec<SeqWindow>,
     anchors: Vec<AnchorEntry>,
     revocations: Vec<RevocationEntry>,
+    /// Count of successful fresh inserts (not idempotent duplicates).
+    pub inserts_total: u64,
+    /// Count of StoreFull rejections.
+    pub storefull_total: u64,
 }
 
 impl Ledger {
@@ -80,6 +84,8 @@ impl Ledger {
             seq_windows: Vec::with_capacity(MAX_SEQ_WINDOWS),
             anchors: Vec::with_capacity(MAX_ANCHORS),
             revocations: Vec::with_capacity(MAX_REVOCATIONS),
+            inserts_total: 0,
+            storefull_total: 0,
         }
     }
 
@@ -133,9 +139,11 @@ impl Ledger {
         }
         // Capacity check AFTER scan.
         if self.envelopes.len() >= MAX_ENVELOPES {
+            self.storefull_total += 1;
             return Err(LedgerError::StoreFull);
         }
         self.envelopes.push(entry);
+        self.inserts_total += 1;
         Ok(())
     }
 
@@ -289,5 +297,55 @@ impl Ledger {
 impl Default for Ledger {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_entry(sender: u8, channel: u8, seq: u64, hash_byte: u8) -> EnvelopeEntry {
+        EnvelopeEntry {
+            hash: [hash_byte; HASH_BYTES],
+            sender: [sender; LEN_SIG_PUBKEY],
+            channel: [channel; LEN_CHANNEL_ID],
+            seq,
+        }
+    }
+
+    #[test]
+    fn fresh_insert_increments_inserts_total() {
+        let mut ledger = Ledger::new();
+        assert_eq!(ledger.inserts_total, 0);
+        ledger.insert_envelope(make_entry(1, 1, 0, 0xAA)).unwrap();
+        assert_eq!(ledger.inserts_total, 1);
+        assert_eq!(ledger.storefull_total, 0);
+    }
+
+    #[test]
+    fn duplicate_same_hash_does_not_increment() {
+        let mut ledger = Ledger::new();
+        let entry = make_entry(1, 1, 0, 0xAA);
+        ledger.insert_envelope(entry.clone()).unwrap();
+        assert_eq!(ledger.inserts_total, 1);
+        ledger.insert_envelope(entry).unwrap();
+        assert_eq!(ledger.inserts_total, 1, "idempotent duplicate must not increment");
+        assert_eq!(ledger.storefull_total, 0);
+    }
+
+    #[test]
+    fn storefull_increments_storefull_total() {
+        let mut ledger = Ledger::new();
+        for i in 0..MAX_ENVELOPES {
+            let entry = make_entry(1, 1, i as u64, i as u8);
+            ledger.insert_envelope(entry).unwrap();
+        }
+        assert_eq!(ledger.inserts_total, MAX_ENVELOPES as u64);
+        assert_eq!(ledger.storefull_total, 0);
+        let overflow = make_entry(1, 1, MAX_ENVELOPES as u64, 0xFF);
+        let err = ledger.insert_envelope(overflow).unwrap_err();
+        assert_eq!(err, LedgerError::StoreFull);
+        assert_eq!(ledger.storefull_total, 1);
+        assert_eq!(ledger.inserts_total, MAX_ENVELOPES as u64);
     }
 }
