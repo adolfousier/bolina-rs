@@ -94,6 +94,7 @@ mode_soak() {
   local v_rot=0
   local rounds="${ROUNDS:-0}" duration="${DURATION:-0}" epoch_rounds="${EPOCH_ROUNDS:-5}"
   local bind="${BIND:-127.0.0.1:9800}" control="${CONTROL:-127.0.0.1:9801}"
+  NO_PACING=0
   local daemon_kex="${DAEMON_KEX_PUB:-}" daemon_sig="${DAEMON_SIG_PUB:-}"
   local abort_on_fail=0 outdir="" keep_all_logs=0 log_sample=100 envelopes_per_session=0 drain_delay_ms=500
   while [ $# -gt 0 ]; do
@@ -109,6 +110,7 @@ mode_soak() {
       --abort-on-fail) abort_on_fail=1; shift ;;
       --outdir)        outdir="$2"; shift 2 ;;
       --keep-all-logs) keep_all_logs=1; shift ;;
+      --no-pacing) NO_PACING=1; shift ;;
       --log-sample)    log_sample="$2"; shift 2 ;;
       --envelopes-per-session) envelopes_per_session="$2"; shift 2 ;;
       --drain-delay-ms) drain_delay_ms="$2"; shift 2 ;;
@@ -276,7 +278,7 @@ PYPY
         --ladder v --timeout-ms "$TIMEOUT_MS" \
         --envelopes-per-session "$envelopes_per_session" --v-rotation "$v_rot" \
         --control-token "$daemon_token" \
-        --daemon-kex-pub "$daemon_kex" --daemon-sig-pub "$daemon_sig" > "$log.v" 2>&1
+        --daemon-kex-pub "$daemon_kex" --daemon-sig-pub "$daemon_sig" ${NO_PACING:+--no-pacing} > "$log.v" 2>&1
       rc=$?
       set -e
       if [ $rc -ne 0 ]; then bad="$bad v:$rc"; fi

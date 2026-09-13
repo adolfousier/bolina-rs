@@ -122,6 +122,13 @@ fn reject_delta(base: &MetricsSnapshot, end: &MetricsSnapshot) -> String {
 }
 
 #[allow(clippy::too_many_arguments)]
+/// Pacing per owner kernel data (pending-corrections #2): 10 ms between
+/// 100-envelope batches; `--no-pacing` zeroes it for the attribution case
+/// that must FAIL on the 227-packet kernel wall.
+pub fn pacing_for(no_pacing: bool) -> u64 {
+    if no_pacing { 0 } else { 10 }
+}
+
 pub fn run(
     socket: &UdpSocket,
     daemon: SocketAddr,
@@ -135,6 +142,7 @@ pub fn run(
     control: SocketAddr,
     token: Option<&str>,
     timeout: Duration,
+    no_pacing: bool,
 ) -> RoundLog {
     let log = RoundLog {
         steps: Vec::new(),
@@ -178,6 +186,7 @@ pub fn run(
     let channel = channel_for(seed, round);
     let sender = ck.sig.verifying_key().to_bytes();
 
+    let pacing_ms = pacing_for(no_pacing);
     let total_batches = (envelopes_per_session + BATCH_SIZE - 1) / BATCH_SIZE;
     let total_start = Instant::now();
     let mut total_sent: usize = 0;
@@ -228,6 +237,15 @@ pub fn run(
             "batch",
             format!("{batch}/{total_batches}: {batch_count} env in {batch_ms}ms ({batch_throughput:.0} env/s)"),
         );
+        // Pacing (pending-corrections #2, owner kernel data 2026-09-13): a
+        // burst at full send rate outpaces any single-core drain - 300
+        // envelopes unpaced deliver 248-261/300 at 10-30 us/packet drain
+        // cost. Lossless volume needs pacing at N=300 TOO, not only N=2 000.
+        // Acceptance is "300/300 with drain AND pacing"; --no-pacing keeps
+        // the attribution case that must FAIL, so we know which part carries.
+        if pacing_ms > 0 {
+            std::thread::sleep(Duration::from_millis(pacing_ms));
+        }
     }
 
     let total_ms = total_start.elapsed().as_millis() as u64;
@@ -303,6 +321,12 @@ fn percentile(sorted_values: &[u64], p: usize) -> u64 {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn pacing_flag_zeroes_sleeps() {
+        assert_eq!(pacing_for(true), 0);
+        assert_eq!(pacing_for(false), 10);
+    }
+
     use super::*;
 
     const FIXTURE: &str = "bolina_intents_admitted_total 2\n\
