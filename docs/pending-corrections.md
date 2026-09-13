@@ -26,14 +26,34 @@ rejects — the 8 h run could only bound admission by capacity arithmetic.
   --drain-delay-ms 1000 --envelopes-per-session 2000`) turns the derived
   bounds into measurements; G5 is re-issued with them.
 
-## 2. Greedy socket-drain in the daemon (proposed, owner-gated)
+## 2. Greedy socket-drain: THE critical path for G5 volume (owner-approved direction, 2026-09-13)
 
-Ingestion is paced at one datagram per 10 ms loop tick (~100 pkt/s ceiling -
-G5's 2 000-envelope rounds were kernel-buffered, not daemon-processed). Fix:
-drain the socket until `WouldBlock` before sleeping. `src/` behavior change
-under burst; Daniel's ordering stands: baseline first (instrumented re-runs,
-landed for G4), then this, so a measurement and a system never change in the
-same commit.
+Measured chain (Daniel, 18 280-ronda G4-rerun window + raw-socket control):
+`src/daemon.rs:154-162` one `recv_from` then unconditional `sleep(10ms)` →
+~100 datagram/s by construction; SO_RCVBUF unset in BOTH trees; kernel
+rmem_default 212992 with truesize → **227 packets max backlog** (raw control:
+300×312B to unread socket → 222 delivered, 78 dropped). So the G5 floor
+2+N=302 is unreachable at N=300 by buffer physics, and ~88% of the
+2 000-envelope rounds died in the kernel before the daemon saw them.
+
+Fix, one src/ commit + one tools/ commit:
+- daemon: loop `recv_from` until `WouldBlock`, capped at **K=128** per tick
+  (fairness bound so poll_control never starves), `sleep(10ms)` ONLY when the
+  queue drained empty. K=128 because V batch inflow (~100 per few ms) exceeds
+  a 64-per-tick drain; 128 gives ~12.8k/s sustained vs ~10k/s burst pacing.
+- SO_RCVBUF raising is pointless below root sysctl (rmem_max == rmem_max
+  default here, both 212992) → NOT part of the fix.
+- ladder V: pace 10 ms between 100-envelope batches so inflow stays under
+  drain rate at any N (N=2 000 would otherwise refill the buffer between
+  ticks). Floor 2+N STAYS at 302 — the tripwire is the point; if it still
+  trips after the drain, that is a NEW finding, not a reason to lower it.
+- Verification before the window: local 2-round soak must show ledger
+  arrivals == 6+N with bind+0, and the raw control on the SAME kernel must
+  still show 227 (confirms the floor is the buffer, now drained).
+- Zig parity note: the reference has the same one-packet-per-tick structure;
+  fixing the port ahead of the frozen reference is allowed here because the
+  soak contract (G5 floor) is the port's, not the reference's.
+
 
 ## 3. A's frozen envelope targets the vector's undeclared resource (found by
 round accounting, 2026-09-12)

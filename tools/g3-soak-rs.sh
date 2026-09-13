@@ -78,6 +78,50 @@ uctl() {
   fi
 }
 
+# Restart-pin drop-in helpers (2026-09-13). `systemctl --user mask` FAILS on
+# this machine for units that live as real files in the user unit dir
+# ("File already exists", measured 08:4x) — the bot survived mask attempts and
+# came back by Restart=always. The supported lever is a drop-in override:
+# <unit>.d/zz-soak-norestart.conf with Restart=no wins over the unit's own
+# [Service] line and survives daemon-reload ordering. Soak-named file +
+# marker line so restore removes ONLY what the soak wrote — other drop-ins
+# (e.g. wp0-qwen.conf) are not ours to touch.
+udropin_path() {
+  local base
+  if [ "$(id -u)" = "0" ] && [ -n "${SUDO_USER:-}" ]; then
+    base="$(getent passwd "$SUDO_USER" | cut -d: -f6)/.config/systemd/user"
+  else
+    base="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
+  fi
+  echo "$base/$1.d/zz-soak-norestart.conf"
+}
+udropin_write() {
+  local f d
+  f="$(udropin_path "$1")"; d="$(dirname "$f")"
+  if [ -f "$f" ] && ! grep -q "bolina soak pause" "$f" 2>/dev/null; then
+    log "REFUSING to overwrite foreign $f (not soak-written)"
+    return 1
+  fi
+  if [ "$(id -u)" = "0" ] && [ -n "${SUDO_USER:-}" ]; then
+    sudo -u "$SUDO_USER" sh -c "mkdir -p '$d' && printf '%s\n' '# bolina soak pause drop-in - restore removes this file' '[Service]' 'Restart=no' > '$f'"
+  else
+    mkdir -p "$d" && printf '%s\n' '# bolina soak pause drop-in - restore removes this file' '[Service]' 'Restart=no' > "$f"
+  fi
+}
+udropin_remove() {
+  local f d
+  f="$(udropin_path "$1")"; d="$(dirname "$f")"
+  [ -f "$f" ] || return 0
+  grep -q "bolina soak pause" "$f" 2>/dev/null || { log "leaving foreign $f untouched"; return 0; }
+  if [ "$(id -u)" = "0" ] && [ -n "${SUDO_USER:-}" ]; then
+    sudo -u "$SUDO_USER" rm -f "$f"
+    rmdir "$d" 2>/dev/null || true
+  else
+    rm -f "$f"
+    rmdir "$d" 2>/dev/null || true
+  fi
+}
+
 cmd_pause() {
   need_repo
   ensure_logdir
@@ -110,24 +154,26 @@ cmd_pause() {
   # A unit with a restart policy resurrects itself after plain stop:
   # orbit-discord-bot carries Restart=always + RestartSec=5 and came back at
   # 00:45:59 in the G4 re-run (2026-09-13) — the run-1 "human reactivation"
-  # conclusion was this mechanism, not a person. stop is not enough: mask until
-  # restore. Only units that actually declare a restart policy are masked, and
-  # the list is recorded so restore unmasks exactly those.
+  # conclusion was this mechanism, not a person. stop is not enough, and mask
+  # fails on this machine (real unit file, not a symlink). Pin Restart=no via
+  # drop-in BEFORE the stop, so no revival window exists between stop and
+  # daemon-reload; restore unpins exactly what pause pinned.
   log "pausing user services: ${services[*]}"
-  : > "$LOG_DIR/masked-units.txt"
+  : > "$LOG_DIR/restart-pinned-units.txt"
   for svc in "${services[@]}"; do
     if uctl is-active --quiet "$svc" 2>/dev/null; then
+      restart="$(uctl show -p Restart --value "$svc" 2>/dev/null || true)"
+      if [ -n "$restart" ] && [ "$restart" != "no" ]; then
+        if udropin_write "$svc"; then
+          uctl daemon-reload >/dev/null 2>&1 || true
+          echo "$svc" >> "$LOG_DIR/restart-pinned-units.txt"
+          log "pinned Restart=no for $svc (was $restart)"
+        else
+          log "FAILED to pin $svc (Restart=$restart) - stop may not stick"
+        fi
+      fi
       if uctl stop "$svc"; then
         log "stopped $svc (user)"
-        restart="$(uctl show -p Restart --value "$svc" 2>/dev/null || true)"
-        if [ -n "$restart" ] && [ "$restart" != "no" ]; then
-          if uctl mask "$svc" >/dev/null 2>&1; then
-            echo "$svc" >> "$LOG_DIR/masked-units.txt"
-            log "masked $svc (Restart=$restart)"
-          else
-            log "FAILED to mask $svc (Restart=$restart)"
-          fi
-        fi
       else
         log "FAILED to stop $svc (user)"
       fi
@@ -399,7 +445,17 @@ cmd_restore() {
   ensure_logdir
   log "restoring services..."
 
-  # Unmask restart-policy units FIRST: systemctl start fails while masked.
+  # Drop the soak's Restart pins BEFORE anything starts (units must come back
+  # with their real policy), then unmask leftovers from the pre-drop-in kit
+  # (4e379ba masked where masking works; unmask is a no-op for never-masked).
+  if [ -s "$LOG_DIR/restart-pinned-units.txt" ]; then
+    while read -r svc; do
+      [ -n "$svc" ] || continue
+      udropin_remove "$svc" && log "unpinned Restart for $svc"
+    done < "$LOG_DIR/restart-pinned-units.txt"
+    uctl daemon-reload >/dev/null 2>&1 || true
+    log "restart pins dropped + daemon-reload done"
+  fi
   if [ -s "$LOG_DIR/masked-units.txt" ]; then
     while read -r svc; do
       [ -n "$svc" ] || continue

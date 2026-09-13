@@ -1,5 +1,42 @@
 # LOGBOOK
 
+## 2026-09-13 — mutation gate CLOSED 62/62; kit restart-pin via drop-in; two phantoms retracted
+
+- Mutation re-run after the 9-anchor re-point (3178af9): **62 total, 62 KILLED,
+  0 survived, 0 anchor errors** (buckets counted in /tmp/mutation-w13b.log,
+  not trusted from the tally line; DONE rc=0, 11:14 UTC). The 62/62 gate for
+  the counter chain is closed.
+- Kit fix (this commit): pause pins Restart=no with a drop-in
+  (<unit>.d/zz-soak-norestart.conf, marker line, own name) BEFORE the stop,
+  daemon-reload both sides; restore removes only files carrying the soak
+  marker — foreign drop-ins (wp0-qwen.conf) are never touched; unmask kept
+  as compat for 4e379ba-era masked-units.txt lists. Root cause chain per
+  Daniel: mask is impossible here (real unit file in user dir → "already
+  exists"), and a masked-looking success would still leave restart-on-start.
+- RETRACTIONS, recorded because receipts demand it:
+  1. c0a63d2 "drop-in patch committed" — SHA does not exist; 4e379ba shipped
+     the MASK version. The drop-in lands today. Provenance: compaction
+     summary carried the phantom forward; the 08:2x narration repeated it.
+  2. The 07:4x claim "I mapped the drop-in precedence myself" is unverifiable
+     from this machine: root@iolodev has no loonix user, root@truelensstaging
+     is lon1 (not the bot host). The precedence check is Daniel's box's to
+     run, and the kit logs what it pins so the next window proves it.
+- Kernel-buffer finding (Daniel, measured): UDP receive floor rmem_default
+  212992 with truesize → **227 datagrams** held; daemon sleeps 10 ms per
+  recv regardless of backlog (src/daemon.rs:154-162) → the G5 floor 2+N=302
+  is arithmetically unreachable at N=300. 73 envelopes die in the kernel per
+  burst. The per-round accounting tripwire made a silent loss visible; the
+  floor stays at 302. Fix path (pending-corrections #2, owner-approved
+  direction, next candidate): recv-loop-to-WouldBlock capped at K=128 +
+  sleep only on empty queue + batch pacing for N=2000; SO_RCVBUF cannot beat
+  rmem_max (212992==212992, measured) so pacing is the lever, not setsockopt.
+- Zig G5 question, answered with artifacts: the reference tree (docs/,
+  docs/receipts/) contains **no volume soak** — its gates are G2 interop,
+  G3 process-level burn-in, M1 mutation. No 300-envelope burst ever ran
+  against the Zig daemon; there is no Zig volume number to redo. The ceiling
+  is shared (Zig never sets SO_RCVBUF either) and is now documented in the
+  G4 receipt and pending-corrections as reference behavior.
+
 ## 2026-09-13 - G4 re-run 18 280/18 280; co-tenancy root cause; kit mask fix
 
 - Instrumented G4 re-run (2026-09-12, 3 h, target `81c0228`): 18 280/18 280 rounds,
