@@ -1,4 +1,35 @@
 # LOGBOOK
+- 2026-09-13 — drain+pacing: the owner's kernel data FALSIFIED my backlog
+  prediction; both parts landed with an attribution test.
+  Owner raw-socket sweep (separate sender/receiver, emulated drain cost):
+  unpaced 300-burst survives only below ~5us/packet; at 10-30us it lands
+  248-261. My "backlog peak ~160 < 227 fits" arithmetic was wrong: emission
+  ~300k/s vs drain ~33k/s gives ~267 > 227. The 227 model itself was
+  INDEPENDENTLY REPRODUCED (his 25us point returned exactly 227). Registered
+  as the pre-committed "new finding": pacing is required at N=300 too, not
+  only N=2 000; acceptance is "300/300 with drain AND pacing"; floor 2+N
+  stays. The 20-50k/s verify estimate is retired as 2-5x short.
+  Landed: daemon.rs run_loop continuous drain (recv until WouldBlock, K=64
+  fairness cap per pass before poll_control, sleep only on empty queue -
+  the old shape was one recv + unconditional 10ms = ~100 pkt/s ceiling);
+  ladder V 10ms inter-batch pacing with --no-pacing for the attribution
+  case (burst without pacing must FAIL the floor on a 227-wall kernel,
+  else we can't attribute which part carries); wrapper passthrough.
+  pacing_for() unit test binds the flag (0 vs 10 ms). Attribution
+  measured honestly per machine: macOS loopback absorbed the unpaced
+  300-burst in the soak (ins+305, PASS) while the raw-socket control on
+  the same box lost 54 (246/300, emulated-verify reader); the FAIL case
+  is the OWNER's kernel's verdict, not this one's - which is the point of
+  running attribution where the wall was measured.
+  Owner's mutation-scope caveat recorded with it: 62/62 is a hand-written
+  regression net (58% boundary-weakening, verify has 3 mutants, handshake 1,
+  the u16be wire class ZERO - the one wire defect this project really had);
+  "killing your mutants is not measuring your tests" - the seal must not
+  cite 62/62 as coverage. Kit pause+restore proven on the owner's machine
+  against a disposable unit, happy AND adversarial path (zzz-force.conf
+  made the pin lie; the read-back caught it, removed only our file, list
+  stayed empty). First proven pause there ever.
+
 - 2026-09-13 — kit bare-name breakage, caught by the owner ON HIS MACHINE,
   not by reading: drop-in wrote `orbit-discord-bot.d/` (systemd reads
   `<unit>.service.d/`), logged success, bot resurrected anyway — a silent

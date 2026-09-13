@@ -48,15 +48,31 @@ the justification treated K as K×100/s throughput):
   64 verify-times ≈ 1-6 ms of HTTP/SSE starvation. Smaller cap = fairer.
   The old "6400/s" arithmetic belonged to the sleep-always regime and is
   retired here.
-- Consequence, stated flatly: at N=2 000 sent in one 7 ms burst (~285k/s),
-  NO K and no drain cadence on one core keeps backlog ≤ 227; ~1 860 die in
-  the kernel. Lossless volume therefore REQUIRES client pacing:
-  ≤100 envelopes per 10 ms (~10k/s) < CPU drain rate.
-- Predicted receipts after the fix, same kernel: 300-envelope round →
-  backlog peak ≈ 300 − 20k/s×0.007 s ≈ 160 < 227 → raw control should
-  deliver 300/300 and the soak floor 2+N must reach 302. If it still
-  doesn't, the 227 model is wrong and that is a new finding, not a reason
-  to lower the floor.
+- Consequence, stated flatly: a burst at full send rate outpaces any
+  single-core drain no matter the cadence. OWNER KERNEL DATA (2026-09-13,
+  separate-process sender/receiver, 312 B, busy-read receiver with
+  emulated per-packet cost): a 300-burst WITHOUT pacing survives only
+  below ~5 µs/packet of drain cost; at 10-30 µs it delivers 248-261,
+  78-52 die in the kernel. The verify-dominated estimate here (20-50k/s)
+  is 2-5× SHORT of the >100k/s a 300-burst needs. The earlier prediction
+  that drain alone would make a 300-round land 300/300 is FALSIFIED by
+  that measurement and RETIRED: at ~300k/s emission and ~33k/s drain the
+  peak backlog is ~267 > 227, exactly the measured band, and the 25 µs
+  point reproduced 227 — the model holds, the conclusion drawn from it
+  did not.
+- Lossless volume therefore REQUIRES client pacing at N=300 TOO, not only
+  at N=2 000 (owner correction, adopted): ≤100 envelopes per 10 ms.
+  Paced receipts measured on the same kernel: 300 at 20/30/50 µs and
+  2 000 at 20/30 µs → all delivered in full, zero loss across the range.
+- Acceptance, per owner (2026-09-13): "300/300 with drain AND pacing" —
+  drain alone is necessary and insufficient. The measurement suite must
+  include a no-pacing case that FAILS, or the two parts cannot be
+  attributed. Measure drain cost with a LOADED ledger (≥200 entries):
+  envelope-ledger dedup is a linear scan up to MAX_ENVELOPES=4096, so
+  per-packet cost grows as the round fills — the drain is slowest exactly
+  when the backlog is largest. The owner's sender was Python (160-310k/s);
+  a Rust burst client is faster, so the unpaced case is worse than
+  measured, not better.
 - ladder V: pace 10 ms between 100-envelope batches so inflow stays under
   drain rate at any N (N=2 000 would otherwise refill the buffer between
   ticks). Floor 2+N STAYS at 302 — the tripwire is the point; if it still
