@@ -41,9 +41,10 @@
   check or a self-test of the pure logic before any "landed" is said.
   Mutation artifact committed as `mutants-final15.log` (62/62 buckets
   recountable from the file: 62 KILLED, 0 survived, 0 anchor errors, rc=0);
-  gate-name collision (threat-model G1-G7 vs soak gates) agreed — future
-  volume gate = VOL-1, sealed receipts keep their historical names, owner
-  lands the docs rename. (crab + iamloonix)
+  gate-name collision (threat-model G1-G7 vs soak gates) resolved: the
+  full VOL-1 alias notice is committed below, next to the G5 window entry;
+  the twin note for docs/THREAT-MODEL.md lives in the Zig tree and waits
+  for the owner's archive decision. (crab + iamloonix)
 
 ## 2026-09-13 — mutation gate CLOSED 62/62; kit restart-pin via drop-in; two phantoms retracted
 
@@ -222,7 +223,25 @@ The Rust client sent binding frames without the 2-byte length prefix. The Zig da
 
 **Method:** the counters caught in one experiment what 11 944 + 25 689 rounds passed green. Daniel's rule now enforced in kit: a step that does not observe its effect is not a step. Greedy socket-drain (src/) stays sequenced AFTER the instrumented G4 baseline — fix measurement first, then the system, never both at once.
 
-## 2026-09-13 — G5 attribution proven on owner's machine; wrapper flag bug; phantom SHA rule hole
+## Gate alias (2026-09-13)
+
+The names G3/G4/G5 in this port's sealed receipts denote SOAK GATES:
+module soak, integration soak, volume soak.
+
+The Zig reference uses G1-G7 in docs/THREAT-MODEL.md for SECURITY GOALS,
+with different and unrelated meanings. Two of them are close enough to
+mislead: goal G4 is "a Grant authorizes exactly one execution, of exactly
+one action, at exactly one executor", and goal G5 is "a restart of an
+executor cannot resurrect a pending approval". Our G5 volume soak restarts
+the daemon every 4 rounds and observes lanes held by T_PENDING - adjacent
+subject matter, unrelated claim. Nothing in this series verified goal G5.
+
+The re-run volume gate is therefore named VOL-1. Sealed receipts keep the
+names they carry; renaming what the seal cites would create the ambiguity
+this note exists to remove. When quoting a result outside this repo, use
+VOL-1 or qualify the name.
+
+## 2026-09-13 - G5 attribution proven on owner's machine; wrapper flag bug; phantom SHA rule hole
 
 **Daniel's G5 window (13:57-14:14 UTC, target a9d912b):** A2 4/4 PASS with pacing
 (ledger_inserts +300, summary 60 ms, folga 31 ms — the ≥30 ms pacing-sleep
