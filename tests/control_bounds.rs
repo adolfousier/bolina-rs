@@ -70,7 +70,6 @@ fn write_response_sets_closing() {
 }
 
 #[test]
-#[ignore = "timing issue - needs server deadline tuning"]
 fn all_status_codes_format_correctly() {
     for status in [200u16, 400, 403, 404, 500, 501, 503, 418] {
         let mut cp = ControlPlane::new(bind_any()).unwrap();
@@ -168,7 +167,6 @@ fn deadline_exceeded_causes_cleanup() {
 }
 
 #[test]
-#[ignore = "timing issue - needs server deadline tuning"]
 fn slowloris_guard() {
     let mut cp = ControlPlane::new(bind_any()).unwrap();
     let addr = cp.listener.local_addr().unwrap();
@@ -176,25 +174,27 @@ fn slowloris_guard() {
     let mut client = connect_to(addr);
     // poll_tick accepts the connection
     cp.poll_tick().ok();
+    assert_eq!(cp.clients.len(), 1);
     sleep(Duration::from_millis(50));
     // Send 1124 bytes with NO newline — slowloris guard triggers
     let payload = vec![b'A'; SLOWLORIS_SIZE + 100];
     client.write_all(&payload).unwrap();
     client.flush().unwrap();
     sleep(Duration::from_millis(50));
-    let mut got_slowloris = false;
+    // poll_tick ejects the connection (slowloris guard returns Err internally,
+    // poll_tick consumes the error and removes the connection — the guard's
+    // observable effect is ejection, not an error returned to the caller).
     for _ in 0..50 {
-        match cp.poll_tick() {
-            Err(e) if e.contains("slowloris") => {
-                got_slowloris = true;
-                break;
-            }
-            _ => sleep(Duration::from_millis(10)),
+        cp.poll_tick().ok();
+        if cp.clients.is_empty() {
+            break;
         }
+        sleep(Duration::from_millis(10));
     }
     assert!(
-        got_slowloris,
-        "slowloris should reject >=1024 bytes without newline"
+        cp.clients.is_empty(),
+        "slowloris should eject connection with >=1024 bytes without newline, clients.len()={}",
+        cp.clients.len()
     );
 }
 
