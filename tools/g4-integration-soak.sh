@@ -94,7 +94,7 @@ mode_soak() {
   local v_rot=0
   local rounds="${ROUNDS:-0}" duration="${DURATION:-0}" epoch_rounds="${EPOCH_ROUNDS:-5}"
   local bind="${BIND:-127.0.0.1:9800}" control="${CONTROL:-127.0.0.1:9801}"
-  NO_PACING=0
+  NO_PACING=
   local daemon_kex="${DAEMON_KEX_PUB:-}" daemon_sig="${DAEMON_SIG_PUB:-}"
   local abort_on_fail=0 outdir="" keep_all_logs=0 log_sample=100 envelopes_per_session=0 drain_delay_ms=500
   while [ $# -gt 0 ]; do
@@ -114,7 +114,7 @@ mode_soak() {
       --log-sample)    log_sample="$2"; shift 2 ;;
       --envelopes-per-session) envelopes_per_session="$2"; shift 2 ;;
       --drain-delay-ms) drain_delay_ms="$2"; shift 2 ;;
-      *) die "soak: unknown arg $1 (accepted: --rounds --duration --epoch-rounds --bind --control --seed --daemon-kex-pub --daemon-sig-pub --abort-on-fail --outdir --keep-all-logs --log-sample --envelopes-per-session --drain-delay-ms)" ;;
+      *) die "soak: unknown arg $1 (accepted: --rounds --duration --epoch-rounds --bind --control --seed --daemon-kex-pub --daemon-sig-pub --abort-on-fail --outdir --keep-all-logs --no-pacing --log-sample --envelopes-per-session --drain-delay-ms)" ;;
     esac
   done
   [ "$rounds" -gt 0 ] || [ "$duration" -gt 0 ] || die "soak: --rounds N or --duration SEC required"
@@ -316,11 +316,15 @@ PYPY
 )"
       [ "${acct%% *}" = "OK" ] || bad="$bad acct:1"
     fi
+    # Pacing effective: log what V actually ran with (Daniel 2026-09-13:
+    # A and B with identical configs must be impossible to read as different).
+    local pacing_eff="on"
+    [ -n "${NO_PACING:-}" ] && pacing_eff="off"
     if [ -z "$bad" ]; then
-      echo "round=$rr epoch_r=$er result=PASS accounting:$acct" | tee -a "$soak_log"
+      echo "round=$rr epoch_r=$er pacing=$pacing_eff result=PASS accounting:$acct" | tee -a "$soak_log"
       return 0
     fi
-    echo "round=$rr epoch_r=$er result=FAIL failures:$bad accounting:$acct" | tee -a "$soak_log"
+    echo "round=$rr epoch_r=$er pacing=$pacing_eff result=FAIL failures:$bad accounting:$acct" | tee -a "$soak_log"
     cat "$log".* >> "$log" 2>/dev/null
     return 1
   }
