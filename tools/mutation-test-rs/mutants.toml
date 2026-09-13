@@ -71,15 +71,17 @@ description = "state: ledger consumed MAX_LIVE boundary weakened"
 [[mutants]]
 domain = "transport"
 file = "src/transport/session.rs"
-anchor = "if self.counter >= REKEY_AFTER_MESSAGES { return Err(TransportError::RekeyRequired); }"
-replacement = "if self.counter > REKEY_AFTER_MESSAGES { return Err(TransportError::RekeyRequired); }"
+anchor = '        if self.counter >= REKEY_AFTER_MESSAGES {'
+replacement = '        if self.counter > REKEY_AFTER_MESSAGES {'
 description = "transport: session rekey threshold weakened"
 
 [[mutants]]
 domain = "transport"
 file = "src/transport/session.rs"
-anchor = "if (local_index as usize) >= MAX_SESSIONS { return None; }"
-replacement = "if (local_index as usize) > MAX_SESSIONS { return None; }"
+anchor = '''    pub fn lookup(&mut self, local_index: u32) -> Option<&mut Session> {
+        if (local_index as usize) >= MAX_SESSIONS {'''
+replacement = '''    pub fn lookup(&mut self, local_index: u32) -> Option<&mut Session> {
+        if (local_index as usize) > MAX_SESSIONS {'''
 description = "transport: session MAX_SESSIONS boundary weakened"
 
 # --- TRANSPORT/NOISE ---
@@ -132,31 +134,31 @@ description = "transport: reassembly MAX_FRAGMENTS boundary weakened"
 [[mutants]]
 domain = "transport"
 file = "src/transport/reassembly.rs"
-anchor = "        if self.sessions >= SESSIONS_PER_NODE { return NodeEvent::Refused; }"
-replacement = "        if self.sessions > SESSIONS_PER_NODE { return NodeEvent::Refused; }"
+anchor = '        if self.sessions >= SESSIONS_PER_NODE {'
+replacement = '        if self.sessions > SESSIONS_PER_NODE {'
 description = "transport: reassembly SESSIONS_PER_NODE boundary weakened"
 
 # --- TRANSPORT/RELAY ---
 [[mutants]]
 domain = "transport"
 file = "src/transport/relay.rs"
-anchor = "        if self.entries.len() >= MAX_RELAY_TABLE { return false; }"
-replacement = "        if self.entries.len() > MAX_RELAY_TABLE { return false; }"
+anchor = '        if self.entries.len() >= MAX_RELAY_TABLE {'
+replacement = '        if self.entries.len() > MAX_RELAY_TABLE {'
 description = "transport: relay MAX_RELAY_TABLE boundary weakened"
 
 [[mutants]]
 domain = "transport"
 file = "src/transport/relay.rs"
-anchor = "        if expiry > MAX_EXPIRY { return Err(RelayError::ExpiryTooLong); }"
-replacement = "        if expiry >= MAX_EXPIRY { return Err(RelayError::ExpiryTooLong); }"
+anchor = '        if expiry > MAX_EXPIRY {'
+replacement = '        if expiry >= MAX_EXPIRY {'
 description = "transport: relay MAX_EXPIRY boundary weakened"
 
 # --- TRANSPORT/SYNC ---
 [[mutants]]
 domain = "transport"
 file = "src/transport/sync.rs"
-anchor = "        if self.used >= MAX_TRACKED_PEERS { return false; }"
-replacement = "        if self.used > MAX_TRACKED_PEERS { return false; }"
+anchor = '        if self.used >= MAX_TRACKED_PEERS {'
+replacement = '        if self.used > MAX_TRACKED_PEERS {'
 description = "transport: sync MAX_TRACKED_PEERS boundary weakened"
 
 # ==================== W7-W10 (authority + audit + support + completion) ====================
@@ -344,8 +346,8 @@ description = "ledger_envelope: idempotent check inverted (BE-ENV-05)"
 [[mutants]]
 domain = "ledger_envelope"
 file = "src/ledger_envelope.rs"
-anchor = "        parents.iter().all(|p| self.envelopes.iter().any(|e| &e.hash == p))"
-replacement = "        parents.iter().any(|p| self.envelopes.iter().any(|e| &e.hash == p))"
+anchor = '            .all(|p| self.envelopes.iter().any(|e| &e.hash == p))'
+replacement = '            .any(|p| self.envelopes.iter().any(|e| &e.hash == p))'
 description = "ledger_envelope: all parents → any parents (BE-LEDGER-01)"
 
 [[mutants]]
@@ -359,8 +361,8 @@ description = "ledger_envelope: revocation capacity weakened (F10)"
 [[mutants]]
 domain = "relay_serve"
 file = "src/relay_serve.rs"
-anchor = "        MSG_HANDSHAKE_INIT | MSG_HANDSHAKE_RESP | MSG_HANDSHAKE_DATA => {"
-replacement = "        MSG_HANDSHAKE_INIT | MSG_HANDSHAKE_RESP => {"
+anchor = '        MSG_HANDSHAKE_INIT | MSG_HANDSHAKE_RESP | MSG_HANDSHAKE_DATA => ServeResult::ToHandshake,'
+replacement = '        MSG_HANDSHAKE_INIT | MSG_HANDSHAKE_RESP => ServeResult::ToHandshake,'
 description = "relay_serve: handshake type 3 dropped from classifier (BE-EXEC-04)"
 
 # --- TOKEN (W11) ---
@@ -389,8 +391,10 @@ description = "w12: dispatch type-1 crossed to transport handler"
 [[mutants]]
 domain = "daemon"
 file = "src/daemon.rs"
-anchor = 'if self.sessions.admit(slot as u32, 0, send_key, recv_key, h, now_ms()).is_ok() {'
-replacement = 'if self.sessions.admit(slot as u32, 0, send_key, recv_key, h, now_ms()).is_err() {'
+anchor = '''                .admit(slot as u32, 0, send_key, recv_key, h, now_ms())
+                .is_ok()'''
+replacement = '''                .admit(slot as u32, 0, send_key, recv_key, h, now_ms())
+                .is_err()'''
 description = "w12: handshake admission gate inverted"
 
 [[mutants]]
