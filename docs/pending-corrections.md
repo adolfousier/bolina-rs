@@ -36,13 +36,27 @@ rmem_default 212992 with truesize → **227 packets max backlog** (raw control:
 2+N=302 is unreachable at N=300 by buffer physics, and ~88% of the
 2 000-envelope rounds died in the kernel before the daemon saw them.
 
-Fix, one src/ commit + one tools/ commit:
-- daemon: loop `recv_from` until `WouldBlock`, capped at **K=128** per tick
-  (fairness bound so poll_control never starves), `sleep(10ms)` ONLY when the
-  queue drained empty. K=128 because V batch inflow (~100 per few ms) exceeds
-  a 64-per-tick drain; 128 gives ~12.8k/s sustained vs ~10k/s burst pacing.
-- SO_RCVBUF raising is pointless below root sysctl (rmem_max == rmem_max
-  default here, both 212992) → NOT part of the fix.
+Fix, one src/ commit + one tools/ commit. K semantics RESOLVED 2026-09-13
+after the owner caught the contradiction (regime said sleep-only-on-idle while
+the justification treated K as K×100/s throughput):
+- daemon: loop `recv_from` until `WouldBlock`; K caps datagrams PER PASS
+  before poll_control gets its turn, and there is NO sleep while the queue
+  is non-empty. Throughput is therefore CPU-bound (ed25519 verify dominates,
+  ~20-50k/s); K is ONLY a fairness bound on control-plane latency.
+- K=64 chosen. It is not a capacity knob (128 vs 64 differ by nothing at
+  steady state); it is worst-case wait before poll_control: 64 packets ≈
+  64 verify-times ≈ 1-6 ms of HTTP/SSE starvation. Smaller cap = fairer.
+  The old "6400/s" arithmetic belonged to the sleep-always regime and is
+  retired here.
+- Consequence, stated flatly: at N=2 000 sent in one 7 ms burst (~285k/s),
+  NO K and no drain cadence on one core keeps backlog ≤ 227; ~1 860 die in
+  the kernel. Lossless volume therefore REQUIRES client pacing:
+  ≤100 envelopes per 10 ms (~10k/s) < CPU drain rate.
+- Predicted receipts after the fix, same kernel: 300-envelope round →
+  backlog peak ≈ 300 − 20k/s×0.007 s ≈ 160 < 227 → raw control should
+  deliver 300/300 and the soak floor 2+N must reach 302. If it still
+  doesn't, the 227 model is wrong and that is a new finding, not a reason
+  to lower the floor.
 - ladder V: pace 10 ms between 100-envelope batches so inflow stays under
   drain rate at any N (N=2 000 would otherwise refill the buffer between
   ticks). Floor 2+N STAYS at 302 — the tripwire is the point; if it still

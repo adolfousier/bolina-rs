@@ -1,0 +1,76 @@
+    Finished `release` profile [optimized] target(s) in 0.08s
+     Running `target/release/mutation-test-rs`
+mutation-test-rs: 62 mutants loaded
+domains: ca, codec, control, control_api, counters, daemon, dag, dispatch, evidence, handshake, http_parse, keys, ledger_envelope, mac1, relay_serve, resolver, state, sync, token, transport, verify
+[1/62] codec — codec: body_len MAX_BODY boundary weakened ... KILLED ✓
+[2/62] codec — codec: parent_count MAX_PARENTS boundary weakened ... KILLED ✓
+[3/62] codec — codec: scope_count MAX_SCOPE boundary weakened ... KILLED ✓
+[4/62] codec — codec: ca_sig_count MAX_CA_SIGS boundary weakened ... KILLED ✓
+[5/62] codec — codec: ca_key ascending check weakened (allows duplicate keys) ... KILLED ✓
+[6/62] state — state: intent MAX_PENDING boundary weakened (admits 257th) ... KILLED ✓
+[7/62] state — state: intent timeout boundary weakened ... KILLED ✓
+[8/62] state — state: intent compact trigger weakened ... KILLED ✓
+[9/62] state — state: ledger consumed MAX_LIVE boundary weakened ... KILLED ✓
+[10/62] transport — transport: session rekey threshold weakened ... KILLED ✓
+[11/62] transport — transport: session MAX_SESSIONS boundary weakened ... KILLED ✓
+[12/62] transport — transport: noise key length check weakened ... KILLED ✓
+[13/62] control — control: slowloris guard weakened ... KILLED ✓
+[14/62] daemon — daemon: WouldBlock handling inverted ... KILLED ✓
+[15/62] ca — ca: privileged TTL boundary weakened ... KILLED ✓
+[16/62] ca — ca: CA count upper bound weakened ... KILLED ✓
+[17/62] transport — transport: reassembly MAX_FRAGMENTS boundary weakened ... KILLED ✓
+[18/62] transport — transport: reassembly SESSIONS_PER_NODE boundary weakened ... KILLED ✓
+[19/62] transport — transport: relay MAX_RELAY_TABLE boundary weakened ... KILLED ✓
+[20/62] transport — transport: relay MAX_EXPIRY boundary weakened ... KILLED ✓
+[21/62] transport — transport: sync MAX_TRACKED_PEERS boundary weakened ... KILLED ✓
+[22/62] verify — verify: not_after capability boundary weakened (BE-GRANT-05) ... KILLED ✓
+[23/62] verify — verify: t_recv receipt-window boundary weakened ... KILLED ✓
+[24/62] verify — verify: pubkey length check inverted ... KILLED ✓
+[25/62] dispatch — dispatch: action size boundary weakened ... KILLED ✓
+[26/62] dag — dag: MAX_NODES boundary weakened (admits 257th node) ... KILLED ✓
+[27/62] dag — dag: MAX_PARENTS boundary weakened ... KILLED ✓
+[28/62] evidence — evidence: BE-EVID-02 receiver-decides min inverted (stated leaks past ceiling) ... KILLED ✓
+[29/62] sync — sync: WALK_MAX_TOTAL boundary weakened (BE-SYNC-03) ... KILLED ✓
+[30/62] sync — sync: WALK_MAX_DEPTH boundary weakened (BE-SYNC-03) ... KILLED ✓
+[31/62] sync — sync: unresolved surfacing inverted (BE-SYNC-03) ... KILLED ✓
+[32/62] sync — sync: response envelope cap boundary weakened (BE-SYNC-02) ... KILLED ✓
+[33/62] control_api — control_api: id hex length check inverted (F5 table) ... KILLED ✓
+[34/62] control_api — control_api: F16 subject validation inverted ... KILLED ✓
+[35/62] control_api — control_api: BODY_MAX boundary weakened ... KILLED ✓
+[36/62] control_api — control_api: ring drop-oldest trigger weakened (seq-8 off-by-one) ... KILLED ✓
+[37/62] keys — keys: cert MAX_CERT boundary weakened (verbatim load broken) ... KILLED ✓
+[38/62] keys — keys: timing-safe compare inverted (tamper accepted, good rejected) ... KILLED ✓
+[39/62] http_parse — http_parse: POST length-required guard weakened ... KILLED ✓
+[40/62] http_parse — http_parse: duplicate Content-Length byte-equal rule inverted ... KILLED ✓
+[41/62] handshake — handshake: initiation type check inverted (BE-SESS-02) ... KILLED ✓
+[42/62] mac1 — mac1: cookie rotation boundary weakened (BE-TR-04a) ... KILLED ✓
+[43/62] resolver — resolver: canonical bol: prefix check inverted (BE-RES-01) ... KILLED ✓
+[44/62] ledger_envelope — ledger_envelope: capacity check weakened (BE-LEDGER-02) ... KILLED ✓
+[45/62] ledger_envelope — ledger_envelope: idempotent check inverted (BE-ENV-05) ... KILLED ✓
+[46/62] ledger_envelope — ledger_envelope: all parents → any parents (BE-LEDGER-01) ... KILLED ✓
+[47/62] ledger_envelope — ledger_envelope: revocation capacity weakened (F10) ... KILLED ✓
+[48/62] relay_serve — relay_serve: handshake type 3 dropped from classifier (BE-EXEC-04) ... KILLED ✓
+[49/62] token — token: load length check inverted (BE-TR-04a) ... KILLED ✓
+[50/62] daemon — w12: msg2 sendto closure dropped (send not wired) ... KILLED ✓
+[51/62] daemon — w12: dispatch type-1 crossed to transport handler ... KILLED ✓
+[52/62] daemon — w12: handshake admission gate inverted ... KILLED ✓
+[53/62] daemon — w12: bound/unbound transport routing swapped (BE-TR-01a gate) ... KILLED ✓
+[54/62] daemon — w12: transport rejection counter dropped (SSE counter source) ... KILLED ✓
+[55/62] control_api — w12: SSE framing loses blank-line terminator ... KILLED ✓
+[56/62] counters — counters: StoreFull boundary weakened (4097th insert lands) ... KILLED ✓
+[57/62] counters — counters: inserts_total never bumps ... KILLED ✓
+[58/62] counters — counters: storefull_total never bumps ... KILLED ✓
+[59/62] counters — counters: wire admissions_total never bumps ... KILLED ✓
+[60/62] counters — counters: per-class reject bump silenced ... KILLED ✓
+[61/62] counters — counters: Binding class maps onto Transport slot ... KILLED ✓
+[62/62] counters — counters: /metrics renders only the first reject class ... KILLED ✓
+
+=== SUMMARY ===
+Total:      62
+Killed:     62
+Survived:   0
+Equivalent: 0
+Unviable:   0
+
+All mutants killed. ✓
+MUTATION DONE rc=0

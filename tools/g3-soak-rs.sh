@@ -87,13 +87,24 @@ uctl() {
 # marker line so restore removes ONLY what the soak wrote — other drop-ins
 # (e.g. wp0-qwen.conf) are not ours to touch.
 udropin_path() {
-  local base
+  # systemd auto-completes `.service` when *it* parses unit names, but a bare
+  # name here would build orbit-discord-bot.d/ — a directory systemd never
+  # reads (drop-ins live in <full-unit-name>.d). The pin would write, reload,
+  # log success, and the unit would resurrect anyway (caught on the target
+  # machine 2026-09-13: code read, not run). Normalize the suffix before the
+  # path is derived; the pin below then re-reads the EFFECTIVE policy to
+  # verify it actually took.
+  local base unit="$1"
+  case "$unit" in
+    *.service|*.socket|*.timer|*.target) ;;
+    *) unit="$unit.service" ;;
+  esac
   if [ "$(id -u)" = "0" ] && [ -n "${SUDO_USER:-}" ]; then
     base="$(getent passwd "$SUDO_USER" | cut -d: -f6)/.config/systemd/user"
   else
     base="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
   fi
-  echo "$base/$1.d/zz-soak-norestart.conf"
+  echo "$base/$unit.d/zz-soak-norestart.conf"
 }
 udropin_write() {
   local f d
@@ -166,8 +177,21 @@ cmd_pause() {
       if [ -n "$restart" ] && [ "$restart" != "no" ]; then
         if udropin_write "$svc"; then
           uctl daemon-reload >/dev/null 2>&1 || true
-          echo "$svc" >> "$LOG_DIR/restart-pinned-units.txt"
-          log "pinned Restart=no for $svc (was $restart)"
+          # Writing a file is not pinning a policy. Re-read the EFFECTIVE
+          # (merged) Restart value before believing it: the 2026-09-13
+          # bare-name bug wrote the drop-in, daemon-reloaded, logged success
+          # and the unit resurrected anyway. Only the read-back counts; if it
+          # lies, we remove our file and shout, rather than leave a pin that
+          # never was.
+          eff="$(uctl show -p Restart --value "$svc" 2>/dev/null || true)"
+          if [ "$eff" = "no" ]; then
+            echo "$svc" >> "$LOG_DIR/restart-pinned-units.txt"
+            log "pinned Restart=no for $svc (was $restart; read-back verified)"
+          else
+            udropin_remove "$svc" >/dev/null 2>&1 || true
+            uctl daemon-reload >/dev/null 2>&1 || true
+            log "FAILED to pin $svc: effective Restart='$eff' after drop-in+reload; our drop-in removed, stop may not stick"
+          fi
         else
           log "FAILED to pin $svc (Restart=$restart) - stop may not stick"
         fi

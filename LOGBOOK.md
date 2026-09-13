@@ -1,4 +1,18 @@
 # LOGBOOK
+- 2026-09-13 — kit bare-name breakage, caught by the owner ON HIS MACHINE,
+  not by reading: drop-in wrote `orbit-discord-bot.d/` (systemd reads
+  `<unit>.service.d/`), logged success, bot resurrected anyway — a silent
+  success worse than the old FAILED-printing mask. Fixed: suffix
+  normalization + read-back of the EFFECTIVE Restart value before claiming a
+  pin (writing a file ≠ changing a policy). Pure-path seam self-tested on
+  bash here; systemd effect proven by the owner's disposable unit. House
+  rule promoted: kit changes affecting services need the target-machine
+  check or a self-test of the pure logic before any "landed" is said.
+  Mutation artifact committed as `mutants-final15.log` (62/62 buckets
+  recountable from the file: 62 KILLED, 0 survived, 0 anchor errors, rc=0);
+  gate-name collision (threat-model G1-G7 vs soak gates) agreed — future
+  volume gate = VOL-1, sealed receipts keep their historical names, owner
+  lands the docs rename. (crab + iamloonix)
 
 ## 2026-09-13 — mutation gate CLOSED 62/62; kit restart-pin via drop-in; two phantoms retracted
 
