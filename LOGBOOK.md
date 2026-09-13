@@ -241,6 +241,26 @@ names they carry; renaming what the seal cites would create the ambiguity
 this note exists to remove. When quoting a result outside this repo, use
 VOL-1 or qualify the name.
 
+## Rule: facts need a return path (2026-09-13)
+
+A claim is a fact only if someone else can walk back to its source in the
+same turn: a SHA via `git ls-remote origin refs/heads/main`, a test count
+via the log, a line of code via `sed -n`. Material that arrives from a
+compaction summary or another project's context has no return path here -
+treat it as suspect by default and re-fetch before repeating.
+(c0a63d2 came from a summary; a drop-in precedence claim came from another
+project; 8241d2f was local, never pushed, and cited as pushed.)
+
+These checks are not self-applying. Every one of them caught something in
+this series only because a second party ran it in a direction the author
+did not: the owner wrote the kit's adversarial read-back and found the
+.service suffix, the owner caught the flag inversion by timing the round
+while the agent's own log line contradicted its header, the agent found
+the slowloris misdiagnosis by refusing the ignore-reason the code gave
+itself. A failed check is cheap; a check that reports PASS without having
+run is the expensive one. The read-back lives next to the rule so nobody
+believes "verify" is a state of mind.
+
 ## 2026-09-13 - G5 attribution proven on owner's machine; wrapper flag bug; phantom SHA rule hole
 
 **Daniel's G5 window (13:57-14:14 UTC, target a9d912b):** A2 4/4 PASS with pacing
