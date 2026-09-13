@@ -67,6 +67,17 @@ cmd_deps() {
 # --- pause: --auto or explicit service list (bug #6 fix) ---
 AUTO_SERVICES=(orbit-discord-bot opencrabs gitlab-runner)
 
+# systemctl --user wrapper: pause is usually invoked via sudo, but the tenant
+# units live in the invoking user's manager. One helper, pause and restore.
+uctl() {
+  if [ "$(id -u)" = "0" ] && [ -n "${SUDO_USER:-}" ]; then
+    sudo -u "$SUDO_USER" XDG_RUNTIME_DIR="/run/user/$(id -u "$SUDO_USER")" \
+      systemctl --user "$@"
+  else
+    systemctl --user "$@"
+  fi
+}
+
 cmd_pause() {
   need_repo
   ensure_logdir
@@ -95,23 +106,33 @@ cmd_pause() {
   systemctl list-units --type=service --state=running > "$LOG_DIR/services-before-system.txt" 2>&1 || true
   cat "$LOG_DIR/services-before-user.txt" "$LOG_DIR/services-before-system.txt" > "$LOG_DIR/services-before.txt"
 
-  # Pause user services (as the actual user, not root)
+  # Pause user services (as the actual user, not root).
+  # A unit with a restart policy resurrects itself after plain stop:
+  # orbit-discord-bot carries Restart=always + RestartSec=5 and came back at
+  # 00:45:59 in the G4 re-run (2026-09-13) — the run-1 "human reactivation"
+  # conclusion was this mechanism, not a person. stop is not enough: mask until
+  # restore. Only units that actually declare a restart policy are masked, and
+  # the list is recorded so restore unmasks exactly those.
   log "pausing user services: ${services[*]}"
+  : > "$LOG_DIR/masked-units.txt"
   for svc in "${services[@]}"; do
-    if [ "$(id -u)" = "0" ] && [ -n "${SUDO_USER:-}" ]; then
-      if sudo -u "$SUDO_USER" XDG_RUNTIME_DIR="/run/user/$(id -u "$SUDO_USER")" \
-        systemctl --user is-active --quiet "$svc" 2>/dev/null; then
-        sudo -u "$SUDO_USER" XDG_RUNTIME_DIR="/run/user/$(id -u "$SUDO_USER")" \
-          systemctl --user stop "$svc" && log "stopped $svc (user $SUDO_USER)" || log "FAILED to stop $svc (user $SUDO_USER)"
+    if uctl is-active --quiet "$svc" 2>/dev/null; then
+      if uctl stop "$svc"; then
+        log "stopped $svc (user)"
+        restart="$(uctl show -p Restart --value "$svc" 2>/dev/null || true)"
+        if [ -n "$restart" ] && [ "$restart" != "no" ]; then
+          if uctl mask "$svc" >/dev/null 2>&1; then
+            echo "$svc" >> "$LOG_DIR/masked-units.txt"
+            log "masked $svc (Restart=$restart)"
+          else
+            log "FAILED to mask $svc (Restart=$restart)"
+          fi
+        fi
       else
-        log "$svc not active (user $SUDO_USER)"
+        log "FAILED to stop $svc (user)"
       fi
     else
-      if systemctl --user is-active --quiet "$svc" 2>/dev/null; then
-        systemctl --user stop "$svc" && log "stopped $svc (user)" || log "FAILED to stop $svc (user)"
-      else
-        log "$svc not active (user)"
-      fi
+      log "$svc not active (user)"
     fi
   done
 
@@ -377,6 +398,18 @@ cmd_restore() {
   need_repo
   ensure_logdir
   log "restoring services..."
+
+  # Unmask restart-policy units FIRST: systemctl start fails while masked.
+  if [ -s "$LOG_DIR/masked-units.txt" ]; then
+    while read -r svc; do
+      [ -n "$svc" ] || continue
+      if uctl unmask "$svc" >/dev/null 2>&1; then
+        log "unmasked $svc"
+      else
+        log "FAILED to unmask $svc"
+      fi
+    done < "$LOG_DIR/masked-units.txt"
+  fi
 
   # Restore user crontab
   if [ -s "$LOG_DIR/crontab-backup.txt" ]; then
