@@ -143,6 +143,12 @@ impl Daemon {
             .map_err(|e| format!("resource '{canonical}' refused by resolver: {e:?}"))
     }
 
+    /// Continuous-drain fairness cap: max datagrams handled per pass
+    /// before poll_control gets its turn (pending-corrections #2, owner go
+    /// 2026-09-13). K=64 = worst-case 1-6 ms of HTTP/SSE starvation; smaller
+    /// is fairer, the value is NOT a throughput knob.
+    const DRAIN_K: usize = 64;
+
     pub fn run_loop(&mut self) -> Result<(), String> {
         let udp_sock = UdpSocket::bind(self.bind_addr).map_err(|e| e.to_string())?;
         udp_sock.set_nonblocking(true).map_err(|e| e.to_string())?;
@@ -151,15 +157,31 @@ impl Daemon {
             if SHUTDOWN.load(Ordering::SeqCst) {
                 break;
             }
-            match udp_sock.recv_from(&mut buf) {
-                Ok((len, src)) => self.handle_datagram(&buf[..len], src, &udp_sock),
-                Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {}
-                Err(e) => return Err(format!("recv_from: {e}")),
+            // Continuous drain (owner-approved 2026-09-13, pending-corrections
+            // #2): recv until WouldBlock, capped at DRAIN_K datagrams per pass
+            // so poll_control gets its turn even in a burst; sleep ONLY when
+            // the queue is empty. Throughput is CPU-bound - K is a fairness
+            // bound on control-plane latency, not a capacity knob. The old
+            // shape (one recv, then unconditional 10 ms sleep) was a
+            // ~100 pkt/s ceiling by construction, and the kernel buffer
+            // (227 pkts) silently ate everything beyond it.
+            let mut empty = false;
+            for _ in 0..Self::DRAIN_K {
+                match udp_sock.recv_from(&mut buf) {
+                    Ok((len, src)) => self.handle_datagram(&buf[..len], src, &udp_sock),
+                    Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {
+                        empty = true;
+                        break;
+                    }
+                    Err(e) => return Err(format!("recv_from: {e}")),
+                }
             }
             if self.control.is_some() {
                 self.poll_control()?;
             }
-            std::thread::sleep(std::time::Duration::from_millis(10));
+            if empty {
+                std::thread::sleep(std::time::Duration::from_millis(10));
+            }
         }
         // Drain: ledger fsyncs per record (T1); nothing buffered to flush.
         Ok(())
