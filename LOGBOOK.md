@@ -1,5 +1,26 @@
 # LOGBOOK
 
+## 2026-09-13 - G4 re-run 18 280/18 280; co-tenancy root cause; kit mask fix
+
+- Instrumented G4 re-run (2026-09-12, 3 h, target `81c0228`): 18 280/18 280 rounds,
+  `accounting:OK` on every one, `bind != 0` tripwire silent - admission per round
+  observed, not assumed. Closes the binding-prefix incident from `b859732`;
+  supersedes the 25 689 figure of `9a1cdf1` (ladder A never bound there; B/C/D
+  verified framed/intact - the re-run is the first where all four wire ladders
+  actually bind and each round proves it).
+- Co-tenancy root cause: `orbit-discord-bot` unit carries `Restart=always`,
+  `RestartSec=5` - pause's plain stop let the unit resurrect itself mid-window
+  (13 breaches, bot-only, from 00:45:59). Run-1 "human reactivation" conclusion
+  retracted: declared unit policy, not a person. Kit fix lands with this entry:
+  pause masks exactly the units with a restart policy (recorded in
+  masked-units.txt), restore unmasks before starting.
+- Mutation: 9 anchors had drifted out of the sources after global `cargo fmt`
+  (w13.log: Total 62 / Killed 53 / 9 ANCHOR ERROR - the runner's "all killed"
+  line does not net an anchor error; 53+9=62). All 9 re-pointed to current
+  lines (multi-line anchors where fmt split the guard), uniqueness-checked
+  against source; full 62 re-run in flight (`/tmp/mutation-w13b.log`).
+
+
 Ship's log of the Zig -> Rust port. One line per decision: what, why.
 Signal only. Full context lives in the linked decision entries.
 

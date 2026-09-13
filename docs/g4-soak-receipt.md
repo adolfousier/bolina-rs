@@ -144,6 +144,46 @@ decision (2026-09-11) predates this finding; re-verification was requested by
 the owner on 2026-09-12 - this receipt documents the defect and does not
 restate the decision either way.
 
+## Re-run (2026-09-12) — Instrumented, Admission Proved
+
+The binding-prefix incident above required the gate to run again with framed
+bindings and per-round `/metrics` accounting (`81c0228`). Daniel ran the 3 h
+re-run and reported the numbers; the kit's round accounting is the witness
+for every one of them:
+
+| | |
+|---|---|
+| Window | 2026-09-12T22:36:08Z → 2026-09-13T01:36:11Z (3 h exact) |
+| Target | `81c0228` |
+| Rounds | 18 280 · passes 18 280 · fails 0 |
+| accounting:OK lines | 18 280 / 18 280 |
+| `bind != 0` tripwire | 0 alarms — the binding-drop signature of the incident |
+| Rung E | PASS as entry gate |
+| Co-tenancy | 13 breaches, all inside the window, all from `orbit-discord-bot` only (see below); opencrabs, gitlab-runner and cron down for the full 3 h, crontab zero |
+| Restore | complete |
+
+The number that matters: 18 280 rounds with admission **proved**, not
+assumed. In the original run the 25 689 PASS lines did not observe daemon
+effect — and for ladder A there was nothing to observe.
+
+### Co-tenancy root cause (found during this re-run)
+
+`orbit-discord-bot` returned at 00:45:59 mid-window. `systemctl --user cat`
+shows `Restart=always`, `RestartSec=5`: the kit's pause did `stop`, and the
+unit's own restart policy brought it back ~5 s after anything touched it.
+The run-1 conclusion ("reactivated by hand") is retracted — at least the bot
+returned by itself, and we were treating declared unit behaviour as human
+error. This re-run's numbers stand (the bot is light, and per-round
+accounting proves what the daemon did round by round), and the event is
+declared here rather than smoothed over: co-tenancy was clean for the first
+2 h 10; the bot was active from 00:46 via unit policy.
+
+**Kit fix (this commit onward):** `cmd_pause` reads each unit's `Restart=`
+policy and `mask`s exactly the units that have one (recorded in
+`masked-units.txt`); `cmd_restore` unmasks before starting anything — a
+masked unit cannot be started, order matters. Units with no policy keep the
+plain stop/start pair. Mirrors the existing sleep.target handling.
+
 ## Structural Limitation: Session Concurrency
 
 The 16-slot handshake table ceiling constrains concurrent sessions, not
