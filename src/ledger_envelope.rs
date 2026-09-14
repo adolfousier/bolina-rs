@@ -71,9 +71,13 @@ pub struct Ledger {
     seq_windows: Vec<SeqWindow>,
     anchors: Vec<AnchorEntry>,
     revocations: Vec<RevocationEntry>,
-    /// Count of successful fresh inserts (not idempotent duplicates).
+    /// Fresh-identity scans completed: accepted inserts PLUS cap-rejected
+    /// arrivals (a StoreFull rejection still paid the full linear scan —
+    /// counting it keeps this the work-done gauge; idempotent re-sends of
+    /// stored envelopes are excluded, they short-circuit in the scan).
     pub inserts_total: u64,
-    /// Count of StoreFull rejections.
+    /// Count of StoreFull rejections (a subset of inserts_total since the
+    /// cap-counts-work change, 2026-09-13).
     pub storefull_total: u64,
 }
 
@@ -139,6 +143,10 @@ impl Ledger {
         }
         // Capacity check AFTER scan.
         if self.envelopes.len() >= MAX_ENVELOPES {
+            // The rejection is not free: a fresh identity paid for the full
+            // linear scan before StoreFull fired. Count the work done
+            // (w14_ledger_sizing pins its cost), not only the refusal.
+            self.inserts_total += 1;
             self.storefull_total += 1;
             return Err(LedgerError::StoreFull);
         }
@@ -349,6 +357,9 @@ mod tests {
         let err = ledger.insert_envelope(overflow).unwrap_err();
         assert_eq!(err, LedgerError::StoreFull);
         assert_eq!(ledger.storefull_total, 1);
-        assert_eq!(ledger.inserts_total, MAX_ENVELOPES as u64);
+        // cap-counts-work (2026-09-13): the rejected arrival paid the full
+        // linear scan, so it counts in inserts_total too; storefull_total is
+        // a subset, not additive. Store growth stays frozen at MAX.
+        assert_eq!(ledger.inserts_total, MAX_ENVELOPES as u64 + 1);
     }
 }
