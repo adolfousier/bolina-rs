@@ -172,8 +172,18 @@ fn slowloris_guard() {
     let addr = cp.listener.local_addr().unwrap();
     sleep(Duration::from_millis(50));
     let mut client = connect_to(addr);
-    // poll_tick accepts the connection
-    cp.poll_tick().ok();
+    // Accept is one-shot per poll_tick; under parallel-suite load the
+    // completed connection can surface a tick late (observed 3/3 as
+    // clients.len()=0 in-suite on a load-3.5 box, 9/9 alone). Poll for
+    // admission the same way the ejection below polls - the assertion
+    // (exactly 1 client admitted) is unchanged.
+    for _ in 0..50 {
+        cp.poll_tick().ok();
+        if !cp.clients.is_empty() {
+            break;
+        }
+        sleep(Duration::from_millis(10));
+    }
     assert_eq!(cp.clients.len(), 1);
     sleep(Duration::from_millis(50));
     // Send 1124 bytes with NO newline — slowloris guard triggers
