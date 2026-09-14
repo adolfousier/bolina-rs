@@ -214,7 +214,7 @@ fn ctrl_api_get_intent_state_pending() {
 }
 
 /// 7. metrics counters verbatim with the control-plane trio from ARGS;
-/// wire-path counters follow (pending-corrections #1) with all 44 classes.
+/// wire-path counters follow (pending-corrections #1) with all 45 classes.
 #[test]
 fn ctrl_api_metrics_verbatim() {
     let body = metrics_body(2, 7, 1, 0, &WireCounters::new(), 0, 0);

@@ -252,6 +252,14 @@ impl Daemon {
             |out: &[u8]| sock.send_to(out, src).map(|_| ()).map_err(|_| ()),
             now_ms(),
         );
+        if matches!(res, Err(handshake::HandshakeError::TableFull)) {
+            // 16 committed slots, none released on the daemon path: the
+            // initiation is dropped with no reply. Without this bump the
+            // wall is only visible as a ledger-arrival gap (measured
+            // 2026-09-13: soak round 4 with epoch_rounds>4, every wire
+            // ladder dies at msg2 while bind/trp/prs stay 0).
+            self.wire.bump(WireRejectClass::HandshakeFull);
+        }
         if let Ok(slot) = res {
             let Some(s) = self.hs.slots[slot].as_ref() else {
                 return;

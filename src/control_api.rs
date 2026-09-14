@@ -76,6 +76,12 @@ pub enum WireRejectClass {
     RIntentDuplicateId,
     RIntentResourceHeld,
     RIntentNotPending,
+    // Handshake-stage (daemon.rs handle_handshake): the 16-slot table refused
+    // an initiation. Distinct from Binding — the frame parsed fine, there was
+    // just no slot. Silent without this counter: the only symptom is a
+    // ledger-arrival gap several counters downstream (measured 2026-09-13,
+    // ledger-loaded soak: all wire ladders die at msg2, bind/trp/prs all 0).
+    HandshakeFull,
 }
 
 impl WireRejectClass {
@@ -125,6 +131,7 @@ impl WireRejectClass {
         "r_intent_duplicate_id",
         "r_intent_resource_held",
         "r_intent_not_pending",
+        "handshake_full",
     ];
 
     pub const COUNT: usize = Self::NAMES.len();
@@ -176,6 +183,7 @@ impl WireRejectClass {
             WireRejectClass::RIntentDuplicateId => 41,
             WireRejectClass::RIntentResourceHeld => 42,
             WireRejectClass::RIntentNotPending => 43,
+            WireRejectClass::HandshakeFull => 44,
         }
     }
 
