@@ -77,6 +77,19 @@
   the twin note for docs/THREAT-MODEL.md lives in the Zig tree and waits
   for the owner's archive decision. (crab + iamloonix)
 
+
+- 2026-09-14 — Zig reference tree FROZEN, not archived (owner decision in
+  the group: "podes congelar"). Mechanism: annotated tag
+  `frozen-reference-2026-09-14` on 53fd099 in ~/srv/zig/bolina; the tree
+  stays where it is, buildable, no further commits unless the owner
+  reopens. Rationale as Daniel argued it: rung E is only a cross-check
+  while two independent implementations exist; archiving ends the
+  independence and makes the port its own reference, the W4 symmetry
+  trap. The kit's v0.6.0 tag set the precedent — a frozen tag, review
+  never runs against moving main. Pending now from the freeze: the twin
+  gate-collision note for docs/THREAT-MODEL.md, which Daniel holds and
+  sends in paste-and-commit form. (crab)
+
 ## 2026-09-13 — mutation gate CLOSED 62/62; kit restart-pin via drop-in; two phantoms retracted
 
 - Mutation re-run after the 9-anchor re-point (3178af9): **62 total, 62 KILLED,
