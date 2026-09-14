@@ -89,8 +89,12 @@ the justification treated K as K×100/s throughput):
   and every wire ladder dies at msg2 (bind/trp/prs=0, hadm+1 alive).
   Ledger peaked ~1220 live; latency FLAT rounds 0-3 (48-68ms/300-env).
   The 4096 scan cost is answered deterministically instead
-  (tests/w14_ledger_sizing.rs: 6µs warm at cap, printed by the test, vs
-  the 100µs pacing budget).
+  (tests/w14_ledger_sizing.rs times BOTH terms at cap — insert-dedup
+  and the dominant all_parents_present with 8 worst-case parents;
+  target worst case 5.5µs + 46.4µs ≈ 54µs vs the 100µs pacing budget,
+  ~2x margin, verify/fsync excluded. The first version of this note
+  quoted only the dedup term; Daniel's target measurement showed the
+  parent-check is the dominant one).
   HandshakeFull is now a counted reject class and the wrapper guards
   epoch_rounds past the wall (--allow-handshake-cap). See G5 receipt
   corrigendum 2026-09-14.

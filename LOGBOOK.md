@@ -40,10 +40,14 @@
   own accounting tripwire caught it: ledger_arrivals=0 < floor while
   nothing in bind/trp/prs moved. The ledger never reached 4096 live
   (~1220 when the slots died), so the cap question is answered
-  deterministically in-process instead: w14_ledger_sizing measures the
-  fresh-identity scan at cap: 6µs warm (printed by the test; gross
-  ceiling 10ms asserted) vs the 100µs/envelope pacing budget — pacing
-  holds even at 4096; growth freezes; StoreFull is now
+  deterministically in-process instead: w14_ledger_sizing times BOTH
+  per-envelope terms at the 4096 cap, insert-dedup and the dominant
+  parent-check (all_parents_present, 8 parents at store end — worst
+  case). Target machine (Daniel): 5.5µs + 46.4µs ≈ 54µs vs the
+  100µs/envelope pacing budget: margin ~2x, verify and fsync NOT
+  included. No margin claim survives without those terms; each run
+  prints its own µs, docs cite no single machine's number. Pacing
+  holds at cap; growth freezes; StoreFull is now
   counted as work done (inserts_total includes cap-rejected arrivals;
   the wrapper's ledger_arrivals reads d[0] alone, d[1] became a subset,
   not additive). Landed with it: HandshakeFull as the 45th reject class
