@@ -96,7 +96,7 @@ mode_soak() {
   local bind="${BIND:-127.0.0.1:9800}" control="${CONTROL:-127.0.0.1:9801}"
   NO_PACING=
   local daemon_kex="${DAEMON_KEX_PUB:-}" daemon_sig="${DAEMON_SIG_PUB:-}"
-  local abort_on_fail=0 outdir="" keep_all_logs=0 log_sample=100 envelopes_per_session=0 drain_delay_ms=500
+  local abort_on_fail=0 outdir="" keep_all_logs=0 log_sample=100 envelopes_per_session=0 drain_delay_ms=500 handshake_cap=0
   while [ $# -gt 0 ]; do
     case "$1" in
       --rounds)        rounds="$2"; shift 2 ;;
@@ -114,10 +114,26 @@ mode_soak() {
       --log-sample)    log_sample="$2"; shift 2 ;;
       --envelopes-per-session) envelopes_per_session="$2"; shift 2 ;;
       --drain-delay-ms) drain_delay_ms="$2"; shift 2 ;;
-      *) die "soak: unknown arg $1 (accepted: --rounds --duration --epoch-rounds --bind --control --seed --daemon-kex-pub --daemon-sig-pub --abort-on-fail --outdir --keep-all-logs --no-pacing --log-sample --envelopes-per-session --drain-delay-ms)" ;;
+      --allow-handshake-cap) handshake_cap=1; shift ;;
+      *) die "soak: unknown arg $1 (accepted: --rounds --duration --epoch-rounds --bind --control --seed --daemon-kex-pub --daemon-sig-pub --abort-on-fail --outdir --keep-all-logs --no-pacing --log-sample --envelopes-per-session --drain-delay-ms --allow-handshake-cap)" ;;
     esac
   done
   [ "$rounds" -gt 0 ] || [ "$duration" -gt 0 ] || die "soak: --rounds N or --duration SEC required"
+  # Handshake-table wall (measured 2026-09-13, ledger-loaded drain soak): the
+  # daemon path commits one slot per wire handshake and releases none until
+  # the epoch restart, so the 16-slot table is a hard round ceiling:
+  #   with V    : 4 wire handshakes/round (A, B, C, V; D is control-plane)
+  #               -> fills at exactly round 4: rounds 0-3 PASS, round 4+ all
+  #               wire ladders die at msg2 with bind/trp/prs=0.
+  #   without V : 3/round -> default epoch_rounds=5 (15) survives by one.
+  # Soaking past the wall is a deliberate act, not an accident that reads as
+  # a drain regression: name it or stay under it.
+  if [ "$envelopes_per_session" -gt 0 ] && [ "$epoch_rounds" -gt 4 ] && [ "$handshake_cap" -ne 1 ]; then
+    die "soak: epoch_rounds=$epoch_rounds with envelopes_per_session>0 exhausts the 16-slot handshake table at round 4 (4 wire handshakes/round, no release on the daemon path). Use --epoch-rounds <= 4, or --allow-handshake-cap to hit the wall deliberately."
+  fi
+  if [ "$epoch_rounds" -gt 5 ] && [ "$handshake_cap" -ne 1 ]; then
+    die "soak: epoch_rounds=$epoch_rounds exhausts the 16-slot handshake table even without ladder V (3 wire handshakes/round, no release). Use --epoch-rounds <= 5, or --allow-handshake-cap."
+  fi
 
   build_client
   [ -x "$DAEMON_BIN" ] || die "daemon binary missing (build at repo root: cargo build --release): $DAEMON_BIN"
@@ -245,7 +261,8 @@ print(vals.get("bolina_ledger_inserts_total", -1),
       vals.get("bolina_ledger_storefull_total", -1),
       rej("binding"), rej("transport"), rej("parse"),
       vals.get("bolina_wire_admissions_total", -1),
-      vals.get("bolina_intents_admitted_total", -1))
+      vals.get("bolina_intents_admitted_total", -1),
+      rej("handshake_full"))
 PYPY
   }
 
@@ -300,15 +317,20 @@ import sys
 p = [int(x) for x in sys.argv[1].split()]
 q = [int(x) for x in sys.argv[2].split()]
 d = [b - a for a, b in zip(p, q)]
-d_ledger = d[0] + d[1]
+# ledger_arrivals = fresh-identity scans (d[0]): inserts_total counts
+# cap-rejected arrivals too since 2026-09-13; storefull (d[1]) is a subset,
+# not additive — adding both double-counted a StoreFull arrival.
+d_ledger = d[0]
 floor = int(sys.argv[3])
 problems = []
 if d[2] != 0:
     problems.append("binding_rejects=%d (unframed binding?)" % d[2])
 if d_ledger < floor:
-    problems.append("ledger_arrivals=%d < floor %d" % (d_ledger, floor))
+    hint = (" (handshake_full+%d: 16-slot wall, not a drain gap)" % d[7]
+            if d[7] > 0 else "")
+    problems.append("ledger_arrivals=%d < floor %d%s" % (d_ledger, floor, hint))
 status = "FAIL" if problems else "OK"
-detail = (" ins+%d sf+%d bind+%d trp+%d prs+%d wadm+%d hadm+%d" % tuple(d))
+detail = (" ins+%d sf+%d bind+%d trp+%d prs+%d wadm+%d hadm+%d hf+%d" % tuple(d))
 if problems:
     detail += " <<< " + "; ".join(problems)
 print(status + detail)
