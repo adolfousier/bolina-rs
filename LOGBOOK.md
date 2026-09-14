@@ -30,6 +30,33 @@
   made the pin lie; the read-back caught it, removed only our file, list
   stayed empty). First proven pause there ever.
 
+- 2026-09-14 — ledger-loaded drain measurement (Daniel's 10-minute ask)
+  found the wall BEFORE the ledger: 16 rounds, 300 envs, epoch_rounds=20
+  (no restart), `.g5-load/` + `.g5-load2/`. Rounds 0-3 PASS at ins+305;
+  round 4 onward EVERY wire ladder fails at handshake.msg2 (EAGAIN) while
+  `hadm+1` proves the control plane is alive. Arithmetic: 4 wire
+  handshakes/round (A, B, C, V — D is control-plane) × 4 rounds = the
+  16-slot table, exactly. This is the series' eighth defect and Daniel's
+  own accounting tripwire caught it: ledger_arrivals=0 < floor while
+  nothing in bind/trp/prs moved. The ledger never reached 4096 live
+  (~1220 when the slots died), so the cap question is answered
+  deterministically in-process instead: w14_ledger_sizing measures the
+  fresh-identity scan at cap: 6µs warm (printed by the test; gross
+  ceiling 10ms asserted) vs the 100µs/envelope pacing budget — pacing
+  holds even at 4096; growth freezes; StoreFull is now
+  counted as work done (inserts_total includes cap-rejected arrivals;
+  the wrapper's ledger_arrivals reads d[0] alone, d[1] became a subset,
+  not additive). Landed with it: HandshakeFull as the 45th reject class
+  (visible on /metrics as handshake_full, echoed per-round as hf+ with
+  an attribution hint when the floor fires), and the wrapper refuses
+  epoch_rounds>4 with V (or >5 without) unless --allow-handshake-cap
+  declares the wall deliberate — no more silently soaking into a dead
+  table and reading it as a drain regression.
+  The measurement also confirms the seal must stay NARROW: 62/62 mutation
+  is the hand-written regression net, not coverage — it contains zero
+  wire-framing mutants, verify 3, handshake 1; the handshake-cap class is
+  now covered by this soak + guard, not by the mutation set.
+
 - 2026-09-13 — kit bare-name breakage, caught by the owner ON HIS MACHINE,
   not by reading: drop-in wrote `orbit-discord-bot.d/` (systemd reads
   `<unit>.service.d/`), logged success, bot resurrected anyway — a silent

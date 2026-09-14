@@ -83,6 +83,17 @@ the justification treated K as K×100/s throughput):
 - Zig parity note: the reference has the same one-packet-per-tick structure;
   fixing the port ahead of the frozen reference is allowed here because the
   soak contract (G5 floor) is the port's, not the reference's.
+- **Ledger-loaded measurement DONE 2026-09-14** (this machine, 16×300,
+  epoch_rounds=20): the required observation could not reach the ledger —
+  the 16-slot handshake table fills at round 4 (4 wire handshakes/round)
+  and every wire ladder dies at msg2 (bind/trp/prs=0, hadm+1 alive).
+  Ledger peaked ~1220 live; latency FLAT rounds 0-3 (48-68ms/300-env).
+  The 4096 scan cost is answered deterministically instead
+  (tests/w14_ledger_sizing.rs: 6µs warm at cap, printed by the test, vs
+  the 100µs pacing budget).
+  HandshakeFull is now a counted reject class and the wrapper guards
+  epoch_rounds past the wall (--allow-handshake-cap). See G5 receipt
+  corrigendum 2026-09-14.
 
 
 ## 3. A's frozen envelope targets the vector's undeclared resource (found by

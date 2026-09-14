@@ -83,6 +83,21 @@ a saturating structure, not an unbounded one.
    design change — improvement over the canonical, archived as proposal,
    not a gate prerequisite.
 
+Corrigendum 2026-09-14 (ledger-loaded drain measurement, LOGBOOK top):
+item 1's open question was measured. A 16-round local run (300 envs,
+`--epoch-rounds 20`, no restart) died on item 2's wall before the ledger
+could fill: every wire ladder fails at handshake.msg2 from round 4
+(4 handshakes/round × 4 = 16 slots), ledger ~1220 when the slots went.
+Batch latency stayed FLAT across rounds 0-3 (48-68ms per 300-envelope
+round ≈ 5-6k env/s), so no scan-cost growth showed up to ~1220 entries;
+the 4096 case is answered deterministically instead (tests/
+w14_ledger_sizing.rs): fresh-identity scan at cap measured 6µs warm
+(the test prints its own number), vs the 100µs/envelope pacing budget —
+pacing holds at full ledger; inserts stop
+growing at the cap; the cap-rejected arrival is now counted as work done.
+Item 2 got a visible counter (handshake_full, 45th class) and a wrapper
+guard (`--allow-handshake-cap` is the only way to soak past it).
+
 ## Target note — tag relationship
 
 The soak ran against `f74d57b`, which is 1 src-bearing commit ahead of the
