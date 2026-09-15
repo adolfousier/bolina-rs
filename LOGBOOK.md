@@ -356,9 +356,10 @@ reference swap). Recorded so the blocker list stops inventing a decision
 that does not exist.
 
 Environment of record, corrected at the source: all soaks ran on Daniel's
-local co-tenant machine (hostname `mengle` = the LAN box behind ssh alias
-`orbit-ext`, 192.168.1.101, user `loonix`; the `ssh mengle` alias is a
-different machine, production Hetzner), not on a clean lab box and not on
+local co-tenant machine (hostname `mengle`, the owner's LAN workstation
+reached by the ssh alias `orbit-ext`, co-tenant with the Orbit DEV stack;
+the `ssh mengle` alias points at a different machine, production
+Hetzner), not on a clean lab box and not on
 Hetzner; `g5rerun.sh` samples bot, opencrabs, gitlab-runner and cron every
 300 s. The co-tenancy is deliberate and is
 what makes the latency numbers worth reading. The soak repo on that box

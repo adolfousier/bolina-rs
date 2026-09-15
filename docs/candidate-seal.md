@@ -6,9 +6,11 @@ reaching adolfousier/bolina and the reference swap in the Zig tree. No
 push, tag or swap happens without his explicit OK. There is no
 "owner approves the seal" blocker; that decision does not exist.
 
-Candidate identity: `main` as of the commit that lands this file. Verify
-with `git ls-remote origin refs/heads/main`; the last non-documentation
-commit beneath the seal is `33b345c`.
+Candidate identity: code `33b345c`, the last non-documentation commit;
+text sealed at the commit named by the tag `candidate-seal-2026-09-15`.
+Verify with `git show candidate-seal-2026-09-15:docs/candidate-seal.md`.
+A moving head is not an identity: `ls-remote` never points at the past,
+and this file's text must.
 
 ## What this seal covers (measured, with receipts)
 
@@ -53,11 +55,12 @@ commit beneath the seal is `33b345c`.
   measured: no run passed ~1 220 live envelopes because the 16-slot wall
   arrives first. The cap cost is answered deterministically (w14), not
   in-situ; the in-situ confirmation arrives with slot release, post-seal.
-- Every latency number in this series comes from the owner's co-tenant
-  local machine (hostname `mengle`, reached by ssh alias `orbit-ext`,
-  192.168.1.101, user `loonix`; the `ssh mengle` alias is a different
-  machine, production Hetzner; bot, opencrabs, gitlab-runner and cron
-  sampled every 300 s by `g5rerun.sh`). None comes from an isolated lab
+- Every latency number in this series comes from Daniel's co-tenant
+  local machine (hostname `mengle`, the owner's LAN workstation reached
+  by the ssh alias `orbit-ext`, co-tenant with the Orbit DEV stack; the
+  `ssh mengle` alias points at a different machine, production Hetzner;
+  bot, opencrabs, gitlab-runner and cron sampled every 300 s by
+  `g5rerun.sh`). None comes from an isolated lab
   box. The latencies are co-tenant numbers — that is what gives them
   value, not what limits it.
 
