@@ -54,9 +54,11 @@ commit beneath the seal is `33b345c`.
   arrives first. The cap cost is answered deterministically (w14), not
   in-situ; the in-situ confirmation arrives with slot release, post-seal.
 - Every latency number in this series comes from the owner's co-tenant
-  local machine (hostname `mengle`; bot, opencrabs, gitlab-runner and
-  cron sampled every 300 s by `g5rerun.sh`). None comes from an isolated
-  lab box. The latencies are co-tenant numbers — that is what gives them
+  local machine (hostname `mengle`, reached by ssh alias `orbit-ext`,
+  192.168.1.101, user `loonix`; the `ssh mengle` alias is a different
+  machine, production Hetzner; bot, opencrabs, gitlab-runner and cron
+  sampled every 300 s by `g5rerun.sh`). None comes from an isolated lab
+  box. The latencies are co-tenant numbers — that is what gives them
   value, not what limits it.
 
 ## Handover
