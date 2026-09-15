@@ -306,7 +306,7 @@ Expected outcomes per round (Rust daemon, after epoch round 0):
 | HTTP 400 | 1 (D) |
 | SSE responses | 1 (D) |
 
-A round **passes** if all counts match expected values. Any deviation is a failure. Epoch round 0 expects the same counts (frozen bytes, classified as above).
+A round **passes** if all counts match expected values. Any deviation is a failure. Epoch round 0 expects **5 wire admissions, not 6**: the frozen intent carries the vector's executor-bound resource (`bol:c3ef.../logs/deploy.log`), which cannot resolve against a per-boot-keyed Rust daemon - `resolve` checks the executor fp after membership (resolver.rs:260, §5.1.4) - so it lands as the counted `r_unknown_resource` refusal instead. That single refusal is the executor-binding gate working as designed: the byte-exactness path (wire, parse, verify, dedupe, dispatch chain) still runs to its end, and the positive half of the gate belongs to rung E, where the daemon IS the vector's executor. (Amended 2026-09-15 after pending #3 closure; the previous text promised "the same counts" for round 0, which is arithmetically impossible. No wrapper gate enforced the per-ladder totals - the floor is V-only - so the claim drifted from observation unnoticed: exactly the class of doc-vs-mechanics gap the seal-narrow rule exists to catch.)
 
 ## 6. Determinism
 

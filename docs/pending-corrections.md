@@ -101,7 +101,7 @@ the justification treated K as K×100/s throughput):
 
 
 ## 3. A's frozen envelope targets the vector's undeclared resource (found by
-round accounting, 2026-09-12)
+round accounting, 2026-09-12) - **CLOSED as documented** (2026-09-15, verdict below)
 
 Round 0's frozen intent carries `bol:c3ef.../logs/deploy.log` - not declared -
 so dispatch refuses it; A's admission only lands from round 1 (built path,
@@ -109,3 +109,23 @@ declared lane). The frozen round-0 envelope is a byte-exactness check, not an
 admission exercise; either declare the vector resource at boot or accept the
 one-refusal pattern and document it in the G5 re-issue. Small tools/ change,
 no src/ touch.
+
+**Verdict, measured 2026-09-15: CLOSED as documented.** "Declare the vector
+resource at boot" cannot work. `Resolver::resolve` checks the embedded
+executor fp AFTER membership (resolver.rs:260): a declared
+`bol:c3ef.../logs/deploy.log` flips from `UnknownResource` to
+`ForeignExecutor`, still refused, because the daemon's sig key is generated
+per boot (boot evidence, same box: `33f0b22d...` then `705cb056...`; run fp
+`8572dcd9...` ≠ vector fp `c3ef...`). The design doc already states the rule
+(§5.1.4: "for the daemon to resolve this resource locally, it must **be**
+that executor") - round 0's one-refusal is that gate working, not a wiring
+gap. The refusal is NOT silent: dispatch's Err arm bumps
+`WireRejectClass::from(DispatchError)` (daemon.rs:543-546) into the counted
+`r_unknown_resource` class. What was wrong was §5.3's table, which promised
+"epoch round 0 expects the same counts" - six wire admissions are
+arithmetically impossible there; real rounds land 5 + the counted refusal,
+and no wrapper gate enforces the per-ladder totals (the floor is V-only), so
+the design claim drifted from observation unnoticed. Table fixed in §5.3;
+the positive half of the executor-binding check stays rung E's job (the
+vector resolves only against its own executor, i.e. the Zig daemon
+provisioned with the vector key).
