@@ -346,3 +346,34 @@ He applied the sed fix before launching A2 (confirmed by `cat -A`), and his
 31 ms folga proves pacing was ON by my own detector. I confused A2 with his
 earlier 12-round run (the one he killed mid-run at 12/12 FAIL). The
 criterion is demonstrated on his machine; no re-run needed.
+## 2026-09-15 — seal decision: slot release post-seal; seal authority Daniel; handover written down
+
+Decision (Daniel): handshake slot release enters the **next** candidate,
+post-seal. The seal itself belongs to Daniel — he gave the machine and the
+crab for this port; the repo owner (Adolfo) gates only GitHub-visible moves
+(the `frozen-reference-2026-09-14` tag reaching adolfousier/bolina, and the
+reference swap). Recorded so the blocker list stops inventing a decision
+that does not exist.
+
+Environment of record, corrected at the source: all soaks ran on Daniel's
+local co-tenant machine (hostname `mengle`, the Orbit DEV host), not on a
+clean lab box and not on Hetzner; `g5rerun.sh` samples bot, opencrabs,
+gitlab-runner and cron every 300 s. The co-tenancy is deliberate and is
+what makes the latency numbers worth reading. The soak repo on that box
+(`~/srv/soak-g3-rs/bolina-rs-head`) must pull to the current tip before
+the re-run.
+
+The §16 8 h soak already ran — it is G5 (11 944/11 944 rounds, 23.89 M
+envelopes sent, 10–11 Sep window). What remains is the **1 h** instrumented
+re-run with the wire counters (`b859732`, `81c0228`) so G5 re-issues with
+measured admission instead of capacity arithmetic; the G4 receipt already
+writes it as a follow-on that does not block the seal. There is no 8 h
+number left to budget.
+
+HANDOVER, in the book and not in session memory: **Pending #2 (handshake
+slot release) is the FIRST item of the next candidate**, with
+docs/handshake-slot-release-design.md closed as its input. The sealed text
+(docs/candidate-seal.md) carries the 16-handshake terminal wall as a flat
+statement in the not-covered block, at the same altitude as the 62/62
+caveat, as the seal authority required: guard in the wrapper only, daemon
+uncapped and terminal, visible but final for the process lifetime.

@@ -1,8 +1,10 @@
 # Handshake slot release: decoupling design (2026-09-15)
 
-**Status:** Proposal, awaiting Daniel + owner decision. src/ change → next
-candidate (post-seal, §15). Nothing here is wired; the guard landed 2026-09-14
-(64bb27b) is what keeps the wall loud until this lands.
+**Status:** DECIDED 2026-09-15 (Daniel): enters the next candidate as its
+FIRST item, post-seal; sealed text carries the terminal 16-handshake wall
+flat until then (docs/candidate-seal.md). src/ change → next candidate, per
+§15. Nothing here is wired; the guard landed 2026-09-14 (64bb27b) is what
+keeps the wall loud until this lands.
 
 ## 1. Problem (measured, not inferred)
 
