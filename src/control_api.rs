@@ -270,6 +270,10 @@ impl From<IntentError> for WireRejectClass {
 
 pub struct WireCounters {
     pub admissions_total: u64,
+    /// Handshake slots freed by the idle-timeout sweep (design §4 step 3,
+    /// docs/handshake-slot-release-design.md). Bumped by the daemon once per
+    /// sweep by the number of freed indices.
+    pub handshake_released_total: u64,
     pub rejects: [u64; WireRejectClass::COUNT],
 }
 
@@ -277,6 +281,7 @@ impl WireCounters {
     pub fn new() -> Self {
         Self {
             admissions_total: 0,
+            handshake_released_total: 0,
             rejects: [0u64; WireRejectClass::COUNT],
         }
     }
@@ -541,6 +546,10 @@ pub fn get_intent_state(
 /// metricsBody :198 - Prometheus text format. Counter names pinned;
 /// control-plane trio comes from ARGS (not globals) because the wire path
 /// passes real totals here.
+// Flat scalar args keep each rendered line traceable to one named source at
+// the call site (byte-pinned by metrics_body_verbatim); a params struct would
+// hide that mapping. House precedent: daemon.rs chunks_exact allow.
+#[allow(clippy::too_many_arguments)]
 pub fn metrics_body(
     admitted_total: u64,
     ctl_requests: u64,
@@ -549,6 +558,7 @@ pub fn metrics_body(
     wire: &WireCounters,
     ledger_inserts: u64,
     ledger_storefull: u64,
+    hs_slots_used: usize,
 ) -> String {
     let mut out = String::new();
     for (name, val) in [
@@ -559,6 +569,15 @@ pub fn metrics_body(
         ("bolina_wire_admissions_total", wire.admissions_total),
         ("bolina_ledger_inserts_total", ledger_inserts),
         ("bolina_ledger_storefull_total", ledger_storefull),
+        // Slot-release observability (design §4 step 4): wall, recycling and
+        // occupancy readable in one scrape - handshake_full says you hit the
+        // wall, released_total says the table is recycling, slots_used says
+        // how full it is right now.
+        (
+            "bolina_handshake_released_total",
+            wire.handshake_released_total,
+        ),
+        ("bolina_handshake_slots_used", hs_slots_used as u64),
     ] {
         out.push_str(&format!("{} {}\n", name, val));
     }
@@ -641,9 +660,11 @@ mod tests {
     fn metrics_body_verbatim() {
         let mut w = WireCounters::new();
         w.admissions_total = 4;
+        w.handshake_released_total = 6;
         w.rejects[0] = 3;
-        let body = metrics_body(3, 10, 1, 2, &w, 5, 7);
-        // Original four lines stay byte-pinned; wire counters follow.
+        let body = metrics_body(3, 10, 1, 2, &w, 5, 7, 11);
+        // Original four lines stay byte-pinned; wire counters follow, then
+        // the slot-release pair (design §4 step 4, w10/w13 pin pattern).
         assert!(
             body.starts_with(
                 "bolina_intents_admitted_total 3\n\
@@ -652,13 +673,15 @@ mod tests {
                  bolina_ctl_timeouts_total 2\n\
                  bolina_wire_admissions_total 4\n\
                  bolina_ledger_inserts_total 5\n\
-                 bolina_ledger_storefull_total 7\n"
+                 bolina_ledger_storefull_total 7\n\
+                 bolina_handshake_released_total 6\n\
+                 bolina_handshake_slots_used 11\n"
             ),
             "{body}"
         );
         assert_eq!(
             body.lines().count(),
-            7 + WireRejectClass::COUNT,
+            9 + WireRejectClass::COUNT,
             "all reject classes must render"
         );
         assert!(

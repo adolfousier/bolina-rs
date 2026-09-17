@@ -467,3 +467,53 @@ file = "src/control_api.rs"
 anchor = "    for (i, name) in WireRejectClass::NAMES.iter().enumerate() {"
 replacement = "    for (i, name) in WireRejectClass::NAMES[..1].iter().enumerate() {"
 description = "counters: /metrics renders only the first reject class"
+
+# --- HANDSHAKE SLOT RELEASE (docs/handshake-slot-release-design.md) ---
+[[mutants]]
+domain = "handshake"
+file = "src/transport/handshake.rs"
+anchor = "pub const T_HS_IDLE_MS: u64 = 900_000;"
+replacement = "pub const T_HS_IDLE_MS: u64 = 90_000;"
+description = "handshake: idle horizon 10x too short (frees live sessions)"
+
+[[mutants]]
+domain = "handshake"
+file = "src/transport/handshake.rs"
+anchor = "                if now_ms.saturating_sub(s.created_ms) > timeout_ms {"
+replacement = "                if now_ms.saturating_sub(s.created_ms) >= timeout_ms {"
+description = "handshake: release boundary at exactly T fires (strict > per design §5)"
+
+[[mutants]]
+domain = "daemon"
+file = "src/daemon.rs"
+anchor = "        self.sessions.release(idx as u32);"
+replacement = "        // mutated: session-table mirror left populated"
+description = "daemon: slot release skips sessions mirror (partial release, design §4.2)"
+
+[[mutants]]
+domain = "daemon"
+file = "src/daemon.rs"
+anchor = "        self.peer_static[idx] = None;"
+replacement = "        // mutated: peer_static mirror left populated"
+description = "daemon: slot release skips peer_static mirror (partial release, design §4.2)"
+
+[[mutants]]
+domain = "daemon"
+file = "src/daemon.rs"
+anchor = "        self.wire.handshake_released_total += freed.len() as u64;"
+replacement = "        self.wire.handshake_released_total += 0;"
+description = "daemon: handshake_released_total never moves (design §4.3)"
+
+[[mutants]]
+domain = "control_api"
+file = "src/control_api.rs"
+anchor = "            wire.handshake_released_total,"
+replacement = "            0,"
+description = "control_api: /metrics renders released_total as constant 0"
+
+[[mutants]]
+domain = "control_api"
+file = "src/control_api.rs"
+anchor = "        (\"bolina_handshake_slots_used\", hs_slots_used as u64),"
+replacement = "        (\"bolina_handshake_slots_used\", 0),"
+description = "control_api: /metrics renders slots_used gauge as constant 0"

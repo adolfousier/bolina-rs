@@ -11,6 +11,7 @@ use std::net::UdpSocket;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use bolina::codec::{self, DOMAIN_CERT, DOMAIN_ENVELOPE};
+use bolina::control_api::WireRejectClass;
 use bolina::daemon::Daemon;
 use bolina::keys;
 use bolina::transport::binding::{DOMAIN_BINDING, ROLE_AGENT, ROLE_APPROVER};
@@ -741,4 +742,96 @@ fn w12_unknown_resource_intent_is_rejected_silently() {
         0,
         "fail-closed: no admission event"
     );
+}
+
+// ---------------------------------------------------------------------------
+// Handshake slot release (docs/handshake-slot-release-design.md §5):
+// the three-structure invariant, the wall-then-recycle path, and the
+// fresh-session survival bound. Fake clock via the `now` parameter of
+// release_stale_slots - no sleeping, no wall-clock dependence.
+// ---------------------------------------------------------------------------
+
+/// Build a bare msg1 from the rig's client identity (no response read);
+/// used for handshakes that MUST be refused (TableFull sends no msg2).
+fn msg1_from(rig: &Rig, our_index: u32) -> [u8; MSG1_SIZE] {
+    let daemon_sig_pub = rig.daemon.keys.sig_pub();
+    let daemon_kex_pub = rig.daemon.keys.pub_static;
+    let mut initiator = Initiator::new(rig.client_keys.kex, daemon_kex_pub);
+    let mut msg1 = [0u8; MSG1_SIZE];
+    initiator
+        .write_initiation(&mut msg1, our_index, now_ms(), &daemon_sig_pub, &[0u8; 16])
+        .expect("msg1");
+    msg1
+}
+
+/// Design §5 "Unit, daemon sync": after a release, sessions.lookup(idx)
+/// misses AND peer_static[idx] is None - tested as ONE unit because the bug
+/// shape is partial release. The counter moves by exactly the freed count.
+#[test]
+fn w12_slot_release_sweep_frees_all_three_structures() {
+    let mut r = rig_with(None);
+    r.handshake();
+    // All three legs populated for slot 0.
+    assert_eq!(r.daemon.handshake_slots_used(), 1);
+    assert!(r.daemon.sessions.lookup(0).is_some());
+    assert!(r.daemon.peer_static_present(0));
+
+    // A sweep at ~now frees nothing (age << horizon) - fresh survives.
+    assert_eq!(r.daemon.release_stale_slots(now_ms()), 0);
+    assert_eq!(r.daemon.handshake_slots_used(), 1);
+    assert_eq!(r.daemon.wire.handshake_released_total, 0);
+
+    // Fake clock past the 900_000 ms horizon: the slot frees, and the
+    // mirror legs empty WITH it (single release_hs_slot, never three sites).
+    assert_eq!(r.daemon.release_stale_slots(now_ms() + 900_001), 1);
+    assert_eq!(r.daemon.handshake_slots_used(), 0);
+    assert!(r.daemon.sessions.lookup(0).is_none());
+    assert!(!r.daemon.peer_static_present(0));
+    assert_eq!(r.daemon.wire.handshake_released_total, 1);
+
+    // Idempotent: a second sweep at the same clock frees nothing more.
+    assert_eq!(r.daemon.release_stale_slots(now_ms() + 900_001), 0);
+    assert_eq!(r.daemon.wire.handshake_released_total, 1);
+}
+
+/// Design §5 daemon-level wall: 16 commits fill the table, the 17th gets no
+/// msg2 and bumps handshake_full; past the horizon the sweep frees all 16
+/// and the 17th handshake commits - the wall is physical, not clerical.
+#[test]
+fn w12_slot_release_wall_recycles_after_idle_horizon() {
+    let mut r = rig_with(None);
+    for i in 0..16 {
+        r.handshake();
+        assert_eq!(r.daemon.handshake_slots_used(), i + 1, "slot {i} committed");
+    }
+    let hf = WireRejectClass::HandshakeFull.index();
+    let before = r.daemon.wire.rejects[hf];
+
+    // 17th: TableFull - dropped with NO reply (2 s client read timeout).
+    let m1 = msg1_from(&r, 4242);
+    assert!(r.pump(&m1).is_none(), "no msg2 past the wall");
+    assert_eq!(r.daemon.wire.rejects[hf], before + 1, "handshake_full +1");
+    assert_eq!(r.daemon.handshake_slots_used(), 16);
+
+    // Fake clock past the horizon: all 16 free, counter moves by 16.
+    assert_eq!(r.daemon.release_stale_slots(now_ms() + 900_001), 16);
+    assert_eq!(r.daemon.handshake_slots_used(), 0);
+    assert_eq!(r.daemon.wire.handshake_released_total, 16);
+    for idx in 0..16u32 {
+        assert!(
+            r.daemon.sessions.lookup(idx).is_none(),
+            "session {idx} gone"
+        );
+        assert!(
+            !r.daemon.peer_static_present(idx as usize),
+            "peer_static {idx} gone"
+        );
+    }
+
+    // The 17th now commits: msg2 comes back, slot 0 reoccupied.
+    let m1 = msg1_from(&r, 4243);
+    let resp = r.pump(&m1).expect("msg2 after recycle");
+    assert_eq!(resp.len(), MSG2_SIZE);
+    assert_eq!(r.daemon.handshake_slots_used(), 1);
+    assert_eq!(r.daemon.wire.rejects[hf], before + 1, "no new wall hit");
 }

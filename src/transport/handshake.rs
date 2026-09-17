@@ -19,6 +19,15 @@ use x25519_dalek::{x25519, X25519_BASEPOINT_BYTES};
 /// table's larger transport capacity; do not unify without a decision).
 pub const MAX_SESSIONS: usize = 16;
 
+/// Idle-timeout horizon for handshake slot release (candidate-seal 2026-09-15,
+/// docs/handshake-slot-release-design.md §4). Deliberately equal to the
+/// system's own staleness horizon T_PENDING_MS (state/intent.rs:5, Zig
+/// intent.zig:45 BE-GRANT-06a): a session silent longer than the horizon the
+/// system already uses to decide a lane is stuck is, by the system's own
+/// clock, dead. Inheriting an existing constant's value keeps the lifetime
+/// claim reviewable against a documented number instead of a new magic one.
+pub const T_HS_IDLE_MS: u64 = 900_000;
+
 /// handshake.zig:34 - D-049: distinct outcomes stay distinct.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum HandshakeError {
@@ -90,20 +99,27 @@ impl Table {
         self.slots[index] = None;
     }
 
-    /// Release all slots older than `timeout_ms` from `now_ms`. Returns
-    /// the number of slots released. Zeroizes keys before dropping.
-    pub fn release_stale(&mut self, now_ms: u64, timeout_ms: u64) -> usize {
-        let mut released = 0;
-        for slot in self.slots.iter_mut() {
-            if let Some(ref s) = slot {
+    /// Release all slots older than `timeout_ms` from `now_ms`. Returns the
+    /// FREED INDICES (the daemon mirrors each release into the session table
+    /// and peer_static - design §4 step 2, one shared index space).
+    /// Zeroizes keys before dropping (D-018).
+    pub fn release_stale(&mut self, now_ms: u64, timeout_ms: u64) -> Vec<usize> {
+        let mut freed = Vec::new();
+        for (idx, slot) in self.slots.iter_mut().enumerate() {
+            if let Some(ref mut s) = slot {
                 if now_ms.saturating_sub(s.created_ms) > timeout_ms {
                     // zeroize before drop (D-018)
+                    s.send_key = [0; 32];
+                    s.recv_key = [0; 32];
+                    s.handshake_hash = [0; 32];
+                    s.peer_static = [0; 32];
+                    s.created_ms = 0;
                     *slot = None;
-                    released += 1;
+                    freed.push(idx);
                 }
             }
         }
-        released
+        freed
     }
 }
 
@@ -340,14 +356,14 @@ mod tests {
         // At now=6000, timeout=2000: slot 0 is stale (6000-1000=5000 > 2000),
         // slot 1 is fresh (6000-5000=1000 < 2000)
         let released = t.release_stale(6000, 2000);
-        assert_eq!(released, 1);
+        assert_eq!(released, vec![0]); // freed INDEX, not just count
         assert!(t.slots[0].is_none()); // released
         assert!(t.slots[1].is_some()); // kept
         assert!(t.slots[2].is_none()); // was already free
 
         // At now=8000, timeout=2000: slot 1 is now stale (8000-5000=3000 > 2000)
         let released = t.release_stale(8000, 2000);
-        assert_eq!(released, 1);
+        assert_eq!(released, vec![1]);
         assert!(t.slots[1].is_none());
     }
 
@@ -364,7 +380,91 @@ mod tests {
         });
         // timeout=0 means nothing is older than now-0=now
         let released = t.release_stale(1000, 0);
-        assert_eq!(released, 0);
+        assert!(released.is_empty());
         assert!(t.slots[0].is_some());
+    }
+
+    fn literal_session(created_ms: u64) -> Session {
+        Session {
+            send_key: [1; 32],
+            recv_key: [2; 32],
+            handshake_hash: [3; 32],
+            peer_static: [4; 32],
+            created_ms,
+        }
+    }
+
+    /// Design §5 "Unit, table", fake clock, literal values (D-027):
+    /// 16 commits -> 17th TableFull; advance past the idle horizon,
+    /// release_stale frees EXACTLY the expired; the 17th now commits.
+    /// T_HS_IDLE_MS = 900_000 is asserted as the literal 900_000 here,
+    /// never via the constant (expectation must not share its source).
+    #[test]
+    fn slot_release_wall_then_recycle_fake_clock() {
+        use crate::transport::noise::{Initiator, KeyPair as NKeyPair};
+        use rand_core::{OsRng, RngCore};
+        use x25519_dalek::{x25519, X25519_BASEPOINT_BYTES};
+
+        // The horizon IS 900_000 ms - pinned as a literal, design §4.
+        assert_eq!(T_HS_IDLE_MS, 900_000);
+
+        let rsec = [11u8; 32];
+        let rsig = [12u8; 32];
+        let mut t = Table::new();
+        // All 16 slots committed at t=1_000_000 (literal clock).
+        for slot in t.slots.iter_mut() {
+            *slot = Some(literal_session(1_000_000));
+        }
+
+        // 17th handshake against the full table: TableFull.
+        let msg1 = |sender_index: u32| -> [u8; MSG1_SIZE] {
+            let mut isec = [0u8; 32];
+            OsRng.fill_bytes(&mut isec);
+            let mut init = Initiator::new(
+                NKeyPair {
+                    secret: isec,
+                    public: x25519(isec, X25519_BASEPOINT_BYTES),
+                },
+                x25519(rsec, X25519_BASEPOINT_BYTES),
+            );
+            let mut m = [0u8; MSG1_SIZE];
+            init.write_initiation(&mut m, sender_index, 1_000_000, &rsig, &[0u8; 16])
+                .unwrap();
+            m
+        };
+        assert_eq!(
+            process_datagram(&mut t, &msg1(101), rsec, &rsig, ok_send, 1_500_000),
+            Err(HandshakeError::TableFull)
+        );
+
+        // At exactly the horizon (now - created == 900_000) nothing frees:
+        // the comparison is strict > (1_900_000 - 1_000_000 = 900_000).
+        let released = t.release_stale(1_900_000, 900_000);
+        assert!(released.is_empty());
+        assert_eq!(t.slots.iter().filter(|s| s.is_some()).count(), 16);
+
+        // One ms past the horizon: ALL 16 expire, freed indices in order.
+        let released = t.release_stale(1_900_001, 900_000);
+        assert_eq!(released, (0..16).collect::<Vec<usize>>());
+        assert!(t.slots.iter().all(|s| s.is_none()));
+
+        // The 17th handshake now commits, into the first freed slot.
+        let slot = process_datagram(&mut t, &msg1(102), rsec, &rsig, ok_send, 1_900_001).unwrap();
+        assert_eq!(slot, 0);
+    }
+
+    /// Mixed ages: release_stale frees EXACTLY the expired, keeps the fresh,
+    /// and the freed index list is the mirror-cleanup input (design §4.2).
+    #[test]
+    fn slot_release_mixed_ages_frees_exactly_expired() {
+        let mut t = Table::new();
+        t.slots[1] = Some(literal_session(100_000)); // age at now: 900_001 -> stale
+        t.slots[5] = Some(literal_session(100_500)); // age at now: 899_501 -> fresh
+        t.slots[9] = Some(literal_session(50_000)); // age at now: 950_001 -> stale
+        let released = t.release_stale(1_000_001, 900_000);
+        assert_eq!(released, vec![1, 9]);
+        assert!(t.slots[1].is_none());
+        assert!(t.slots[5].is_some());
+        assert!(t.slots[9].is_none());
     }
 }

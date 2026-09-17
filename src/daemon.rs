@@ -137,6 +137,36 @@ impl Daemon {
         self.hs.slots.iter().filter(|s| s.is_some()).count()
     }
 
+    /// Test visibility: the peer_static mirror for one slot. The release
+    /// invariant is three-structure (hs + sessions + peer_static, design §5
+    /// "Unit, daemon sync"); this exposes the third leg to tests.
+    pub fn peer_static_present(&self, idx: usize) -> bool {
+        self.peer_static[idx].is_some()
+    }
+
+    /// THE single release point (design §4 step 2): handshake table, session
+    /// table and peer_static share ONE index space, so a release touches all
+    /// three here and nowhere else - the bug shape this guards is partial
+    /// release. hs.release_slot is idempotent, so sweep-driven calls (slot
+    /// already freed by release_stale) and direct calls converge.
+    fn release_hs_slot(&mut self, idx: usize) {
+        self.hs.release_slot(idx);
+        self.sessions.release(idx as u32);
+        self.peer_static[idx] = None;
+    }
+
+    /// Idle-timeout sweep (design §4): free handshake slots silent for more
+    /// than T_HS_IDLE_MS, mirroring each release into the session table and
+    /// peer_static, and count the freed slots. Returns the number released.
+    pub fn release_stale_slots(&mut self, now: u64) -> usize {
+        let freed = self.hs.release_stale(now, handshake::T_HS_IDLE_MS);
+        for idx in freed.iter().copied() {
+            self.release_hs_slot(idx);
+        }
+        self.wire.handshake_released_total += freed.len() as u64;
+        freed.len()
+    }
+
     pub fn add_resource(&mut self, canonical: &str) -> Result<(), String> {
         self.resolver
             .add(canonical.as_bytes())
@@ -176,6 +206,12 @@ impl Daemon {
                     Err(e) => return Err(format!("recv_from: {e}")),
                 }
             }
+            // Idle-slot sweep per drain pass (design §4, alongside
+            // poll_control): silent-past-horizon handshake slots are freed
+            // and mirrored out of sessions/peer_static, so the 16-slot wall
+            // becomes physical (live occupancy) instead of clerical
+            // (process-lifetime terminal).
+            self.release_stale_slots(now_ms());
             if self.control.is_some() {
                 self.poll_control()?;
             }
@@ -188,6 +224,9 @@ impl Daemon {
     }
 
     fn poll_control(&mut self) -> Result<(), String> {
+        // Occupancy gauge sampled once per control tick (design §4 step 4);
+        // computed BEFORE the split borrow so it stays a plain copy.
+        let hs_slots_used = self.handshake_slots_used();
         // Split borrows: ControlPlane owns connections; routing mutates the
         // authority state. Destructure so both live at once.
         let Self {
@@ -221,6 +260,7 @@ impl Daemon {
                         wire,
                         ledger_inserts: mem.inserts_total,
                         ledger_storefull: mem.storefull_total,
+                        hs_slots_used,
                         now,
                     },
                 )?;
@@ -561,6 +601,8 @@ struct RouteCtx<'a> {
     wire: &'a WireCounters,
     ledger_inserts: u64,
     ledger_storefull: u64,
+    /// Handshake-table occupancy gauge (design §4 step 4).
+    hs_slots_used: usize,
     now: u64,
 }
 
@@ -629,6 +671,7 @@ fn route_http(conn: &mut Connection, ctx: RouteCtx<'_>) -> Result<(), String> {
                 ctx.wire,
                 ctx.ledger_inserts,
                 ctx.ledger_storefull,
+                ctx.hs_slots_used,
             )
             .into_bytes(),
         ),

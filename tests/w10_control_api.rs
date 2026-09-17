@@ -214,10 +214,11 @@ fn ctrl_api_get_intent_state_pending() {
 }
 
 /// 7. metrics counters verbatim with the control-plane trio from ARGS;
-/// wire-path counters follow (pending-corrections #1) with all 45 classes.
+/// wire-path counters follow (pending-corrections #1) with all 45 classes,
+/// then the slot-release pair (design §4 step 4).
 #[test]
 fn ctrl_api_metrics_verbatim() {
-    let body = metrics_body(2, 7, 1, 0, &WireCounters::new(), 0, 0);
+    let body = metrics_body(2, 7, 1, 0, &WireCounters::new(), 0, 0, 0);
     assert!(
         body.starts_with(
             "bolina_intents_admitted_total 2\nbolina_ctl_requests_total 7\nbolina_ctl_auth_refused_total 1\nbolina_ctl_timeouts_total 0\n"
@@ -225,10 +226,12 @@ fn ctrl_api_metrics_verbatim() {
         "{body}"
     );
     let wire: Vec<&str> = body.lines().skip(4).collect();
-    assert_eq!(wire.len(), 3 + WireRejectClass::COUNT);
+    assert_eq!(wire.len(), 5 + WireRejectClass::COUNT);
     assert_eq!(wire[0], "bolina_wire_admissions_total 0");
     assert_eq!(wire[1], "bolina_ledger_inserts_total 0");
     assert_eq!(wire[2], "bolina_ledger_storefull_total 0");
+    assert_eq!(wire[3], "bolina_handshake_released_total 0");
+    assert_eq!(wire[4], "bolina_handshake_slots_used 0");
 }
 
 /// 8. honest empty SSE at since=cursor (covered in ring tests); here the
