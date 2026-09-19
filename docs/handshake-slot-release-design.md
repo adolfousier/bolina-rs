@@ -1,10 +1,19 @@
 # Handshake slot release: decoupling design (2026-09-15)
 
-**Status:** DECIDED 2026-09-15 (Daniel): enters the next candidate as its
-FIRST item, post-seal; sealed text carries the terminal 16-handshake wall
-flat until then (docs/candidate-seal.md). src/ change → next candidate, per
-§15. Nothing here is wired; the guard landed 2026-09-14 (64bb27b) is what
-keeps the wall loud until this lands.
+**Status:** LANDED 2026-09-17 (`b6f1dd6`), first item of the post-seal
+candidate per the 2026-09-15 decision; owed closeout converged 2026-09-19
+by the bolina-continuity watchdog. Wired as designed in §4: idle sweep per
+drain pass at `T_HS_IDLE_MS = 900_000` (= `T_PENDING_MS`), single
+three-structure release point (hs + sessions + peer_static), `release_stale`
+returns freed indices and zeroizes (D-018), `/metrics` gained
+`handshake_released_total` + `handshake_slots_used`. Verified per §5 rows
+1-3: 4 named tests (fake-clock wall/recycle + boundary, daemon
+three-structure sync, wall-then-recycle e2e), suite 388/0 at landing,
+mutation 69/69 killed / 0 survived / 0 equivalent (log preserved at
+docs/receipts/w12/mutation-slotrelease-20260917.log). §5 row 4 (soak
+acceptance: `--epoch-rounds 20` on target WITHOUT `--allow-handshake-cap`)
+stays OPEN as a target-machine gate. Sealed text keeps the terminal-wall
+statement until the next seal cut; the 2026-09-14 guard (`64bb27b`) stays.
 
 ## 1. Problem (measured, not inferred)
 

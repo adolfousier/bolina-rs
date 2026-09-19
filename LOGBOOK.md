@@ -380,3 +380,30 @@ docs/handshake-slot-release-design.md closed as its input. The sealed text
 statement in the not-covered block, at the same altitude as the 62/62
 caveat, as the seal authority required: guard in the wrapper only, daemon
 uncapped and terminal, visible but final for the process lifetime.
+
+## 2026-09-19 — slot release delivered: mutation 69/69, closeout converged by watchdog
+
+Pending #2, first item of the next candidate per the 2026-09-15 handover,
+landed 2026-09-17 as `b6f1dd6`: idle sweep per drain pass at
+`T_HS_IDLE_MS` (900 s = `T_PENDING_MS`), single three-structure release
+point (hs + sessions + peer_static), `release_stale` returns freed indices
+and zeroizes (D-018), `/metrics` gains `bolina_handshake_released_total` +
+`bolina_handshake_slots_used`. 4 named tests (fake-clock wall/recycle +
+boundary, daemon three-structure sync, wall-then-recycle e2e) and 7 new
+mutation anchors.
+
+Receipts: suite 388/0 and fmt clean at landing; mutation run 69/69 killed,
+0 survived, 0 equivalent (log rescued from /tmp to
+docs/receipts/w12/mutation-slotrelease-20260917.log before the 30-day
+sweep ate it); pre-push re-check 2026-09-19: `cargo fmt --check` exit 0,
+clippy style backlog 36 (was 41 at the G3 receipt, zero of the 36 in
+slice files — drift table, not a gate), `cargo test` green at `b6f1dd6`.
+The 16-handshake terminal wall now recycles on the Rust head. Sealed text
+keeps the wall statement until the next seal cut; §5 row 4 (soak
+acceptance, `--epoch-rounds 20` on target without the cap flag) stays
+open as a target-machine gate.
+
+Process note, in the book: the landing session died between commit and
+delivery; the owed closeout (design-doc status header, this line, push)
+sat two days until the bolina-continuity cron converged it. Zig tree
+untouched and frozen (`96a463a`).
